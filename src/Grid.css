@@ -1,0 +1,8 @@
+.grid {
+    width: 60%;
+    margin: auto;
+    display: grid;
+
+    /* define the number of grid columns */
+    grid-template-columns: repeat(16, 1fr);
+}

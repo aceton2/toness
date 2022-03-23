@@ -1,0 +1,13 @@
+.stepDiv {
+    background-color: aquamarine;
+    color: blueviolet;
+    font-size: 0.5em;
+    padding-left: 0.25em;
+    border: 1px solid blueviolet;
+    height: 20px;
+    cursor: pointer;
+}
+
+.toggled {
+    background-color: coral;
+}
