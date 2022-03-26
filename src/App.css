@@ -1,5 +1,7 @@
 .App {
   margin: 1rem;
-  background-color: ghostwhite;
   padding: 2rem;
+  height: 100px;
+  background-color: #7474e8;
+  color: ghostwhite;
 }

@@ -1,7 +1,13 @@
 .bar {
-    margin-right: 5px;
+    /* margin-right: 5px; */
     display: grid;
 
     /* define the number of grid columns - fixed to 8 for now */
     grid-template-columns: repeat(8, 1fr);
+
+    border-left: 1px solid white;
+}
+
+.bar:last-child {
+    border-right: 1px solid white;
 }

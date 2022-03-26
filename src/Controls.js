@@ -10,8 +10,12 @@ export default class Controls extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.addBar = this.addBar.bind(this);
         this.removeBar = this.removeBar.bind(this);
+        this.clearAll = this.clearAll.bind(this);
+        this.startTransporter = this.startTransporter.bind(this);
+        this.stopTransporter = this.stopTransporter.bind(this);
         this.state = {
-            bpm: 80
+            bpm: 120,
+            mask: false
         }
 
         // Init
@@ -40,17 +44,30 @@ export default class Controls extends React.Component {
         }
     }
 
-    startTransporter() { Toner.start(); }
-    stopTransporter() { Toner.stop(); }
+    clearAll() {
+        Toner.clearAll();
+        this.props.reset();
+    }
+
+    startTransporter() {
+        Toner.start();
+        this.setState({ mask: true });
+    }
+
+    stopTransporter() {
+        Toner.stop();
+        this.setState({ mask: false });
+    }
 
     render() {
         return (
             <div className="controls">
                 <button onClick={this.startTransporter}>start</button>
                 <button onClick={this.stopTransporter}>stop</button>
-                <button onClick={this.removeBar}>remove bar</button>
+                {this.state.mask ? <div className="mask"></div> : ''}
                 <button onClick={this.addBar}>add bar</button>
-                <button onClick={Toner.clearAll}>clear all</button>
+                <button onClick={this.removeBar}>remove bar</button>
+                <button onClick={this.clearAll}>clear all</button>
                 <input
                     type="range"
                     min="30"

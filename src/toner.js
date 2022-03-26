@@ -1,11 +1,7 @@
 import { Oscillator, Transport } from 'tone';
+import * as Tone from 'tone';
 
-// CUSTOM TRIGGERS
-
-function logSteps(time) {
-    const pos = Transport.position.split('.');
-    console.log(pos[0])
-}
+// console.log(Tone);
 
 // INSTRUMENTS
 
@@ -44,7 +40,7 @@ function scheduleI(triggerTime, instrumentId) {
 
 // DEFAULTS
 
-Transport.loop = true
+Transport.loop = true;
 
 // EXPORTS
 
@@ -57,5 +53,6 @@ const toneInterface = {
     setLoopEnd: setLoopEnd,
     clearAll: () => Transport.cancel()
 }
+
 
 export default toneInterface;
