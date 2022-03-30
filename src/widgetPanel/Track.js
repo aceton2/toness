@@ -13,9 +13,15 @@ export default class Track extends React.Component {
 
     render() {
         return (
-            <div className="track">
-                {this.addBars(this.props.bars, this.props.instrumentId)}
+            <div className="instrument">
+                <div className="label">
+                    {this.props.instrumentId}
+                </div>
+                <div className="track">
+                    {this.addBars(this.props.bars, this.props.instrumentId)}
+                </div>
             </div>
+
         )
     }
 }

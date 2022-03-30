@@ -35,7 +35,7 @@ export default class Play extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="container">
                 <div className="player">
                     {this.getMeter()}
                 </div>

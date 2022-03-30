@@ -1,5 +1,5 @@
 import React from 'react';
-import Toner from './toner.js';
+import Toner from '../_services/toner.js';
 import './Controls.css';
 
 
@@ -64,7 +64,7 @@ export default class Controls extends React.Component {
                 <button onClick={this.startTransporter}>start</button>
                 <button onClick={this.stopTransporter}>stop</button>
                 {this.state.mask ? <div className="mask"></div> : ''}
-                <button onClick={this.props.addInstrument}>+</button>
+                <button onClick={this.props.addTrack}>+</button>
                 <button onClick={this.addBar}>add bar</button>
                 <button onClick={this.removeBar}>remove bar</button>
                 <button onClick={this.clearAll}>clear all</button>

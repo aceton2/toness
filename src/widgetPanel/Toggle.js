@@ -1,6 +1,6 @@
 import React from 'react';
 import './Toggle.css';
-import Toner from './toner.js';
+import Toner from '../_services/toner.js';
 
 export default class Toggle extends React.Component {
     constructor(props) {

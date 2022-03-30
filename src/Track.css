@@ -1,6 +1,0 @@
-.track {
-    display: grid;
-
-    /* 4 bar maximum */
-    grid-template-columns: repeat(4, 1fr);
-}

@@ -2,6 +2,10 @@
     --right-position-limit: 50%;
 }
 
+.container {
+    margin-left: var(--track-label-width);
+}
+
 .player {
     position: relative;
     width: 100%;
