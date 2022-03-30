@@ -14,20 +14,24 @@ export default class App extends React.Component {
     }
 
     this.setBars = this.setBars.bind(this);
-    this.reset = this.reset.bind(this);
     this.addTrack = this.addTrack.bind(this);
+    this.removeTrack = this.removeTrack.bind(this);
   }
 
   setBars(bars) {
     this.setState({ bars: bars });
   }
 
-  reset() {
-    this.setState({ bars: 1, tracks: 1 });
+  addTrack() {
+    if (this.state.tracks < 3) {
+      this.setState(prevState => ({ tracks: prevState.tracks + 1 }));
+    }
   }
 
-  addTrack() {
-    this.setState(prevState => ({ tracks: prevState.tracks + 1 }));
+  removeTrack() {
+    if (this.state.tracks > 1) {
+      this.setState(prevState => ({ tracks: prevState.tracks - 1 }));
+    }
   }
 
   render() {
@@ -36,9 +40,9 @@ export default class App extends React.Component {
         <Controls
           addInstrument={this.addInstrument}
           setBars={this.setBars}
-          reset={this.reset}
           bars={this.state.bars}
           addTrack={this.addTrack}
+          removeTrack={this.removeTrack}
         />
         <Widget
           bars={this.state.bars}
