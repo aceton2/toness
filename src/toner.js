@@ -5,15 +5,16 @@ import * as Tone from 'tone';
 
 // INSTRUMENTS
 
-let activeInstrument1 = new Oscillator(330).toDestination();
-let activeInstrument2 = new Oscillator(220).toDestination();
-
-function playActiveInstrument1(time) {
-    return activeInstrument1.start(time).stop(time + 0.1);
+let instruments = {
+    "220": new Oscillator(220).toDestination(),
+    "330": new Oscillator(330).toDestination(),
+    "440": new Oscillator(440).toDestination()
 }
 
-function playActiveInstrument2(time) {
-    return activeInstrument2.start(time).stop(time + 0.1);
+function getPlayInstrumentTrigger(id) {
+    const instrument = instruments[id];
+    const note = id
+    return (time) => instrument.start(time).stop(time + 0.1);
 }
 
 // INTERFACE FUNCTIONS
@@ -31,11 +32,15 @@ function scheduleEvent(triggerTime, triggerFunction) {
 
 
 function scheduleI(triggerTime, instrumentId) {
-    if (instrumentId === "1") {
-        return scheduleEvent(triggerTime, playActiveInstrument1);
-    } else if (instrumentId === "2") {
-        return scheduleEvent(triggerTime, playActiveInstrument2);
+    return scheduleEvent(triggerTime, getPlayInstrumentTrigger(instrumentId));
+}
+
+function getInstruments() {
+    let keys = []
+    for (let key in instruments) {
+        keys.push(key);
     }
+    return keys;
 }
 
 // DEFAULTS
@@ -51,7 +56,8 @@ const toneInterface = {
     scheduleI: scheduleI,
     unschedule: id => Transport.clear(id),
     setLoopEnd: setLoopEnd,
-    clearAll: () => Transport.cancel()
+    clearAll: () => Transport.cancel(),
+    getInstruments: getInstruments
 }
 
 

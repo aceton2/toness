@@ -1,7 +1,32 @@
 .App {
   margin: 1rem;
   padding: 2rem;
-  height: 100px;
+  height: 140px;
   background-color: #7474e8;
   color: ghostwhite;
+}
+
+.widget {
+  display: flex;
+}
+
+.instruments {
+  flex: 0;
+}
+
+.instruments>div {
+  height: 20px;
+  width: 30px;
+  margin: 0.2rem;
+  font-size: 0.7rem;
+  line-height: 20px;
+}
+
+.top {
+  height: 16px !important;
+  margin: 0 !important;
+}
+
+.beats {
+  flex: 1;
 }
