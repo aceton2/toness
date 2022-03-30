@@ -1,6 +1,8 @@
 import React from 'react';
 import './Play.css';
-import { Transport } from 'tone';
+import Toner from '../_services/toner';
+
+const Transport = Toner.getTransport();
 
 export default class Play extends React.Component {
 

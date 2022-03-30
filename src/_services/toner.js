@@ -1,7 +1,4 @@
 import { Oscillator, Transport } from 'tone';
-import * as Tone from 'tone';
-
-// console.log(Tone);
 
 // INSTRUMENTS
 
@@ -13,7 +10,6 @@ let instruments = {
 
 function getPlayInstrumentTrigger(id) {
     const instrument = instruments[id];
-    const note = id
     return (time) => instrument.start(time).stop(time + 0.1);
 }
 
@@ -43,6 +39,11 @@ function getInstruments() {
     return keys;
 }
 
+function clearTransport() {
+    Transport.cancel();
+    Transport.emit('cleared');
+}
+
 // DEFAULTS
 
 Transport.loop = true;
@@ -56,8 +57,9 @@ const toneInterface = {
     scheduleI: scheduleI,
     unschedule: id => Transport.clear(id),
     setLoopEnd: setLoopEnd,
-    clearAll: () => Transport.cancel(),
-    getInstruments: getInstruments
+    clearAll: clearTransport,
+    getInstruments: getInstruments,
+    getTransport: () => (Transport)
 }
 
 

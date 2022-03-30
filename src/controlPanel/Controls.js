@@ -20,6 +20,7 @@ export default class Controls extends React.Component {
 
         Toner.setBpm(this.state.bpm)
         Toner.setLoopEnd(this.props.bars);
+        Toner.clearAll();
     }
 
     handleChange(e) {
@@ -64,10 +65,12 @@ export default class Controls extends React.Component {
                 <button onClick={this.startTransporter}>start</button>
                 <button onClick={this.stopTransporter}>stop</button>
                 {this.state.mask ? <div className="mask"></div> : ''}
-                <button onClick={this.props.addTrack}>+</button>
+                <button onClick={this.props.addTrack}>+T</button>
+                <button onClick={this.props.removeTrack}>-T</button>
+                <button onClick={this.clearAll}>clear all</button>
                 <button onClick={this.addBar}>add bar</button>
                 <button onClick={this.removeBar}>remove bar</button>
-                <button onClick={this.clearAll}>clear all</button>
+
                 <input
                     type="range"
                     min="30"

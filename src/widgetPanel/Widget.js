@@ -9,10 +9,6 @@ let availableInstruments = Toner.getInstruments();
 
 export default class Widget extends React.Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     getLiveTracks() {
         return availableInstruments.slice(0, this.props.tracks)
     }
