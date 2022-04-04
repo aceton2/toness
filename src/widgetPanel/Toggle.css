@@ -1,5 +1,5 @@
 .stepDiv {
-    background-color: aquamarine;
+    background-color: var(--off-color-1);
     margin: 0.1rem;
     height: 20px;
     cursor: pointer;
@@ -7,5 +7,5 @@
 }
 
 .toggled {
-    background-color: coral;
+    background-color: var(--off-color-2);
 }

@@ -1,11 +1,11 @@
-import { Oscillator, Transport } from 'tone';
+import { Oscillator, Transport, Player } from 'tone';
 
 // INSTRUMENTS
 
 let instruments = {
-    "220": new Oscillator(220).toDestination(),
-    "330": new Oscillator(330).toDestination(),
-    "440": new Oscillator(440).toDestination()
+    "drum": new Player('/sounds/drum.mp3').toDestination(),
+    "snare": new Player('/sounds/snare.mp3').toDestination(),
+    "hat": new Player('/sounds/highhat.mp3').toDestination()
 }
 
 function getPlayInstrumentTrigger(id) {
