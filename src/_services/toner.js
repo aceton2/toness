@@ -1,4 +1,4 @@
-import { Transport, Player } from 'tone';
+import { Transport, Player, context, start } from 'tone';
 
 // INSTRUMENTS
 
@@ -61,6 +61,13 @@ function clearTransport() {
     Transport.emit('cleared');
 }
 
+async function startT() {
+    if (context.state !== 'running') {
+        await start();
+    }
+    Transport.start();
+}
+
 // DEFAULTS
 
 Transport.loop = true;
@@ -69,7 +76,7 @@ Transport.loop = true;
 
 const toneInterface = {
     setBpm: val => Transport.bpm.value = val,
-    start: () => Transport.start(),
+    start: () => startT(),
     stop: () => Transport.stop(),
     scheduleI: scheduleI,
     unschedule: id => Transport.clear(id),
