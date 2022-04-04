@@ -34,11 +34,10 @@ export default class Toggle extends React.Component {
 
     render() {
         return (
-            <div className={`
-            stepDiv
-            ${(this.state.eventId === null) ? "" : "toggled"} 
-            `}
-                onClick={this.handleClick}>
+            <div className="stepDiv">
+                <div className={(this.state.eventId === null) ? "free" : "toggled"}
+                    onClick={this.handleClick}>
+                </div>
             </div>
         );
     }

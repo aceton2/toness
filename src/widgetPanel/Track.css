@@ -1,9 +1,11 @@
 .instrument {
     display: flex;
+    height: 60px;
 }
 
 .label {
     width: var(--track-label-width);
+    line-height: 100%;
 }
 
 .track {

@@ -1,6 +1,6 @@
 .header {
   padding: 5px;
-  background-color: var(--panel-color-1);
+  background-color: var(--off-color-2);
 }
 
 .blockingMask {
@@ -29,12 +29,11 @@
   margin: 1rem;
   padding: 2rem;
   height: 140px;
-  background-color: var(--panel-color-1);
   border-radius: 5px;
 }
 
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
   .blockingMask {
     display: table;
   }
