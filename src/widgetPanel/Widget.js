@@ -26,7 +26,10 @@ export default class Widget extends React.Component {
 
     render() {
         return (
-            <div className="widget">
+            <div className={`
+                widget
+                ${this.props.tracks < 1 ? "hidden" : ""}
+            `}>
                 <Guide bars={this.props.bars} />
                 <Play bars={this.props.bars} />
                 {this.getTracks()}

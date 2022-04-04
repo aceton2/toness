@@ -14,7 +14,7 @@
 
 .meter {
     width: 2px;
-    height: 140px;
+    height: 200px;
     background-color: #930bb9;
     animation-name: slideRight;
     animation-iteration-count: infinite;

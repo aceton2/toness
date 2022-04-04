@@ -1,3 +1,7 @@
 :root {
     --track-label-width: 50px;
 }
+
+.hidden {
+    display: none;
+}

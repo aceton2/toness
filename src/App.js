@@ -3,6 +3,8 @@ import './App.css';
 import Controls from './controlPanel/Controls.js';
 import Widget from './widgetPanel/Widget.js';
 
+let total_instruments = 6;
+
 export default class App extends React.Component {
 
   constructor(props) {
@@ -27,7 +29,7 @@ export default class App extends React.Component {
   }
 
   addTrack() {
-    if (this.state.tracks < 3) {
+    if (this.state.tracks < total_instruments) {
       this.setState(prevState => ({
         tracks: prevState.tracks + 1
       }
@@ -46,6 +48,17 @@ export default class App extends React.Component {
     }
   }
 
+  getTracks(type) {
+    if (type == "drum") {
+      return this.state.tracks > 3 ? 3 : this.state.tracks
+    } else if (type == "bass") {
+      return this.state.tracks > 3 ? 1 : 0
+    } else if (type == "chords") {
+      let chordTracks = this.state.tracks - 4;
+      return chordTracks < 1 ? 0 : chordTracks;
+    }
+  }
+
   render() {
     return (
       <div>
@@ -60,7 +73,15 @@ export default class App extends React.Component {
           />
           <Widget
             bars={this.state.bars}
-            tracks={this.state.tracks}
+            tracks={this.getTracks('drum')}
+          />
+          <Widget
+            bars={this.state.bars}
+            tracks={this.getTracks('bass')}
+          />
+          <Widget
+            bars={this.state.bars}
+            tracks={this.getTracks('chords')}
           />
         </div>
       </div>);
