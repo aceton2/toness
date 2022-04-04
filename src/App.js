@@ -72,14 +72,17 @@ export default class App extends React.Component {
             removeTrack={this.removeTrack}
           />
           <Widget
+            type="drum"
             bars={this.state.bars}
             tracks={this.getTracks('drum')}
           />
           <Widget
+            type="bass"
             bars={this.state.bars}
             tracks={this.getTracks('bass')}
           />
           <Widget
+            type="chords"
             bars={this.state.bars}
             tracks={this.getTracks('chords')}
           />

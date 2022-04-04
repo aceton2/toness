@@ -5,3 +5,10 @@
 .hidden {
     display: none;
 }
+
+.titleBar {
+    margin: 1rem 0rem 0.5rem;
+    padding: 5px;
+    background-color: var(--off-color-2);
+    border-radius: 5px;
+}
