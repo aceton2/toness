@@ -1,4 +1,3 @@
-import { getByTitle } from '@testing-library/react';
 import React from 'react';
 import Toner from '../_services/toner';
 import Guide from './Guide.js';
@@ -12,20 +11,20 @@ let titles = {
     chords: "Chords"
 }
 
-let availableInstruments = Toner.getInstruments();
-
 export default class Widget extends React.Component {
 
     getLiveTracks() {
-        return availableInstruments.slice(0, this.props.tracks)
+        return Toner.getInstruments()
+            .slice(0, this.props.tracks)
+            .filter(inst => inst.group === this.props.group);
     }
 
-
     getTracks() {
-        return this.getLiveTracks().map(instrumentId => (
+        return this.getLiveTracks().map(instrument => (
             <Track
-                key={instrumentId}
-                instrumentId={instrumentId}
+                key={instrument.id}
+                name={instrument.name}
+                instrumentId={instrument.id}
                 bars={this.props.bars}
             />
         ));
@@ -35,10 +34,10 @@ export default class Widget extends React.Component {
         return (
             <div className={`
                 widget
-                ${this.props.tracks < 1 ? "hidden" : ""}
+                ${this.getLiveTracks() < 1 ? "hidden" : ""}
             `}>
                 <div className="titleBar">
-                    {titles[this.props.type]}
+                    {titles[this.props.group]}
                 </div>
                 <Guide bars={this.props.bars} />
                 <Play bars={this.props.bars} />

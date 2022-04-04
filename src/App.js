@@ -2,8 +2,7 @@ import React from 'react';
 import './App.css';
 import Controls from './controlPanel/Controls.js';
 import Widget from './widgetPanel/Widget.js';
-
-let total_instruments = 6;
+import Toner from './_services/toner';
 
 export default class App extends React.Component {
 
@@ -23,18 +22,14 @@ export default class App extends React.Component {
   setBars(bars) {
     this.setState({
       bars: bars
-    }
-
-    );
+    });
   }
 
   addTrack() {
-    if (this.state.tracks < total_instruments) {
+    if (this.state.tracks < Toner.getInstruments().length) {
       this.setState(prevState => ({
         tracks: prevState.tracks + 1
-      }
-
-      ));
+      }));
     }
   }
 
@@ -45,17 +40,6 @@ export default class App extends React.Component {
       }
 
       ));
-    }
-  }
-
-  getTracks(type) {
-    if (type == "drum") {
-      return this.state.tracks > 3 ? 3 : this.state.tracks
-    } else if (type == "bass") {
-      return this.state.tracks > 3 ? 1 : 0
-    } else if (type == "chords") {
-      let chordTracks = this.state.tracks - 4;
-      return chordTracks < 1 ? 0 : chordTracks;
     }
   }
 
@@ -72,19 +56,19 @@ export default class App extends React.Component {
             removeTrack={this.removeTrack}
           />
           <Widget
-            type="drum"
+            group="drum"
             bars={this.state.bars}
-            tracks={this.getTracks('drum')}
+            tracks={this.state.tracks}
           />
           <Widget
-            type="bass"
+            group="bass"
             bars={this.state.bars}
-            tracks={this.getTracks('bass')}
+            tracks={this.state.tracks}
           />
           <Widget
-            type="chords"
+            group="chords"
             bars={this.state.bars}
-            tracks={this.getTracks('chords')}
+            tracks={this.state.tracks}
           />
         </div>
       </div>);

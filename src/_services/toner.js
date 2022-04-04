@@ -1,16 +1,42 @@
-import { Oscillator, Transport, Player } from 'tone';
+import { Transport, Player } from 'tone';
 
 // INSTRUMENTS
 
-let instruments = {
-    "drum": new Player('/sounds/drum.mp3').toDestination(),
-    "snare": new Player('/sounds/snare.mp3').toDestination(),
-    "hat": new Player('/sounds/highhat.mp3').toDestination()
+let instrumentsDefn = {
+    drum: {
+        kick: new Player('/sounds/kick70.mp3').toDestination(),
+        snare: new Player('/sounds/snare.mp3').toDestination(),
+        hat: new Player('/sounds/highhat.mp3').toDestination()
+    },
+    bass: {
+        'A2': new Player('/sounds/bass.mp3').toDestination(),
+    },
+    chords: {
+        'F#m': new Player('/sounds/synthF.mp3').toDestination(),
+    }
 }
 
+function createInstrumentsArray() {
+    let iArr = [];
+    let id = 0;
+    for (let group in instrumentsDefn) {
+        for (let name in instrumentsDefn[group]) {
+            iArr.push({
+                id: id++,
+                group: group,
+                name: name,
+                source: instrumentsDefn[group][name]
+            })
+        }
+    }
+    return iArr;
+}
+
+let instruments = createInstrumentsArray();
+
 function getPlayInstrumentTrigger(id) {
-    const instrument = instruments[id];
-    return (time) => instrument.start(time).stop(time + 0.1);
+    const instrument = instruments.find(record => record.id === id).source;
+    return (time) => instrument.start(time).stop(time + 0.6);
 }
 
 // INTERFACE FUNCTIONS
@@ -26,17 +52,8 @@ function scheduleEvent(triggerTime, triggerFunction) {
     }, triggerTime);
 }
 
-
 function scheduleI(triggerTime, instrumentId) {
     return scheduleEvent(triggerTime, getPlayInstrumentTrigger(instrumentId));
-}
-
-function getInstruments() {
-    let keys = []
-    for (let key in instruments) {
-        keys.push(key);
-    }
-    return keys;
 }
 
 function clearTransport() {
@@ -58,8 +75,8 @@ const toneInterface = {
     unschedule: id => Transport.clear(id),
     setLoopEnd: setLoopEnd,
     clearAll: clearTransport,
-    getInstruments: getInstruments,
-    getTransport: () => (Transport)
+    getTransport: () => (Transport),
+    getInstruments: () => (instruments),
 }
 
 
