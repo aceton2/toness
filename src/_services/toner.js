@@ -51,6 +51,11 @@ async function startT() {
     Transport.start();
 }
 
+function stopT() {
+    Transport.emit('step', 'stop');
+    Transport.stop();
+}
+
 // UTILITY
 
 function createInstrumentsArray() {
@@ -72,7 +77,7 @@ function createInstrumentsArray() {
 function addKeyboardListener() {
     document.addEventListener('keydown', e => {
         if (e.key === " ") {
-            (Transport.state === "stopped") ? startT() : Transport.stop();
+            (Transport.state === "stopped") ? startT() : stopT();
         }
     });
 }
@@ -96,7 +101,7 @@ addKeyboardListener();
 const toneInterface = {
     setBpm: val => Transport.bpm.value = val,
     start: () => startT(),
-    stop: () => Transport.stop(),
+    stop: () => stopT(),
     scheduleI: scheduleI,
     unschedule: id => Transport.clear(id),
     setLoopEnd: setLoopEnd,

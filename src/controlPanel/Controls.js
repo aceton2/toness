@@ -71,8 +71,8 @@ export default class Controls extends React.Component {
 
                 <input
                     type="range"
-                    min="30"
-                    max="300"
+                    min="33"
+                    max="330"
                     step="1"
                     value={this.state.bpm}
                     onChange={this.handleChange} />

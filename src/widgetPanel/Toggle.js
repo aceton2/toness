@@ -38,8 +38,9 @@ export default class Toggle extends React.Component {
     lightUp(time) {
         if (this.state.step === false && time === this.props.timeId) {
             this.setState({ step: true });
-        }
-        else if (this.state.step === true && time !== this.props.timeId) {
+        } else if (this.state.step === true && time !== this.props.timeId) {
+            this.setState({ step: false });
+        } else if (time === "stop") {
             this.setState({ step: false });
         }
     }
