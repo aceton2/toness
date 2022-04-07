@@ -1,7 +1,6 @@
 import React from 'react';
 import Toner from '../_services/toner';
 import Guide from './Guide.js';
-import Play from './Play.js';
 import Track from './Track.js';
 import './Widget.css';
 
@@ -40,7 +39,6 @@ export default class Widget extends React.Component {
                     {titles[this.props.group]}
                 </div>
                 <Guide bars={this.props.bars} />
-                <Play bars={this.props.bars} group={this.props.group} />
                 {this.getTracks()}
             </div>
         );

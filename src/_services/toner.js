@@ -1,4 +1,4 @@
-import { Transport, Player, context, start } from 'tone';
+import { Transport, Player, context, start, Loop } from 'tone';
 
 // INSTRUMENTS
 
@@ -47,6 +47,7 @@ async function startT() {
     if (context.state !== 'running') {
         await start();
     }
+    startStepper();
     Transport.start();
 }
 
@@ -70,17 +71,25 @@ function createInstrumentsArray() {
 
 function addKeyboardListener() {
     document.addEventListener('keydown', e => {
-        if (e.key === " ") { Transport.toggle(); }
+        if (e.key === " ") {
+            (Transport.state === "stopped") ? startT() : Transport.stop();
+        }
     });
 }
 
+let stepper;
+function startStepper() {
+    stepper = stepper ? stepper : new Loop(time =>
+        Transport.emit('step', Transport.position.split('.')[0])
+        , "8n");
+    if (stepper.state === 'stopped') stepper.start(0);
+}
 
 // DEFAULT INIT
 
 let instruments = createInstrumentsArray();
 Transport.loop = true;
 addKeyboardListener();
-
 
 // EXPORTS
 

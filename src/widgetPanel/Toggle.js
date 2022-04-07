@@ -8,23 +8,40 @@ let colors = {
     toggled: "var(--off-color-2)"
 }
 
+let Transport = Toner.getTransport();
+
 export default class Toggle extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { eventId: null };
+        this.state = {
+            eventId: null,
+            step: false
+        };
         this.handleClick = this.handleClick.bind(this);
         this.clearEvent = this.clearEvent.bind(this);
         this.getBackground = this.getBackground.bind(this);
+        this.lightUp = this.lightUp.bind(this);
     }
 
     componentDidMount() {
-        Toner.getTransport().on('cleared', this.clearEvent);
+        Transport.on('cleared', this.clearEvent);
+        Transport.on('step', this.lightUp);
     }
 
     componentWillUnmount() {
         if (this.state.eventId) { Toner.unschedule(this.state.eventId); }
-        Toner.getTransport().off('cleared', this.clearEvent);
+        Transport.off('cleared', this.clearEvent);
+        Transport.off('step', this.lightUp);
+    }
+
+    lightUp(time) {
+        if (this.state.step === false && time === this.props.timeId) {
+            this.setState({ step: true });
+        }
+        else if (this.state.step === true && time !== this.props.timeId) {
+            this.setState({ step: false });
+        }
     }
 
     clearEvent() {
@@ -61,7 +78,7 @@ export default class Toggle extends React.Component {
 
     render() {
         return (
-            <div className="stepDiv">
+            <div className="stepDiv" style={{ "opacity": this.state.step ? "1" : "0.7" }}>
                 <div style={this.getBackground()}
                     onClick={this.handleClick}>
                 </div>
