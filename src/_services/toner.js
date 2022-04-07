@@ -16,27 +16,9 @@ let instrumentsDefn = {
     }
 }
 
-function createInstrumentsArray() {
-    let iArr = [];
-    let id = 0;
-    for (let group in instrumentsDefn) {
-        for (let name in instrumentsDefn[group]) {
-            iArr.push({
-                id: id++,
-                group: group,
-                name: name,
-                source: instrumentsDefn[group][name]
-            })
-        }
-    }
-    return iArr;
-}
-
-let instruments = createInstrumentsArray();
-
 function getPlayInstrumentTrigger(id) {
-    const instrument = instruments.find(record => record.id === id).source;
-    return (time) => instrument[0].start(time).stop(time + instrument[1]);
+    const defn = instruments.find(record => record.id === id).source;
+    return (time) => defn[0].start(time).stop(time + defn[1]);
 }
 
 // INTERFACE FUNCTIONS
@@ -68,9 +50,37 @@ async function startT() {
     Transport.start();
 }
 
-// DEFAULTS
+// UTILITY
 
+function createInstrumentsArray() {
+    let iArr = [];
+    let id = 0;
+    for (let group in instrumentsDefn) {
+        for (let name in instrumentsDefn[group]) {
+            iArr.push({
+                id: id++,
+                group: group,
+                name: name,
+                source: instrumentsDefn[group][name]
+            })
+        }
+    }
+    return iArr;
+}
+
+function addKeyboardListener() {
+    document.addEventListener('keydown', e => {
+        if (e.key === " ") { Transport.toggle(); }
+    });
+}
+
+
+// DEFAULT INIT
+
+let instruments = createInstrumentsArray();
 Transport.loop = true;
+addKeyboardListener();
+
 
 // EXPORTS
 
