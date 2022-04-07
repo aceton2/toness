@@ -4,15 +4,15 @@ import { Transport, Player, context, start } from 'tone';
 
 let instrumentsDefn = {
     drum: {
-        kick: new Player('/sounds/kick70.mp3').toDestination(),
-        snare: new Player('/sounds/snare.mp3').toDestination(),
-        hat: new Player('/sounds/highhat.mp3').toDestination()
+        kick: [new Player('/sounds/kick70.mp3').toDestination(), 2],
+        snare: [new Player('/sounds/snare.mp3').toDestination(), 2],
+        hat: [new Player('/sounds/highhat.mp3').toDestination(), 2],
     },
     bass: {
-        'A2': new Player('/sounds/bass.mp3').toDestination(),
+        'A2': [new Player('/sounds/bass.mp3').toDestination(), 2],
     },
     chords: {
-        'F#m': new Player('/sounds/synthF.mp3').toDestination(),
+        'F#m': [new Player('/sounds/synthF.mp3').toDestination(), 0.5],
     }
 }
 
@@ -36,7 +36,7 @@ let instruments = createInstrumentsArray();
 
 function getPlayInstrumentTrigger(id) {
     const instrument = instruments.find(record => record.id === id).source;
-    return (time) => instrument.start(time).stop(time + 0.6);
+    return (time) => instrument[0].start(time).stop(time + instrument[1]);
 }
 
 // INTERFACE FUNCTIONS

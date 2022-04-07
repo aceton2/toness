@@ -7,11 +7,3 @@
     height: 100%;
     border-radius: 2px;
 }
-
-.free {
-    background-color: var(--off-color-1);
-}
-
-.toggled {
-    background-color: var(--off-color-2);
-}

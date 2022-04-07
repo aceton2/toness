@@ -14,12 +14,16 @@
 
 .meter {
     width: 2px;
-    height: 200px;
+    height: 600px;
     background-color: #930bb9;
     animation-name: slideRight;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
     position: absolute;
+}
+
+.hide {
+    display: none;
 }
 
 .bars1 {

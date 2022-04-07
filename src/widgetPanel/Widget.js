@@ -40,7 +40,7 @@ export default class Widget extends React.Component {
                     {titles[this.props.group]}
                 </div>
                 <Guide bars={this.props.bars} />
-                <Play bars={this.props.bars} />
+                <Play bars={this.props.bars} group={this.props.group} />
                 {this.getTracks()}
             </div>
         );

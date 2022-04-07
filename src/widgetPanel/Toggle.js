@@ -2,6 +2,12 @@ import React from 'react';
 import './Toggle.css';
 import Toner from '../_services/toner.js';
 
+let colors = {
+    odd: "var(--off-color-3)",
+    free: "var(--off-color-1)",
+    toggled: "var(--off-color-2)"
+}
+
 export default class Toggle extends React.Component {
 
     constructor(props) {
@@ -9,6 +15,7 @@ export default class Toggle extends React.Component {
         this.state = { eventId: null };
         this.handleClick = this.handleClick.bind(this);
         this.clearEvent = this.clearEvent.bind(this);
+        this.getBackground = this.getBackground.bind(this);
     }
 
     componentDidMount() {
@@ -32,10 +39,30 @@ export default class Toggle extends React.Component {
         this.setState(() => ({ eventId: newEventId }));
     }
 
+    isOdd(id) {
+        return id.split(':')[0] % 2 === 1;
+    }
+
+    isSecondHalf(id) {
+        return id.split(':')[1] > 1;
+    }
+
+    getBackground() {
+        let color = (this.isOdd(this.props.timeId)) ? colors.odd : colors.free;
+
+        if (this.state.eventId != null) {
+            color = colors.toggled;
+        }
+
+        return {
+            "backgroundColor": color,
+        }
+    }
+
     render() {
         return (
             <div className="stepDiv">
-                <div className={(this.state.eventId === null) ? "free" : "toggled"}
+                <div style={this.getBackground()}
                     onClick={this.handleClick}>
                 </div>
             </div>

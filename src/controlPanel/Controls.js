@@ -66,11 +66,10 @@ export default class Controls extends React.Component {
                 <button onClick={this.props.addTrack}>+T</button>
                 <button onClick={this.props.removeTrack}>-T</button>
                 <button onClick={this.clearAll}>clear steps</button>
-                <button onClick={this.addBar} disabled={this.state.mask}>add bar</button>
-                <button onClick={this.removeBar} disabled={this.state.mask}>remove bar</button>
+                <button onClick={this.addBar}>add bar</button>
+                <button onClick={this.removeBar}>remove bar</button>
 
                 <input
-                    disabled={this.state.mask}
                     type="range"
                     min="30"
                     max="300"

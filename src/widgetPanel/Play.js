@@ -29,6 +29,7 @@ export default class Play extends React.Component {
     getMeter() {
         if (this.state.playing) return (<div
             className={`
+            ${this.props.group === "drum" ? "" : "hide"}
             meter
             bars${this.props.bars}`}
             style={{ animationDuration: this.state.duration }}
