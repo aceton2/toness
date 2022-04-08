@@ -11,7 +11,6 @@ const ControlBox = styled.div`
     }
 `;
 
-
 export default class Controls extends React.Component {
 
     constructor(props) {
@@ -20,16 +19,10 @@ export default class Controls extends React.Component {
         this.addBar = this.addBar.bind(this);
         this.removeBar = this.removeBar.bind(this);
         this.clearAll = this.clearAll.bind(this);
-        this.startTransporter = this.startTransporter.bind(this);
-        this.stopTransporter = this.stopTransporter.bind(this);
+        this.toggleTransporter = this.toggleTransporter.bind(this);
         this.state = {
-            bpm: 120,
-            mask: false
+            bpm: Toner.getDefaults().bpm
         }
-
-        Toner.setBpm(this.state.bpm)
-        Toner.setLoopEnd(this.props.bars);
-        Toner.clearAll();
     }
 
     handleChange(e) {
@@ -57,21 +50,15 @@ export default class Controls extends React.Component {
         Toner.clearAll();
     }
 
-    startTransporter() {
-        Toner.start();
-        this.setState({ mask: true });
-    }
-
-    stopTransporter() {
-        Toner.stop();
-        this.setState({ mask: false });
+    toggleTransporter() {
+        Toner.toggle();
+        document.activeElement.blur(); // to avoid cross-canceling with spacebar listener
     }
 
     render() {
         return (
             <ControlBox>
-                <button onClick={this.startTransporter}>start</button>
-                <button onClick={this.stopTransporter}>stop</button>
+                <button onClick={this.toggleTransporter}>start/stop</button>
                 <button onClick={this.props.addTrack}>+T</button>
                 <button onClick={this.props.removeTrack}>-T</button>
                 <button onClick={this.clearAll}>clear steps</button>

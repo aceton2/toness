@@ -18,7 +18,7 @@ const MainFrame = styled.div`
 
 export default function App(props) {
 
-  const [bars, setBars] = useState(2);
+  const [bars, setBars] = useState(Toner.getDefaults().bars);
   const [tracks, setTracks] = useState(1);
 
   function addTrack() {
@@ -44,8 +44,6 @@ export default function App(props) {
       />
     ))
   }
-
-  getWidgets();
 
   return (
     <div>
