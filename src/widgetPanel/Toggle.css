@@ -1,9 +1,0 @@
-.stepDiv {
-    padding: 2px;
-    cursor: pointer;
-}
-
-.stepDiv>div {
-    height: 100%;
-    border-radius: 2px;
-}

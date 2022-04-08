@@ -1,8 +1,0 @@
-.guide {
-    display: grid;
-    grid-template-columns: repeat(32, 1fr);
-    text-align: center;
-    font-size: 0.7rem;
-    line-height: 1rem;
-    margin-left: var(--track-label-width);
-}

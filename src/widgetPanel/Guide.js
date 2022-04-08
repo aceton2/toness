@@ -1,5 +1,13 @@
-import React from 'react';
-import './Guide.css';
+import styled from 'styled-components';
+
+const GuideBox = styled.div`
+    display: grid;
+    grid-template-columns: repeat(32, 1fr);
+    text-align: center;
+    font-size: 0.7rem;
+    line-height: 1rem;
+    margin-left: var(--track-label-width);
+`
 
 function generateGuides(barNum, resolutionPerBar = 8) {
     return Array(barNum * resolutionPerBar).fill(null).map((e, index) => {
@@ -16,13 +24,10 @@ function generateGuides(barNum, resolutionPerBar = 8) {
     )
 }
 
-
-export default class Guide extends React.Component {
-    render() {
-        return (<div className="guide"> {
-            generateGuides(this.props.bars)
-        }
-
-        </div>);
-    }
+export default function Guide(props) {
+    return (
+        <GuideBox>
+            {generateGuides(props.bars)}
+        </GuideBox>
+    );
 }

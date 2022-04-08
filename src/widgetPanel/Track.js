@@ -1,27 +1,38 @@
-import React from 'react';
-import './Track.css';
+import styled from 'styled-components';
 import Bar from './Bar';
 
+const Instrument = styled.div`
+    display: flex;
+    height: 60px;
+`;
 
-export default class Track extends React.Component {
+const Label = styled.div`
+    width: var(--track-label-width);
+    line-height: 100%;
+`;
 
-    addBars(bars, instrumentId) {
-        return Array(bars).fill(null).map((b, i) => (
-            <Bar key={i.toString()} barNum={i.toString()} instrumentId={instrumentId} />
+const TrackBox = styled.div`
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+`;
+
+export default function Track(props) {
+
+    function addBars() {
+        return Array(props.bars).fill(null).map((b, i) => (
+            <Bar key={i.toString()} barNum={i.toString()} instrumentId={props.instrumentId} />
         ))
     }
 
-    render() {
-        return (
-            <div className="instrument">
-                <div className="label">
-                    {this.props.name}
-                </div>
-                <div className="track">
-                    {this.addBars(this.props.bars, this.props.instrumentId)}
-                </div>
-            </div>
-
-        )
-    }
+    return (
+        <Instrument>
+            <Label>
+                {props.name}
+            </Label>
+            <TrackBox>
+                {addBars()}
+            </TrackBox>
+        </Instrument>
+    )
 }

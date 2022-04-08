@@ -1,6 +1,15 @@
 import React from 'react';
+import styled from 'styled-components';
 import Toner from '../_services/toner.js';
-import './Controls.css';
+
+const ControlBox = styled.div`
+    margin-bottom: 1rem;
+    position: relative;
+
+    button {
+        margin-right: 0.5rem;
+    }
+`;
 
 
 export default class Controls extends React.Component {
@@ -60,7 +69,7 @@ export default class Controls extends React.Component {
 
     render() {
         return (
-            <div className="controls">
+            <ControlBox>
                 <button onClick={this.startTransporter}>start</button>
                 <button onClick={this.stopTransporter}>stop</button>
                 <button onClick={this.props.addTrack}>+T</button>
@@ -77,7 +86,7 @@ export default class Controls extends React.Component {
                     value={this.state.bpm}
                     onChange={this.handleChange} />
                 {this.state.bpm}
-            </div>
+            </ControlBox>
         );
     }
 }

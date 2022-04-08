@@ -1,6 +1,11 @@
-import React from 'react';
 import Toggle from './Toggle';
-import './Bar.css';
+import styled from 'styled-components';
+
+/* define the number of grid columns - fixed to 8 for now */
+const BarBox = styled.div`
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+`;
 
 const sixteenths = {
     "8n": ["0", "2"],
@@ -21,13 +26,10 @@ function generateSlots(barNum, resolution = "8n") {
     return slots
 }
 
-export default class Controls extends React.Component {
-
-    render() {
-        return (
-            <div className="bar">
-                {generateGrid(this.props.instrumentId, this.props.barNum)}
-            </div>
-        )
-    }
+export default function Bar(props) {
+    return (
+        <BarBox>
+            {generateGrid(props.instrumentId, props.barNum)}
+        </BarBox>
+    );
 }

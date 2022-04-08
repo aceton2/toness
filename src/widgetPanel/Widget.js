@@ -1,8 +1,7 @@
-import React from 'react';
+import styled from 'styled-components';
 import Toner from '../_services/toner';
 import Guide from './Guide.js';
 import Track from './Track.js';
-import './Widget.css';
 
 let titles = {
     drum: "Drums",
@@ -10,37 +9,48 @@ let titles = {
     chords: "Chords"
 }
 
-export default class Widget extends React.Component {
+const WidgetBox = styled.div`
+    --track-label-width: 50px;
 
-    getLiveTracks() {
+    &.hidden {
+        display: none;
+    }
+`;
+
+const TitleBar = styled.div`
+    margin: 1rem 0rem 0.5rem;
+    padding: 5px;
+    background-color: var(--off-color-2);
+    border-radius: 5px;
+`;
+
+export default function Widget(props) {
+
+    function getLiveSounds() {
         return Toner.getInstruments()
-            .slice(0, this.props.tracks)
-            .filter(inst => inst.group === this.props.group);
+            .slice(0, props.tracks)
+            .filter(inst => inst.group === props.group);
     }
 
-    getTracks() {
-        return this.getLiveTracks().map(instrument => (
+    function getTracks() {
+        return getLiveSounds().map(sound => (
             <Track
-                key={instrument.id}
-                name={instrument.name}
-                instrumentId={instrument.id}
-                bars={this.props.bars}
+                key={sound.id}
+                name={sound.name}
+                instrumentId={sound.id}
+                bars={props.bars}
             />
         ));
     }
 
-    render() {
-        return (
-            <div className={`
-                widget
-                ${this.getLiveTracks() < 1 ? "hidden" : ""}
-            `}>
-                <div className="titleBar">
-                    {titles[this.props.group]}
-                </div>
-                <Guide bars={this.props.bars} />
-                {this.getTracks()}
-            </div>
-        );
-    }
+    return (
+        <WidgetBox
+            className={getLiveSounds() < 1 ? "hidden" : ""}>
+            <TitleBar>
+                {titles[props.group]}
+            </TitleBar>
+            <Guide bars={props.bars} />
+            {getTracks()}
+        </WidgetBox>
+    );
 }

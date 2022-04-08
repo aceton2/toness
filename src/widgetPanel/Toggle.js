@@ -1,5 +1,5 @@
 import React from 'react';
-import './Toggle.css';
+import styled from 'styled-components';
 import Toner from '../_services/toner.js';
 
 let colors = {
@@ -7,6 +7,16 @@ let colors = {
     free: "var(--off-color-1)",
     toggled: "var(--off-color-2)"
 }
+
+const StepDiv = styled.div`
+    padding: 2px;
+    cursor: pointer;
+    
+    div {
+        height: 100%;
+        border-radius: 2px;
+    }
+`
 
 let Transport = Toner.getTransport();
 
@@ -79,11 +89,11 @@ export default class Toggle extends React.Component {
 
     render() {
         return (
-            <div className="stepDiv" style={{ "opacity": this.state.step ? "1" : "0.7" }}>
+            <StepDiv style={{ "opacity": this.state.step ? "1" : "0.7" }}>
                 <div style={this.getBackground()}
                     onClick={this.handleClick}>
                 </div>
-            </div>
+            </StepDiv>
         );
     }
 }
