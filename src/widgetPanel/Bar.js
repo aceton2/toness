@@ -14,7 +14,11 @@ const sixteenths = {
 
 function generateGrid(instrumentId, barNum) {
     return generateSlots(barNum).map((slot, i) => {
-        return <Toggle key={i.toString()} timeId={slot} instrumentId={instrumentId} oddBar={barNum % 2 === 1} />
+        return <Toggle
+            key={i.toString()}
+            timeId={slot}
+            instrumentId={instrumentId}
+        />
     })
 }
 

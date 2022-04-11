@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Toner from '../_services/toner.js';
 
@@ -20,80 +20,56 @@ const StepDiv = styled.div`
 
 let Transport = Toner.getTransport();
 
-export default class Toggle extends React.Component {
+export default function Toggle(props) {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            eventId: null,
-            step: false
-        };
-        this.handleClick = this.handleClick.bind(this);
-        this.clearEvent = this.clearEvent.bind(this);
-        this.getBackground = this.getBackground.bind(this);
-        this.lightUp = this.lightUp.bind(this);
+    const [eventId, setEventId] = useState(null);
+    const [activeStep, setActiveStep] = useState(false);
+
+    useEffect(() => {
+        Transport.on('step', lightUp);
+        Transport.on('cleared', clearEvent);
+        return cleanUp
+    }, []);
+
+    function cleanUp() {
+        if (eventId) { Toner.unschedule(eventId); }
+        Transport.off('cleared', clearEvent);
+        Transport.off('step', lightUp);
     }
 
-    componentDidMount() {
-        Transport.on('cleared', this.clearEvent);
-        Transport.on('step', this.lightUp);
+    function lightUp(step) {
+        setActiveStep(step === props.timeId);
     }
 
-    componentWillUnmount() {
-        if (this.state.eventId) { Toner.unschedule(this.state.eventId); }
-        Transport.off('cleared', this.clearEvent);
-        Transport.off('step', this.lightUp);
+    function clearEvent() {
+        setEventId(null);
     }
 
-    lightUp(time) {
-        if (this.state.step === false && time === this.props.timeId) {
-            this.setState({ step: true });
-        } else if (this.state.step === true && time !== this.props.timeId) {
-            this.setState({ step: false });
-        } else if (time === "stop") {
-            this.setState({ step: false });
-        }
-    }
-
-    clearEvent() {
-        this.setState({ eventId: null })
-    }
-
-    handleClick() {
+    function handleClick() {
         let newEventId = null;
-        (this.state.eventId === null) ?
-            newEventId = Toner.scheduleI(this.props.timeId, this.props.instrumentId) :
-            Toner.unschedule(this.state.eventId);
-        this.setState(() => ({ eventId: newEventId }));
+        (eventId === null) ?
+            newEventId = Toner.scheduleI(props.timeId, props.instrumentId) :
+            Toner.unschedule(eventId);
+        setEventId(newEventId);
     }
 
-    isOdd(id) {
+    function isOdd(id) {
         return id.split(':')[0] % 2 === 1;
     }
 
-    isSecondHalf(id) {
-        return id.split(':')[1] > 1;
+    function getBackground() {
+        let color = (isOdd(props.timeId)) ? colors.odd : colors.free;
+
+        if (eventId != null) { color = colors.toggled; }
+
+        return { "backgroundColor": color, }
     }
 
-    getBackground() {
-        let color = (this.isOdd(this.props.timeId)) ? colors.odd : colors.free;
-
-        if (this.state.eventId != null) {
-            color = colors.toggled;
-        }
-
-        return {
-            "backgroundColor": color,
-        }
-    }
-
-    render() {
-        return (
-            <StepDiv style={{ "opacity": this.state.step ? "1" : "0.7" }}>
-                <div style={this.getBackground()}
-                    onClick={this.handleClick}>
-                </div>
-            </StepDiv>
-        );
-    }
+    return (
+        <StepDiv style={{ "opacity": activeStep ? "1" : "0.7" }}>
+            <div style={getBackground()}
+                onClick={handleClick}>
+            </div>
+        </StepDiv>
+    );
 }
