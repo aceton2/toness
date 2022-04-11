@@ -1,13 +1,8 @@
 import { Transport, Player, context, start, Loop } from 'tone';
 
+// INSTRUMENTS
+
 let instruments; // available instruments will be filled here.
-
-// CONFIG
-
-const defaults = {
-    bpm: 120,
-    bars: 2
-};
 
 const instrumentsDefn = {
     drum: {
@@ -21,58 +16,6 @@ const instrumentsDefn = {
     chords: {
         'F#m': [new Player('/sounds/synthF.mp3').toDestination(), 0.5],
     }
-}
-
-// PLAY FUNCTIONS
-
-function getPlayInstrumentTrigger(id) {
-    const defn = instruments.find(record => record.id === id).source;
-    return (time) => defn[0].start(time).stop(time + defn[1]);
-}
-
-// INTERFACE FUNCTIONS
-
-function setLoopEnd(bar) {
-    Transport.setLoopPoints("0:0:0", `${bar}:0:0`);
-    Transport.cancel(`${bar}:0:0`);
-}
-
-function scheduleEvent(triggerTime, triggerFunction) {
-    return Transport.schedule((time) => {
-        triggerFunction(time);
-    }, triggerTime);
-}
-
-function scheduleI(triggerTime, instrumentId) {
-    return scheduleEvent(triggerTime, getPlayInstrumentTrigger(instrumentId));
-}
-
-function clearTransport() {
-    Transport.cancel();
-    Transport.emit('cleared');
-}
-
-function toggle() {
-    (Transport.state === "stopped") ? startT() : stopT();
-}
-
-function setBpm(val) {
-    Transport.bpm.value = val;
-}
-
-// UTILITY
-
-async function startT() {
-    if (context.state !== 'running') {
-        await start();
-    }
-    startStepper();
-    Transport.start();
-}
-
-function stopT() {
-    Transport.emit('step', 'stop');
-    Transport.stop();
 }
 
 function createInstrumentsArray() {
@@ -91,6 +34,50 @@ function createInstrumentsArray() {
     return iArr;
 }
 
+
+function getPlayInstrumentTrigger(id) {
+    const defn = instruments.find(record => record.id === id).source;
+    return (time) => defn[0].start(time).stop(time + defn[1]);
+}
+
+// SCHEDULING 
+
+function scheduleEvent(triggerTime, triggerFunction) {
+    return Transport.schedule((time) => {
+        triggerFunction(time);
+    }, triggerTime);
+}
+
+function scheduleI(triggerTime, instrumentId) {
+    return scheduleEvent(triggerTime, getPlayInstrumentTrigger(instrumentId));
+}
+
+function clearTransport() {
+    Transport.cancel();
+    Transport.emit('cleared');
+    stepper = null;
+    startStepper();
+}
+
+// START/STOP
+
+function toggle() {
+    (Transport.state === "stopped") ? startT() : stopT();
+}
+
+async function startT() {
+    if (context.state !== 'running') {
+        await start();
+    }
+    startStepper();
+    Transport.start();
+}
+
+function stopT() {
+    Transport.emit('step', 'stop');
+    Transport.stop();
+}
+
 function addKeyboardListener() {
     document.addEventListener('keydown', e => {
         if (e.key === " ") {
@@ -107,14 +94,12 @@ function startStepper() {
     if (stepper.state === 'stopped') stepper.start(0);
 }
 
+
 // DEFAULT INIT
 
 function runInit() {
     instruments = createInstrumentsArray();
-    Transport.loop = true;
     addKeyboardListener();
-    setBpm(defaults.bpm)
-    setLoopEnd(defaults.bars);
     clearTransport();
 }
 
@@ -123,15 +108,10 @@ runInit();
 // EXPORTS
 
 const tonerIFace = {
-    setBpm: val => setBpm(val),
-    toggle: () => toggle(),
     scheduleI: scheduleI,
-    unschedule: id => Transport.clear(id),
-    setLoopEnd: setLoopEnd,
-    clearAll: clearTransport,
-    getTransport: () => (Transport),
     getInstruments: () => (instruments),
-    getDefaults: () => (defaults)
+    toggle: () => toggle(),
+    clearAll: clearTransport
 };
 
 export default tonerIFace;

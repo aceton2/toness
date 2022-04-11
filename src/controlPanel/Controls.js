@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import Toner from '../_services/toner.js';
+import Sequencer from '../_services/sequencer';
+import Toner from '../_services/toner';
 
 const ControlBox = styled.div`
     margin-bottom: 1rem;
@@ -13,26 +14,22 @@ const ControlBox = styled.div`
 
 export default function Controls(props) {
 
-    const [bpm, setBpm] = useState(Toner.getDefaults().bpm);
+    const [bpm, setBpm] = useState(Sequencer.getBpm());
 
     function handleChange(e) {
         setBpm(e.target.value)
-        Toner.setBpm(e.target.value)
+        Sequencer.setBpm(e.target.value)
     }
 
     function addBar() {
-        let newBars = props.bars + 1;
-        if (newBars < 5) {
-            props.setBars(newBars);
-            Toner.setLoopEnd(newBars);
+        if (Sequencer.addBar()) {
+            props.updateSlots();
         }
     }
 
     function removeBar() {
-        let newBars = props.bars - 1;
-        if (newBars > 0) {
-            props.setBars(newBars);
-            Toner.setLoopEnd(newBars);
+        if (Sequencer.removeBar()) {
+            props.updateSlots();
         }
     }
 

@@ -4,6 +4,7 @@ import Controls from './controlPanel/Controls';
 import Widget from './widgetPanel/Widget';
 import Mask from './auxComps/Mask';
 import Toner from './_services/toner';
+import Sequencer from './_services/sequencer';
 
 const Header = styled.div`
   padding: 5px;
@@ -16,10 +17,10 @@ const MainFrame = styled.div`
   border-radius: 5px; 
 `;
 
-export default function App(props) {
+export default function App() {
 
-  const [bars, setBars] = useState(Toner.getDefaults().bars);
   const [tracks, setTracks] = useState(1);
+  const [slots, setSlots] = useState(Sequencer.getSlots())
 
   function addTrack() {
     if (tracks < Toner.getInstruments().length) {
@@ -39,23 +40,25 @@ export default function App(props) {
       <Widget
         key={group}
         group={group}
-        bars={bars}
         tracks={tracks}
+        slots={slots}
       />
     ))
   }
 
+  function updateSlots() {
+    setSlots(Sequencer.getSlots())
+  }
+
   return (
     <div>
-
       <Header> Simple Sequencer for the Kids </Header>
       <Mask />
       <MainFrame>
         <Controls
-          setBars={setBars}
-          bars={bars}
           addTrack={addTrack}
           removeTrack={removeTrack}
+          updateSlots={updateSlots}
         />
         {getWidgets()}
       </MainFrame>

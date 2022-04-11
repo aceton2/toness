@@ -7,27 +7,33 @@ const GuideBox = styled.div`
     font-size: 0.7rem;
     line-height: 1rem;
     margin-left: var(--track-label-width);
+
+    & > div.highlight {
+        border-radius: 5px;
+        background-color: var(--off-color-2);
+        opacity: 0.7;
+    }
 `
 
-function generateGuides(barNum, resolutionPerBar = 8) {
-    return Array(barNum * resolutionPerBar).fill(null).map((e, index) => {
-        return <div key={index} className={`
-            ${(index % resolutionPerBar === 0) ? "downbeat" : ""}
-            ${(index % resolutionPerBar === resolutionPerBar / 2) ? "backbeat" : ""}
-            `
-        }
-        >
-            {(index % 2 === 1) ? '+' : (index % resolutionPerBar) / 2 + 1}
-        </div>
+export default function Guide(props) {
+
+    function generateGuides() {
+        return props.slots.map(slot => {
+            return <div
+                key={slot.id}
+                className={(slot.id === props.activeStep) ? "highlight" : ""}>
+                {slotToGuideName(slot.id)}
+            </div>
+        })
     }
 
-    )
-}
+    function slotToGuideName(slot) {
+        return slot.split(':')[2] === '2' ? '+' : Number(slot.slice(2)[0]) + 1
+    }
 
-export default function Guide(props) {
     return (
         <GuideBox>
-            {generateGuides(props.bars)}
+            {generateGuides()}
         </GuideBox>
     );
 }

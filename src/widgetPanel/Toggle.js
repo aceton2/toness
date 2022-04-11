@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import Toner from '../_services/toner.js';
+import Sequencer from '../_services/sequencer';
 
 let colors = {
     odd: "var(--off-color-3)",
@@ -18,27 +18,24 @@ const StepDiv = styled.div`
     }
 `
 
-let Transport = Toner.getTransport();
-
 export default function Toggle(props) {
 
-    const [eventId, setEventId] = useState(null);
-    const [activeStep, setActiveStep] = useState(false);
+    const [eventId, _setEventId] = useState(null);
+    const eventIdRef = useRef(eventId);
+
+    const setEventId = (val) => {
+        _setEventId(val);
+        eventIdRef.current = val;
+    }
 
     useEffect(() => {
-        Transport.on('step', lightUp);
-        Transport.on('cleared', clearEvent);
+        Sequencer.transport().on('cleared', clearEvent);
         return cleanUp
     }, []);
 
     function cleanUp() {
-        if (eventId) { Toner.unschedule(eventId); }
-        Transport.off('cleared', clearEvent);
-        Transport.off('step', lightUp);
-    }
-
-    function lightUp(step) {
-        setActiveStep(step === props.timeId);
+        if (eventIdRef.current) { Sequencer.unschedule(eventIdRef.current); }
+        Sequencer.transport().off('cleared', clearEvent);
     }
 
     function clearEvent() {
@@ -48,8 +45,8 @@ export default function Toggle(props) {
     function handleClick() {
         let newEventId = null;
         (eventId === null) ?
-            newEventId = Toner.scheduleI(props.timeId, props.instrumentId) :
-            Toner.unschedule(eventId);
+            newEventId = Sequencer.schedule(props.timeId, props.instrumentId) :
+            Sequencer.unschedule(eventId);
         setEventId(newEventId);
     }
 
@@ -66,7 +63,7 @@ export default function Toggle(props) {
     }
 
     return (
-        <StepDiv style={{ "opacity": activeStep ? "1" : "0.7" }}>
+        <StepDiv style={{ "opacity": props.isActive ? "1" : "0.7" }}>
             <div style={getBackground()}
                 onClick={handleClick}>
             </div>
