@@ -1,10 +1,21 @@
 import { Transport, Player, context, start, Loop } from 'tone';
 
+export interface SoundCfg {
+    id: number,
+    group: string,
+    name: string,
+    source: [any, number]
+}
+
+// STEPPER
+
+let stepper: Loop | null;
+
 // INSTRUMENTS
 
-let instruments; // available instruments will be filled here.
+let instruments: Array<SoundCfg> = [];
 
-const instrumentsDefn = {
+const instrumentsDefn: { [Key: string]: any } = {
     drum: {
         kick: [new Player('/sounds/kick70.mp3').toDestination(), 2],
         snare: [new Player('/sounds/snare.mp3').toDestination(), 2],
@@ -18,12 +29,11 @@ const instrumentsDefn = {
     }
 }
 
-function createInstrumentsArray() {
-    let iArr = [];
+function fillInstrumentsArray(): void {
     let id = 0;
     for (let group in instrumentsDefn) {
         for (let name in instrumentsDefn[group]) {
-            iArr.push({
+            instruments.push({
                 id: id++,
                 group: group,
                 name: name,
@@ -31,24 +41,23 @@ function createInstrumentsArray() {
             })
         }
     }
-    return iArr;
 }
 
 
-function getPlayInstrumentTrigger(id) {
-    const defn = instruments.find(record => record.id === id).source;
-    return (time) => defn[0].start(time).stop(time + defn[1]);
+function getPlayInstrumentTrigger(id: number): (arg0: number) => void {
+    const defn = instruments.filter((sound: SoundCfg) => sound.id === id)[0].source;
+    return time => defn[0].start(time).stop(time + defn[1]);
 }
 
 // SCHEDULING 
 
-function scheduleEvent(triggerTime, triggerFunction) {
+function scheduleEvent(triggerTime: string, triggerFunction: (arg0: number) => void): number {
     return Transport.schedule((time) => {
         triggerFunction(time);
     }, triggerTime);
 }
 
-function scheduleI(triggerTime, instrumentId) {
+function scheduleI(triggerTime: string, instrumentId: number): number {
     return scheduleEvent(triggerTime, getPlayInstrumentTrigger(instrumentId));
 }
 
@@ -61,7 +70,7 @@ function clearTransport() {
 
 // START/STOP
 
-function toggle() {
+function toggle(): void {
     (Transport.state === "stopped") ? startT() : stopT();
 }
 
@@ -86,9 +95,9 @@ function addKeyboardListener() {
     });
 }
 
-let stepper;
 function startStepper() {
     stepper = stepper ? stepper : new Loop(time =>
+        // @ts-ignore
         Transport.emit('step', Transport.position.split('.')[0])
         , "8n");
     if (stepper.state === 'stopped') stepper.start(0);
@@ -98,7 +107,7 @@ function startStepper() {
 // DEFAULT INIT
 
 function runInit() {
-    instruments = createInstrumentsArray();
+    fillInstrumentsArray();
     addKeyboardListener();
     clearTransport();
 }
@@ -109,8 +118,8 @@ runInit();
 
 const tonerIFace = {
     scheduleI: scheduleI,
-    getInstruments: () => (instruments),
-    toggle: () => toggle(),
+    getInstruments: (): Array<SoundCfg> => (instruments),
+    toggle: toggle,
     clearAll: clearTransport
 };
 

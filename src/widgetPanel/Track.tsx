@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import Toggle from './Toggle';
+import { Slot } from '../_services/sequencer';
 
 const TrackWithLabel = styled.div`
     display: flex;
@@ -24,8 +25,8 @@ const Bar = styled.div`
 
 interface TrackProps {
     name: string;
-    slots: Array<{ bar: number, id: string }>;
-    instrumentId: string;
+    slots: Array<Slot>;
+    instrumentId: number;
     activeStep: string;
 }
 

@@ -1,8 +1,19 @@
 import { Transport } from 'tone';
 import Toner from './toner';
 
-let sequencerSlots;
-let scheduledEvents = [];
+export interface Slot {
+    bar: number,
+    id: string
+}
+
+interface ScheduledEvent {
+    timeId: string,
+    instrumentId: number,
+    eventId?: number
+}
+
+let sequencerSlots: Array<Slot>;
+let scheduledEvents: Array<ScheduledEvent> = [];
 
 let cfg = {
     maxBars: 4,
@@ -12,13 +23,14 @@ let cfg = {
     resolution: "8n"
 };
 
-const sixteenths = {
+
+const sixteenths: { [key: string]: Array<string> } = {
     "8n": ["0", "2"],
     "16n": ["0", "1", "2", "3"]
 }
 
-function generateSlots(barNum) {
-    const slots = [];
+function generateSlots(barNum: number): Array<Slot> {
+    const slots: Array<Slot> = [];
     ["0", "1", "2", "3"].forEach(quarterNum => {
         sixteenths[cfg.resolution].forEach(sixNum =>
             slots.push({
@@ -30,23 +42,23 @@ function generateSlots(barNum) {
     return slots
 }
 
-function setSlots(bars) {
-    let slots = []
+function setSlots(bars: number) {
+    let slots: Array<Slot> = [];
     Array(bars).fill(null).forEach((e, index) => {
         slots = [...slots, ...generateSlots(index)]
     });
     sequencerSlots = slots;
 }
 
-function getSlots(barNum = -1) {
+function getSlots(barNum = -1): Array<Slot> {
     return barNum === -1 ? sequencerSlots : sequencerSlots.filter(slots => slots.bar === barNum);
 }
 
-function getActiveBarCount() {
+function getActiveBarCount(): number {
     return sequencerSlots.map(slots => slots.bar).reduce((i, a) => (i > a) ? i : a) + 1;
 }
 
-function addBar() {
+function addBar(): boolean {
     const newBars = getActiveBarCount() + 1;
     if (newBars <= cfg.maxBars) {
         setSlots(newBars);
@@ -55,7 +67,7 @@ function addBar() {
     } else return false;
 }
 
-function removeBar() {
+function removeBar(): boolean {
     const newBars = getActiveBarCount() - 1;
     if (newBars >= cfg.minBars) {
         setSlots(newBars);
@@ -64,24 +76,19 @@ function removeBar() {
     } else return false;
 }
 
-function setLoopEnd(bar) {
+function setLoopEnd(bar: number): void {
     Transport.setLoopPoints("0:0:0", `${bar}:0:0`);
     Transport.cancel(`${bar}:0:0`);
 }
 
 
-function setBpm(val) {
+function setBpm(val: number): void {
     Transport.bpm.value = val;
 }
 
-function init() {
-    setSlots(cfg.bars);
-    setLoopEnd(cfg.bars);
-    setBpm(cfg.bpm);
-    Transport.loop = true;
-}
+// SCHEDULE
 
-function schedule(timeId, instrumentId) {
+function schedule(timeId: string, instrumentId: number): number {
     let eventId = Toner.scheduleI(timeId, instrumentId);
     scheduledEvents.push({
         timeId: timeId,
@@ -91,9 +98,18 @@ function schedule(timeId, instrumentId) {
     return eventId;
 }
 
-function unschedule(eventId) {
+function unschedule(eventId: number): void {
     scheduledEvents = scheduledEvents.filter(rec => rec.eventId !== eventId);
     Transport.clear(eventId);
+}
+
+// INIT
+
+function init() {
+    setSlots(cfg.bars);
+    setLoopEnd(cfg.bars);
+    setBpm(cfg.bpm);
+    Transport.loop = true;
 }
 
 init();
@@ -103,7 +119,7 @@ const seqFace = {
     addBar: addBar,
     removeBar: removeBar,
     setBpm: setBpm,
-    getBpm: () => Transport.bpm.value,
+    getBpm: (): number => Transport.bpm.value,
     transport: () => (Transport),
     schedule: schedule,
     unschedule: unschedule

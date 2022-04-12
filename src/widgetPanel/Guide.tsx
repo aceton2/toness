@@ -1,3 +1,4 @@
+import { Slot } from '../_services/sequencer';
 import styled from 'styled-components';
 
 const GuideBox = styled.div`
@@ -15,7 +16,7 @@ const GuideBox = styled.div`
     }
 `
 
-export default function Guide(props: { activeStep: string, slots: Array<any> }) {
+export default function Guide(props: { activeStep: string, slots: Array<Slot> }) {
 
     function generateGuides() {
         return props.slots.map(slot => {

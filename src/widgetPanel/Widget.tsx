@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Toner from '../_services/toner';
-import Sequencer from '../_services/sequencer';
+import Sequencer, { Slot } from '../_services/sequencer';
 import Guide from './Guide';
 import Track from './Track';
 
@@ -26,7 +26,7 @@ const TitleBar = styled.div`
     border-radius: 5px;
 `;
 
-export default function Widget(props: { group: string, tracks: number, slots: Array<any> }) {
+export default function Widget(props: { group: string, tracks: number, slots: Array<Slot> }) {
 
     const [activeStep, setActiveStep] = useState('');
 
@@ -44,12 +44,10 @@ export default function Widget(props: { group: string, tracks: number, slots: Ar
     function getLiveSounds() {
         return Toner.getInstruments()
             .slice(0, props.tracks)
-            // @ts-ignore
             .filter(inst => inst.group === props.group);
     }
 
     function getTracks() {
-        // @ts-ignore
         return getLiveSounds().map((sound) => (
             <Track
                 key={sound.id}
@@ -63,7 +61,7 @@ export default function Widget(props: { group: string, tracks: number, slots: Ar
 
     return (
         <WidgetBox
-            className={getLiveSounds() < 1 ? "hidden" : ""}>
+            className={getLiveSounds().length < 1 ? "hidden" : ""}>
             <TitleBar>
                 {titles[props.group]}
             </TitleBar>

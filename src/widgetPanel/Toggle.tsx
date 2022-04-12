@@ -18,7 +18,13 @@ const StepDiv = styled.div`
     }
 `
 
-export default function Toggle(props: { isActive: boolean, timeId: string, instrumentId: string }) {
+interface ToggleProps {
+    isActive: boolean,
+    timeId: string,
+    instrumentId: number
+}
+
+export default function Toggle(props: ToggleProps) {
 
     const [eventId, _setEventId] = useState<null | number>(null);
     const eventIdRef = useRef(eventId);
