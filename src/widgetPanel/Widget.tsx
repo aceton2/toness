@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Toner from '../_services/toner';
 import Sequencer from '../_services/sequencer';
-import Guide from './Guide.js';
-import Track from './Track.js';
+import Guide from './Guide';
+import Track from './Track';
 
-let titles = {
+const titles: { [key: string]: string } = {
     drum: "Drums",
     bass: "Bass",
     chords: "Chords"
@@ -26,27 +26,31 @@ const TitleBar = styled.div`
     border-radius: 5px;
 `;
 
-export default function Widget(props) {
+export default function Widget(props: { group: string, tracks: number, slots: Array<any> }) {
 
-    const [activeStep, setActiveStep] = useState(null);
+    const [activeStep, setActiveStep] = useState('');
 
     useEffect(() => {
+        // @ts-ignore
         Sequencer.transport().on('step', setStep)
-        return () => Sequencer.transport().off('step', setStep)
+        // @ts-ignore
+        return () => { Sequencer.transport().off('step', setStep) }
     }, [])
 
-    function setStep(step) {
+    function setStep(step: string) {
         setActiveStep(step);
     }
 
     function getLiveSounds() {
         return Toner.getInstruments()
             .slice(0, props.tracks)
+            // @ts-ignore
             .filter(inst => inst.group === props.group);
     }
 
     function getTracks() {
-        return getLiveSounds().map(sound => (
+        // @ts-ignore
+        return getLiveSounds().map((sound) => (
             <Track
                 key={sound.id}
                 name={sound.name}

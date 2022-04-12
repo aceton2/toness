@@ -18,23 +18,25 @@ const StepDiv = styled.div`
     }
 `
 
-export default function Toggle(props) {
+export default function Toggle(props: { isActive: boolean, timeId: string, instrumentId: string }) {
 
-    const [eventId, _setEventId] = useState(null);
+    const [eventId, _setEventId] = useState<null | number>(null);
     const eventIdRef = useRef(eventId);
 
-    const setEventId = (val) => {
+    const setEventId = (val: null | number) => {
         _setEventId(val);
         eventIdRef.current = val;
     }
 
     useEffect(() => {
+        // @ts-ignore
         Sequencer.transport().on('cleared', clearEvent);
         return cleanUp
     }, []);
 
     function cleanUp() {
         if (eventIdRef.current) { Sequencer.unschedule(eventIdRef.current); }
+        // @ts-ignore
         Sequencer.transport().off('cleared', clearEvent);
     }
 
@@ -50,8 +52,8 @@ export default function Toggle(props) {
         setEventId(newEventId);
     }
 
-    function isOdd(id) {
-        return id.split(':')[0] % 2 === 1;
+    function isOdd(id: string) {
+        return Number(id.split(':')[0]) % 2 === 1;
     }
 
     function getBackground() {

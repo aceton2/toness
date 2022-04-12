@@ -15,7 +15,7 @@ const GuideBox = styled.div`
     }
 `
 
-export default function Guide(props) {
+export default function Guide(props: { activeStep: string, slots: Array<any> }) {
 
     function generateGuides() {
         return props.slots.map(slot => {
@@ -27,7 +27,7 @@ export default function Guide(props) {
         })
     }
 
-    function slotToGuideName(slot) {
+    function slotToGuideName(slot: any) {
         return slot.split(':')[2] === '2' ? '+' : Number(slot.slice(2)[0]) + 1
     }
 

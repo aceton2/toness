@@ -22,7 +22,14 @@ const Bar = styled.div`
     grid-template-columns: repeat(8, 1fr);
 `;
 
-export default function Track(props) {
+interface TrackProps {
+    name: string;
+    slots: Array<{ bar: number, id: string }>;
+    instrumentId: string;
+    activeStep: string;
+}
+
+export default function Track(props: TrackProps) {
 
     function addBars() {
         const bars = Array.from(new Set(props.slots.map(i => i.bar)));
@@ -33,7 +40,7 @@ export default function Track(props) {
         ))
     }
 
-    function getToggles(bar) {
+    function getToggles(bar: number) {
         return props.slots.filter(slot => slot.bar === bar).map((slot, index) => (
             <Toggle
                 key={bar + index.toString()}

@@ -17,6 +17,10 @@ const MainFrame = styled.div`
   border-radius: 5px; 
 `;
 
+interface Instrument {
+  group: string
+}
+
 export default function App() {
 
   const [tracks, setTracks] = useState(1);
@@ -35,7 +39,7 @@ export default function App() {
   }
 
   function getWidgets() {
-    const groups = Array.from(new Set(Toner.getInstruments().map(i => i.group)));
+    const groups: Array<string> = Array.from(new Set(Toner.getInstruments().map((i: Instrument) => i.group)));
     return groups.map(group => (
       <Widget
         key={group}

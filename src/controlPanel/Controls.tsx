@@ -12,11 +12,17 @@ const ControlBox = styled.div`
     }
 `;
 
-export default function Controls(props) {
+interface controlProps {
+    updateSlots: () => void;
+    addTrack: () => void;
+    removeTrack: () => void;
+}
+
+export default function Controls(props: controlProps) {
 
     const [bpm, setBpm] = useState(Sequencer.getBpm());
 
-    function handleChange(e) {
+    function handleChange(e: any) {
         setBpm(e.target.value)
         Sequencer.setBpm(e.target.value)
     }
@@ -39,6 +45,7 @@ export default function Controls(props) {
 
     function toggleTransporter() {
         Toner.toggle();
+        // @ts-ignore
         document.activeElement.blur(); // to avoid cross-canceling with spacebar listener
     }
 
