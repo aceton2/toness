@@ -45,8 +45,10 @@ export default function Controls(props: controlProps) {
 
     function toggleTransporter() {
         Toner.toggle();
-        // @ts-ignore
-        document.activeElement.blur(); // to avoid cross-canceling with spacebar listener
+        const e = document.activeElement as HTMLInputElement;
+        if ("blur" in e) {
+            e.blur(); // to avoid cross-canceling with spacebar listener
+        }
     }
 
     return (
