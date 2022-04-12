@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Toner from '../_services/toner';
-import Sequencer, { Slot } from '../_services/sequencer';
+import Toner, { SequenceEmitter, SoundCfg } from '../_services/toner';
+import { Slot } from '../_services/sequencer';
 import Guide from './Guide';
 import Track from './Track';
 
@@ -31,17 +31,15 @@ export default function Widget(props: { group: string, tracks: number, slots: Ar
     const [activeStep, setActiveStep] = useState('');
 
     useEffect(() => {
-        // @ts-ignore
-        Sequencer.transport().on('step', setStep)
-        // @ts-ignore
-        return () => { Sequencer.transport().off('step', setStep) }
+        SequenceEmitter.on('step', setStep)
+        return () => { SequenceEmitter.off('step', setStep) }
     }, [])
 
     function setStep(step: string) {
         setActiveStep(step);
     }
 
-    function getLiveSounds() {
+    function getLiveSounds(): Array<SoundCfg> {
         return Toner.getInstruments()
             .slice(0, props.tracks)
             .filter(inst => inst.group === props.group);

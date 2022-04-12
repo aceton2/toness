@@ -1,4 +1,4 @@
-import { Transport, Player, context, start, Loop } from 'tone';
+import { Transport, Player, context, start, Loop, Emitter } from 'tone';
 
 export interface SoundCfg {
     id: number,
@@ -9,6 +9,7 @@ export interface SoundCfg {
 
 // STEPPER
 
+export let SequenceEmitter = new Emitter();
 let stepper: Loop | null;
 
 // INSTRUMENTS
@@ -63,7 +64,7 @@ function scheduleI(triggerTime: string, instrumentId: number): number {
 
 function clearTransport() {
     Transport.cancel();
-    Transport.emit('cleared');
+    SequenceEmitter.emit('cleared');
     stepper = null;
     startStepper();
 }
@@ -83,7 +84,7 @@ async function startT() {
 }
 
 function stopT() {
-    Transport.emit('step', 'stop');
+    SequenceEmitter.emit('step', 'stop');
     Transport.stop();
 }
 
@@ -97,8 +98,7 @@ function addKeyboardListener() {
 
 function startStepper() {
     stepper = stepper ? stepper : new Loop(time =>
-        // @ts-ignore
-        Transport.emit('step', Transport.position.split('.')[0])
+        SequenceEmitter.emit('step', (Transport.position as string).split('.')[0])
         , "8n");
     if (stepper.state === 'stopped') stepper.start(0);
 }

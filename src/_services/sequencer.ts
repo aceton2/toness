@@ -120,7 +120,6 @@ const seqFace = {
     removeBar: removeBar,
     setBpm: setBpm,
     getBpm: (): number => Transport.bpm.value,
-    transport: () => (Transport),
     schedule: schedule,
     unschedule: unschedule
 }
