@@ -56,7 +56,7 @@ export default function App() {
 
   return (
     <div>
-      <Header> Simple Sequencer for the Kids </Header>
+      <Header> 124 sample sequencer ⛵ </Header>
       <Mask />
       <MainFrame>
         <Controls
