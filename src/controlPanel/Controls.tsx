@@ -16,6 +16,7 @@ interface controlProps {
     updateSlots: () => void;
     addTrack: () => void;
     removeTrack: () => void;
+    showSamplerModal: () => void;
 }
 
 export default function Controls(props: controlProps) {
@@ -59,6 +60,7 @@ export default function Controls(props: controlProps) {
             <button onClick={clearAll}>clear steps</button>
             <button onClick={addBar}>add bar</button>
             <button onClick={removeBar}>remove bar</button>
+            <button onClick={props.showSamplerModal}>open sampler</button>
 
             <input
                 type="range"

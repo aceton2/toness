@@ -2,6 +2,8 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import Controls from './controlPanel/Controls';
 import Widget from './widgetPanel/Widget';
+import Modal from './modalPanel/Modal';
+
 import Mask from './auxComps/Mask';
 import Toner from './_services/toner';
 import Sequencer from './_services/sequencer';
@@ -9,6 +11,7 @@ import Sequencer from './_services/sequencer';
 const Header = styled.div`
   padding: 5px;
   background-color: var(--off-color-2);
+  font-style: italic;
 `;
 
 const MainFrame = styled.div`
@@ -24,7 +27,8 @@ interface Instrument {
 export default function App() {
 
   const [tracks, setTracks] = useState(1);
-  const [slots, setSlots] = useState(Sequencer.getSlots())
+  const [slots, setSlots] = useState(Sequencer.getSlots());
+  const [showSampler, setShowSampler] = useState(false);
 
   function addTrack() {
     if (tracks < Toner.getInstruments().length) {
@@ -63,9 +67,11 @@ export default function App() {
           addTrack={addTrack}
           removeTrack={removeTrack}
           updateSlots={updateSlots}
+          showSamplerModal={() => setShowSampler(true)}
         />
         {getWidgets()}
       </MainFrame>
+      <Modal show={showSampler} hideModal={() => setShowSampler(false)} />
     </div>
   );
 }
