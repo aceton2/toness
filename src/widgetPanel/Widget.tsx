@@ -3,12 +3,14 @@ import styled from 'styled-components';
 import Toner, { SequenceEmitter, SoundCfg } from '../_services/toner';
 import { Slot } from '../_services/sequencer';
 import Guide from './Guide';
+import Toggle from './Toggle';
 import Track from './Track';
 
 const titles: { [key: string]: string } = {
     drum: "Drums",
     bass: "Bass",
-    chords: "Chords"
+    chords: "Chords",
+    samples: "Samples"
 }
 
 const WidgetBox = styled.div`
@@ -19,11 +21,16 @@ const WidgetBox = styled.div`
     }
 `;
 
-const TitleBar = styled.div`
+const WidgetTitle = styled.div`
     margin: 1rem 0rem 0.5rem;
     padding: 5px;
     background-color: var(--off-color-2);
     border-radius: 5px;
+`;
+
+const Bar = styled.div`
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
 `;
 
 export default function Widget(props: { group: string, tracks: number, slots: Array<Slot> }) {
@@ -45,24 +52,44 @@ export default function Widget(props: { group: string, tracks: number, slots: Ar
             .filter(inst => inst.group === props.group);
     }
 
+    // COMPONENTS
+
     function getTracks() {
         return getLiveSounds().map((sound) => (
-            <Track
-                key={sound.id}
-                name={sound.name}
-                instrumentId={sound.id}
-                slots={props.slots}
-                activeStep={activeStep}
-            />
+            <Track key={sound.id} name={sound.name}>
+                {getBars(sound.id)}
+            </Track>
         ));
     }
+
+    function getBars(soundId: number) {
+        const bars = Array.from(new Set(props.slots.map(i => i.bar)));
+        return bars.map((bar: number) => (
+            <Bar key={bar}>
+                {getToggles(soundId, props.slots.filter(slot => slot.bar === bar))}
+            </Bar>
+        ));
+    }
+
+    function getToggles(soundId: number, slots: Array<Slot>) {
+        return slots.map((slot, index) => (
+            <Toggle
+                key={index.toString()}
+                timeId={slot.id}
+                instrumentId={soundId}
+                isActive={activeStep === slot.id}
+            />
+        ))
+    }
+
+    // RENDER
 
     return (
         <WidgetBox
             className={getLiveSounds().length < 1 ? "hidden" : ""}>
-            <TitleBar>
+            <WidgetTitle>
                 {titles[props.group]}
-            </TitleBar>
+            </WidgetTitle>
             <Guide
                 slots={props.slots}
                 activeStep={activeStep}

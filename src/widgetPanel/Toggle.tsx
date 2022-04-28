@@ -57,21 +57,18 @@ export default function Toggle(props: ToggleProps) {
         setEventId(newEventId);
     }
 
-    function isOdd(id: string) {
-        return Number(id.split(':')[0]) % 2 === 1;
+    function isOdd() {
+        return Number(props.timeId.split(':')[0]) % 2 === 1;
     }
 
-    function getBackground() {
-        let color = (isOdd(props.timeId)) ? colors.odd : colors.free;
-
-        if (eventId != null) { color = colors.toggled; }
-
-        return { "backgroundColor": color, }
+    function getBackgroundColor() {
+        return (eventId != null) ? colors.toggled :
+            isOdd() ? colors.odd : colors.free;
     }
 
     return (
         <StepDiv style={{ "opacity": props.isActive ? "1" : "0.7" }}>
-            <div style={getBackground()}
+            <div style={{ "backgroundColor": getBackgroundColor() }}
                 onClick={handleClick}>
             </div>
         </StepDiv>
