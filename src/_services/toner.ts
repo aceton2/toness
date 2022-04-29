@@ -4,7 +4,13 @@ export interface SoundCfg {
     id: number,
     group: string,
     name: string,
-    source: [any, number]
+    source: [Player, PlayRates]
+}
+
+export interface PlayRates {
+    duration?: number,
+    offset?: number,
+    fadeOut?: number,
 }
 
 // STEPPER
@@ -15,27 +21,32 @@ let stepper: Loop | null;
 // INSTRUMENTS
 
 let instruments: Array<SoundCfg> = [];
+let ids = 0;
+export const defaultPlayRates: PlayRates = {
+    duration: 2,
+    fadeOut: 0.2,
+    offset: 0
+}
 
 const instrumentsDefn: { [Key: string]: any } = {
     drum: {
-        kick: [new Player('/sounds/kick70.mp3').toDestination(), 2],
-        snare: [new Player('/sounds/snare.mp3').toDestination(), 2],
-        hat: [new Player('/sounds/highhat.mp3').toDestination(), 2],
+        kick: [new Player('/sounds/kick70.mp3').toDestination(), { duration: 0.5 }],
+        snare: [new Player('/sounds/snare.mp3').toDestination(), { duration: 2 }],
+        hat: [new Player('/sounds/highhat.mp3').toDestination(), { duration: 2 }],
     },
-    bass: {
-        'A2': [new Player('/sounds/bass.mp3').toDestination(), 2],
-    },
-    chords: {
-        'F#m': [new Player('/sounds/synthF.mp3').toDestination(), 0.5],
-    }
+    // bass: {
+    //     'A2': [new Player('/sounds/bass.mp3').toDestination(), { duration: 0.5, fadeOut: 0.4 }],
+    // },
+    // chords: {
+    //     'F#m': [new Player('/sounds/synthF.mp3').toDestination(), { duration: 0.5 }],
+    // }
 }
 
 function fillInstrumentsArray(): void {
-    let id = 0;
     for (let group in instrumentsDefn) {
         for (let name in instrumentsDefn[group]) {
             instruments.push({
-                id: id++,
+                id: ids++,
                 group: group,
                 name: name,
                 source: instrumentsDefn[group][name]
@@ -47,7 +58,17 @@ function fillInstrumentsArray(): void {
 
 function getPlayInstrumentTrigger(id: number): (arg0: number) => void {
     const defn = instruments.filter((sound: SoundCfg) => sound.id === id)[0].source;
-    return time => defn[0].start(time).stop(time + defn[1]);
+    const rates = { ...defaultPlayRates, ...defn[1] }
+    return time => defn[0].start(time, rates.offset, rates.duration);
+}
+
+function addSample(player: Player, rates: PlayRates) {
+    instruments.push({
+        id: ids++,
+        group: 'samples',
+        name: ids.toString(),
+        source: [player, rates]
+    })
 }
 
 // SCHEDULING 
@@ -120,7 +141,8 @@ const tonerIFace = {
     scheduleI: scheduleI,
     getInstruments: (): Array<SoundCfg> => (instruments),
     toggle: toggle,
-    clearAll: clearTransport
+    clearAll: clearTransport,
+    addSample: addSample
 };
 
 export default tonerIFace;
