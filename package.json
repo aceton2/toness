@@ -26,7 +26,7 @@
     "eject": "react-scripts eject",
     "lint:fix": "eslint src/**/*.tsx --fix",
     "lint": "eslint src/**/*.tsx",
-    "prettify": "prettier src/**/*.tsx --write"
+    "prettify": "prettier src/**/*.tsx src/**/*.ts src/**/*.js --write"
   },
   "eslintConfig": {
     "extends": [
