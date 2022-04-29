@@ -1,39 +1,38 @@
-import styled from 'styled-components';
-import Recorder from '../_services/recorder';
+import styled from 'styled-components'
+import Recorder from '../_services/recorder'
 
 const SamplerBox = styled.div`
-    padding: 1rem;
+  padding: 1rem;
 
-    .visualizer {
-      margin-bottom: 1rem;
-    }
-`;
+  .visualizer {
+    margin-bottom: 1rem;
+  }
+`
 
 const WaveViewPort = styled.div`
   position: relative;
   canvas {
-    position: absolute
+    position: absolute;
   }
   .control {
     z-index: 2;
   }
-`;
+`
 
 export default function Sampler() {
-
   function startRecording() {
-    Recorder.startRecorder();
+    Recorder.startRecorder()
     // add button color feedback
   }
 
   function stopRecording() {
-    Recorder.stopRecorder();
+    Recorder.stopRecorder()
     // add button color feedback
   }
 
   function addSample() {
-    Recorder.addSampleToSequencer();
-    Recorder.deleteSample();
+    Recorder.addSampleToSequencer()
+    Recorder.deleteSample()
   }
 
   //  ON STOPPED PLAYING playSampleButton.style.background = "";
