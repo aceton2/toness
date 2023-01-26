@@ -64,3 +64,5 @@ button:disabled {
   color: lightgrey;
   cursor: default;
 }
+
+button:hover{background-color: var(--off-color-1);}

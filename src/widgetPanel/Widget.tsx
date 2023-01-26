@@ -1,73 +1,102 @@
-import { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import Toner, { SequenceEmitter, SoundCfg } from '../_services/toner';
-import { Slot } from '../_services/sequencer';
-import Guide from './Guide';
-import Track from './Track';
+import { useEffect, useState } from 'react'
+import styled from 'styled-components'
+import Toner, { SequenceEmitter, SoundCfg } from '../_services/toner'
+import { Slot } from '../_services/sequencer'
+import Guide from './Guide'
+import Toggle from './Toggle'
+import Track from './Track'
 
 const titles: { [key: string]: string } = {
-    drum: "Drums",
-    bass: "Bass",
-    chords: "Chords"
+  drum: 'Drums',
+  bass: 'Bass',
+  chords: 'Chords',
+  samples: 'Samples',
 }
 
 const WidgetBox = styled.div`
-    --track-label-width: 50px;
+  --track-label-width: 50px;
 
-    &.hidden {
-        display: none;
+  &.hidden {
+    display: none;
+  }
+`
+
+const WidgetTitle = styled.div`
+  margin: 1rem 0rem 0.5rem;
+  padding: 5px;
+  background-color: var(--off-color-2);
+  border-radius: 5px;
+`
+
+const Bar = styled.div`
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+`
+
+export default function Widget(props: {
+  group: string
+  tracks: number
+  slots: Array<Slot>
+}) {
+  const [activeStep, setActiveStep] = useState('')
+
+  useEffect(() => {
+    SequenceEmitter.on('step', setStep)
+    return () => {
+      SequenceEmitter.off('step', setStep)
     }
-`;
+  }, [])
 
-const TitleBar = styled.div`
-    margin: 1rem 0rem 0.5rem;
-    padding: 5px;
-    background-color: var(--off-color-2);
-    border-radius: 5px;
-`;
+  function setStep(step: string) {
+    setActiveStep(step)
+  }
 
-export default function Widget(props: { group: string, tracks: number, slots: Array<Slot> }) {
+  function getLiveSounds(): Array<SoundCfg> {
+    return Toner.getInstruments()
+      .slice(0, props.tracks)
+      .filter((inst) => inst.group === props.group)
+  }
 
-    const [activeStep, setActiveStep] = useState('');
+  // COMPONENTS
 
-    useEffect(() => {
-        SequenceEmitter.on('step', setStep)
-        return () => { SequenceEmitter.off('step', setStep) }
-    }, [])
+  function getTracks() {
+    return getLiveSounds().map((sound) => (
+      <Track key={sound.id} name={sound.name}>
+        {getBars(sound.id)}
+      </Track>
+    ))
+  }
 
-    function setStep(step: string) {
-        setActiveStep(step);
-    }
+  function getBars(soundId: number) {
+    const bars = Array.from(new Set(props.slots.map((i) => i.bar)))
+    return bars.map((bar: number) => (
+      <Bar key={bar}>
+        {getToggles(
+          soundId,
+          props.slots.filter((slot) => slot.bar === bar)
+        )}
+      </Bar>
+    ))
+  }
 
-    function getLiveSounds(): Array<SoundCfg> {
-        return Toner.getInstruments()
-            .slice(0, props.tracks)
-            .filter(inst => inst.group === props.group);
-    }
+  function getToggles(soundId: number, slots: Array<Slot>) {
+    return slots.map((slot, index) => (
+      <Toggle
+        key={index.toString()}
+        timeId={slot.id}
+        instrumentId={soundId}
+        isActive={activeStep === slot.id}
+      />
+    ))
+  }
 
-    function getTracks() {
-        return getLiveSounds().map((sound) => (
-            <Track
-                key={sound.id}
-                name={sound.name}
-                instrumentId={sound.id}
-                slots={props.slots}
-                activeStep={activeStep}
-            />
-        ));
-    }
+  // RENDER
 
-    return (
-        <WidgetBox
-            className={getLiveSounds().length < 1 ? "hidden" : ""}>
-            <TitleBar>
-                {titles[props.group]}
-            </TitleBar>
-            <Guide
-                slots={props.slots}
-                activeStep={activeStep}
-            />
-            {getTracks()}
-        </WidgetBox>
-    );
+  return (
+    <WidgetBox className={getLiveSounds().length < 1 ? 'hidden' : ''}>
+      <WidgetTitle>{titles[props.group]}</WidgetTitle>
+      <Guide slots={props.slots} activeStep={activeStep} />
+      {getTracks()}
+    </WidgetBox>
+  )
 }
