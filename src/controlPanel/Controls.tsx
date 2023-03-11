@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 import Sequencer from '../_services/sequencer'
-import Toner from '../_services/toner'
+import TonerService from '../_services/toner'
 
 const ControlBox = styled.div`
   margin-bottom: 1rem;
@@ -40,11 +40,11 @@ export default function Controls(props: controlProps) {
   }
 
   function clearAll() {
-    Toner.clearAll()
+    TonerService.clearAll()
   }
 
   function toggleTransporter() {
-    Toner.toggle()
+    TonerService.toggle()
     const e = document.activeElement as HTMLInputElement
     if ('blur' in e) {
       e.blur() // to avoid cross-canceling with spacebar listener

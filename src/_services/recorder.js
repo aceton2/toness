@@ -1,4 +1,4 @@
-import Toner from './toner'
+import TonerService from './toner'
 import { ToneAudioBuffer, Player } from 'tone'
 
 let mediaRecorder
@@ -62,6 +62,7 @@ function initSampler() {
         chunks = []
         const audioURL = window.URL.createObjectURL(blob)
         currentPlayer = new Player(audioURL).toDestination()
+        currentPlayer.connect(TonerService.recorder);
         const buffer = new ToneAudioBuffer(audioURL, () => {
           drawSample(buffer.getChannelData(0))
         })
@@ -221,8 +222,8 @@ function drawFFT(analyser) {
 
 function addSampleToSequencer() {
   if (currentPlayer) {
-    Toner.addSample(currentPlayer, playRates)
-    playRates = { ...Toner.defaultPlayRates }
+    TonerService.addSample(currentPlayer, playRates)
+    playRates = { ...TonerService.defaultPlayRates }
   }
 }
 

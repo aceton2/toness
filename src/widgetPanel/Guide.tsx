@@ -1,4 +1,4 @@
-import { Slot } from '../_services/sequencer'
+import { Slot } from '../_services/interfaces'
 import styled from 'styled-components'
 
 const GuideBox = styled.div`

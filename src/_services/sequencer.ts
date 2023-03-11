@@ -1,19 +1,10 @@
 import { Transport } from 'tone'
-import Toner from './toner'
+import TonerService from './toner'
+import { Slot, ScheduledEvent } from './interfaces'
 
-export interface Slot {
-  bar: number
-  id: string
-}
-
-interface ScheduledEvent {
-  timeId: string
-  instrumentId: number
-  eventId?: number
-}
+const scheduledEvents: Array<ScheduledEvent> = []
 
 let sequencerSlots: Array<Slot>
-let scheduledEvents: Array<ScheduledEvent> = []
 
 let cfg = {
   maxBars: 4,
@@ -91,7 +82,7 @@ function setBpm(val: number): void {
 // SCHEDULE
 
 function schedule(timeId: string, instrumentId: number): number {
-  let eventId = Toner.scheduleI(timeId, instrumentId)
+  let eventId = TonerService.scheduleI(timeId, instrumentId)
   scheduledEvents.push({
     timeId: timeId,
     instrumentId: instrumentId,
@@ -101,7 +92,8 @@ function schedule(timeId: string, instrumentId: number): number {
 }
 
 function unschedule(eventId: number): void {
-  scheduledEvents = scheduledEvents.filter((rec) => rec.eventId !== eventId)
+  const eventIndex = scheduledEvents.findIndex((rec) => rec.eventId !== eventId);
+  scheduledEvents.splice(eventIndex, 1)
   Transport.clear(eventId)
 }
 
@@ -117,13 +109,15 @@ function init() {
 init()
 
 const seqFace = {
-  getSlots: getSlots,
-  addBar: addBar,
-  removeBar: removeBar,
-  setBpm: setBpm,
+  getSlots,
+  addBar,
+  removeBar,
+  setBpm,
   getBpm: (): number => Transport.bpm.value,
-  schedule: schedule,
-  unschedule: unschedule,
+  schedule,
+  unschedule,
+  getActiveBarCount,
+  scheduledEvents,
 }
 
 export default seqFace

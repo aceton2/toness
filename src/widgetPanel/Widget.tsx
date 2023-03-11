@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import Toner, { SequenceEmitter, SoundCfg } from '../_services/toner'
-import { Slot } from '../_services/sequencer'
+import TonerService from '../_services/toner'
+import { Slot, SoundCfg } from '../_services/interfaces';
 import Guide from './Guide'
 import Toggle from './Toggle'
 import Track from './Track'
@@ -41,9 +41,9 @@ export default function Widget(props: {
   const [activeStep, setActiveStep] = useState('')
 
   useEffect(() => {
-    SequenceEmitter.on('step', setStep)
+    TonerService.SequenceEmitter.on('step', setStep)
     return () => {
-      SequenceEmitter.off('step', setStep)
+      TonerService.SequenceEmitter.off('step', setStep)
     }
   }, [])
 
@@ -52,7 +52,7 @@ export default function Widget(props: {
   }
 
   function getLiveSounds(): Array<SoundCfg> {
-    return Toner.getInstruments()
+    return TonerService.getInstruments()
       .slice(0, props.tracks)
       .filter((inst) => inst.group === props.group)
   }

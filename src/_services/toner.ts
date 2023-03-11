@@ -1,28 +1,20 @@
-import { Transport, Player, context, start, Loop, Emitter } from 'tone'
+import { Transport, Player, context, start, Loop, Emitter, Recorder } from 'tone'
+import { SoundCfg, PlayRates } from './interfaces'
 
-export interface SoundCfg {
-  id: number
-  group: string
-  name: string
-  source: [Player, PlayRates]
-}
+// RECORDER 
 
-export interface PlayRates {
-  duration?: number
-  offset?: number
-  fadeOut?: number
-}
+const recorder = new Recorder()
 
 // STEPPER
 
-export let SequenceEmitter = new Emitter()
+let SequenceEmitter = new Emitter()
 let stepper: Loop | null
 
 // INSTRUMENTS
 
 let instruments: Array<SoundCfg> = []
 let ids = 0
-export const defaultPlayRates: PlayRates = {
+const defaultPlayRates: PlayRates = {
   duration: 2,
   fadeOut: 0.2,
   offset: 0,
@@ -41,6 +33,9 @@ const instrumentsDefn: { [Key: string]: any } = {
   //     'F#m': [new Player('/sounds/synthF.mp3').toDestination(), { duration: 0.5 }],
   // }
 }
+instrumentsDefn.drum.kick[0].connect(recorder);
+instrumentsDefn.drum.snare[0].connect(recorder);
+instrumentsDefn.drum.hat[0].connect(recorder);
 
 function fillInstrumentsArray(): void {
   for (let group in instrumentsDefn) {
@@ -142,12 +137,15 @@ runInit()
 
 // EXPORTS
 
-const tonerIFace = {
+const TonerServiceIFace = {
   scheduleI,
   addSample,
   toggle,
   getInstruments: (): Array<SoundCfg> => instruments,
   clearAll: clearTransport,
+  recorder,
+  SequenceEmitter,
+  defaultPlayRates
 }
 
-export default tonerIFace
+export default TonerServiceIFace

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import Sequencer from '../_services/sequencer'
-import { SequenceEmitter } from '../_services/toner'
+import TonerService from '../_services/toner'
 
 let colors = {
   odd: 'var(--off-color-3)',
@@ -35,7 +35,7 @@ export default function Toggle(props: ToggleProps) {
   }
 
   useEffect(() => {
-    SequenceEmitter.on('cleared', clearEvent)
+    TonerService.SequenceEmitter.on('cleared', clearEvent)
     return cleanUp
   }, [])
 
@@ -43,7 +43,7 @@ export default function Toggle(props: ToggleProps) {
     if (eventIdRef.current) {
       Sequencer.unschedule(eventIdRef.current)
     }
-    SequenceEmitter.off('cleared', clearEvent)
+    TonerService.SequenceEmitter.off('cleared', clearEvent)
   }
 
   function clearEvent() {
