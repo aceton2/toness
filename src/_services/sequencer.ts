@@ -1,73 +1,58 @@
 import { Transport } from 'tone'
 import TonerService from './toner'
-import { Slot, ScheduledEvent } from './interfaces'
+import { Slot } from './interfaces'
+import ToneStore from '../_store/store';
+import useToneStore from '../_store/store';
 
-const scheduledEvents: Array<ScheduledEvent> = []
 
-let sequencerSlots: Array<Slot>
+const transportEvents: {[key: string]: number} = {} // key is eventId, prop is transportId
+const sequencerSlots: Array<Slot> = generateSlots()
 
-let cfg = {
-  maxBars: 4,
-  minBars: 1,
-  bpm: 120,
-  bars: 2,
-  resolution: '8n',
-}
-
-const sixteenths: { [key: string]: Array<string> } = {
-  '8n': ['0', '2'],
-  '16n': ['0', '1', '2', '3'],
-}
-
-function generateSlots(barNum: number): Array<Slot> {
-  const slots: Array<Slot> = []
-  ;['0', '1', '2', '3'].forEach((quarterNum) => {
-    sixteenths[cfg.resolution].forEach((sixNum) =>
-      slots.push({
-        bar: barNum,
-        id: `${barNum}:${quarterNum}:${sixNum}`,
-      })
-    )
+function generateSlots(): Array<Slot> {
+  const slots: Array<Slot> = [];
+  [0, 1, 2, 3].forEach(barNum => {
+    ['0', '1', '2', '3'].forEach((quarterNum) => {
+      ['0', '1', '2', '3'].forEach((sixNum) => 
+        slots.push({
+          bar: barNum,
+          timeId: `${barNum}:${quarterNum}:${sixNum}`,
+        })
+      )
+    })
   })
   return slots
 }
 
-function setSlots(bars: number) {
-  let slots: Array<Slot> = []
-  Array(bars)
-    .fill(null)
-    .forEach((e, index) => {
-      slots = [...slots, ...generateSlots(index)]
-    })
-  sequencerSlots = slots
+function syncActiveSlots() {
+  const bars = ToneStore.getState().activeBars
+  const res = ToneStore.getState().resolution
+
+  const activeSlots = sequencerSlots.filter(slot => {
+      if(res === '8n' && ['1', '3'].indexOf(slot.timeId.slice(-1)) !== -1) {
+        return false
+      }
+      return slot.bar <= bars - 1
+  });
+  ToneStore.getState().setActiveSlots(activeSlots)
+
+  setLoopEnd(bars)
 }
 
-function getSlots(barNum = -1): Array<Slot> {
-  return barNum === -1
-    ? sequencerSlots
-    : sequencerSlots.filter((slots) => slots.bar === barNum)
+function syncActiveTracks() {
+  const tracks = ToneStore.getState().activeTracks
+  TonerService.getInstruments().forEach((inst, index) => 
+    inst.player.mute = index >= tracks
+  )
 }
 
-function getActiveBarCount(): number {
-  return sequencerSlots.map((slots) => slots.bar).reduce((i, a) => (i > a ? i : a)) + 1
-}
-
-function addBar(): boolean {
-  const newBars = getActiveBarCount() + 1
-  if (newBars <= cfg.maxBars) {
-    setSlots(newBars)
-    setLoopEnd(newBars)
-    return true
-  } else return false
-}
-
-function removeBar(): boolean {
-  const newBars = getActiveBarCount() - 1
-  if (newBars >= cfg.minBars) {
-    setSlots(newBars)
-    setLoopEnd(newBars)
-    return true
-  } else return false
+function syncScheduledEvents(scheduledEvents: Array<string>) {
+  const transports = Object.keys(transportEvents);
+  scheduledEvents.forEach(event => {
+    if(transports.indexOf(event) === -1) { schedule(event) }
+  })
+  transports.forEach(event => {
+    if(scheduledEvents.indexOf(event) === -1) { unschedule(event) }
+  })
 }
 
 function setLoopEnd(bar: number): void {
@@ -79,45 +64,42 @@ function setBpm(val: number): void {
   Transport.bpm.value = val
 }
 
-// SCHEDULE
-
-function schedule(timeId: string, instrumentId: number): number {
-  let eventId = TonerService.scheduleI(timeId, instrumentId)
-  scheduledEvents.push({
-    timeId: timeId,
-    instrumentId: instrumentId,
-    eventId: eventId,
-  })
-  return eventId
+function schedule(eventId: string) {
+  const [timeId, instrumentId] = eventId.split('|')
+  const triggerFunction = TonerService.getPlayInstrumentTrigger(parseInt(instrumentId))
+  transportEvents[eventId] = Transport.schedule(time => triggerFunction(time), timeId)
 }
 
-function unschedule(eventId: number): void {
-  const eventIndex = scheduledEvents.findIndex((rec) => rec.eventId !== eventId);
-  scheduledEvents.splice(eventIndex, 1)
-  Transport.clear(eventId)
+function unschedule(eventId: string) {
+  Transport.clear(transportEvents[eventId])
+  delete transportEvents[eventId]
 }
 
 // INIT
 
-function init() {
-  setSlots(cfg.bars)
-  setLoopEnd(cfg.bars)
-  setBpm(cfg.bpm)
+let unSubs: Array<() => void>;
+
+export function initSequencer() {
+
+  unSubs = [
+    ToneStore.subscribe((state) => state.activeTracks, syncActiveTracks),
+    ToneStore.subscribe((state) => state.activeBars, syncActiveSlots),
+    ToneStore.subscribe((state) => state.resolution, syncActiveSlots),
+    ToneStore.subscribe((state) => state.bpm, setBpm),
+    ToneStore.subscribe((state) => state.scheduledEvents, syncScheduledEvents),
+  ];
+
+  const storeState = useToneStore.getState()
+
+  syncActiveSlots()
+  syncActiveTracks()
+  setBpm(storeState.bpm)
+  syncScheduledEvents(storeState.scheduledEvents)
+
   Transport.loop = true
 }
 
-init()
-
-const seqFace = {
-  getSlots,
-  addBar,
-  removeBar,
-  setBpm,
-  getBpm: (): number => Transport.bpm.value,
-  schedule,
-  unschedule,
-  getActiveBarCount,
-  scheduledEvents,
+export function unsubSequencerSubscriptions() {
+  unSubs.forEach(unsub => unsub())
 }
 
-export default seqFace

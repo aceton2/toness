@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import styled from 'styled-components'
-import Sequencer from '../_services/sequencer'
 import TonerService from '../_services/toner'
+import useToneStore from '../_store/store'
 
 const ControlBox = styled.div`
   margin-bottom: 1rem;
@@ -13,34 +12,18 @@ const ControlBox = styled.div`
 `
 
 interface controlProps {
-  updateSlots: () => void
-  addTrack: () => void
-  removeTrack: () => void
   showSamplerModal: () => void
 }
 
 export default function Controls(props: controlProps) {
-  const [bpm, setBpm] = useState(Sequencer.getBpm())
+  const [bpm, setBpm] = useToneStore(state => [state.bpm, state.setBpm])
+  const changeBars = useToneStore(state => state.changeBars)
+  const changeTracks = useToneStore(state => state.changeTracks)
+  const clearSteps = useToneStore(state => state.clearSchedule)
+  const toggleResolution = useToneStore(state => state.toggleResolution)
 
   function handleChange(e: any) {
     setBpm(e.target.value)
-    Sequencer.setBpm(e.target.value)
-  }
-
-  function addBar() {
-    if (Sequencer.addBar()) {
-      props.updateSlots()
-    }
-  }
-
-  function removeBar() {
-    if (Sequencer.removeBar()) {
-      props.updateSlots()
-    }
-  }
-
-  function clearAll() {
-    TonerService.clearAll()
   }
 
   function toggleTransporter() {
@@ -54,12 +37,13 @@ export default function Controls(props: controlProps) {
   return (
     <ControlBox>
       <button onClick={toggleTransporter}>start/stop</button>
-      <button onClick={props.addTrack}>+T</button>
-      <button onClick={props.removeTrack}>-T</button>
-      <button onClick={clearAll}>clear steps</button>
-      <button onClick={addBar}>add bar</button>
-      <button onClick={removeBar}>remove bar</button>
+      <button onClick={() => changeTracks(1)}>+T</button>
+      <button onClick={() => changeTracks(-1)}>-T</button>
+      <button onClick={clearSteps}>clear steps</button>
+      <button onClick={() => changeBars(1)}>add bar</button>
+      <button onClick={() => changeBars(-1)}>remove bar</button>
       <button onClick={props.showSamplerModal}>open sampler</button>
+      <button onClick={toggleResolution}>16ths</button>
 
       <input
         type="range"

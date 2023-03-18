@@ -1,5 +1,5 @@
 import { Midi, Header } from '@tonejs/midi'
-import SequencerService from './sequencer'
+import useToneStore from '../_store/store';
 
 let midiJson: any;
 const ppq = 96;
@@ -39,8 +39,12 @@ function createMidi(): Midi {
     const ticksPerSlot = ppq / (grid / 4);
 
     [0, 1, 2].forEach(instrument => {
-        SequencerService.scheduledEvents
-            .filter(notes => notes.instrumentId === instrument)
+        useToneStore.getState().scheduledEvents
+            .map(eventId => {
+                const split = eventId.split('|')
+                return {timeId: split[0], instrumentId: parseInt(split[1])}
+            })
+            .filter(event => event.instrumentId === instrument)
             .map(notes => convertTimeIdToSlotNumber(notes.timeId))
             .sort((a, b) => a - b) // this may not be neccessary
             .forEach(slot => {

@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import Sequencer from '../_services/sequencer'
-import TonerService from '../_services/toner'
+import useToneStore from '../_store/store'
 
 let colors = {
   odd: 'var(--off-color-3)',
@@ -26,36 +25,19 @@ interface ToggleProps {
 }
 
 export default function Toggle(props: ToggleProps) {
-  const [eventId, _setEventId] = useState<null | number>(null)
-  const eventIdRef = useRef(eventId)
-
-  const setEventId = (val: null | number) => {
-    _setEventId(val)
-    eventIdRef.current = val
-  }
+  const [scheduled, setScheduled] = useState(false)
+  const [scheduledEv, addEv, removeEv] = useToneStore(store => [store.scheduledEvents, store.addScheduledEvent, store.removeScheduledEvent])
+  const eventId = `${props.timeId}|${props.instrumentId}`;
+  // create a selector callback for the specific timeslot and then listen in effect whether scheduled or not
 
   useEffect(() => {
-    TonerService.SequenceEmitter.on('cleared', clearEvent)
-    return cleanUp
-  }, [])
-
-  function cleanUp() {
-    if (eventIdRef.current) {
-      Sequencer.unschedule(eventIdRef.current)
-    }
-    TonerService.SequenceEmitter.off('cleared', clearEvent)
-  }
-
-  function clearEvent() {
-    setEventId(null)
-  }
+    setScheduled(scheduledEv.some(ev => ev === eventId))
+  }, [scheduledEv, eventId])
 
   function handleClick() {
-    let newEventId = null
-    eventId === null
-      ? (newEventId = Sequencer.schedule(props.timeId, props.instrumentId))
-      : Sequencer.unschedule(eventId)
-    setEventId(newEventId)
+    !scheduled
+      ? addEv(eventId)
+      : removeEv(eventId)
   }
 
   function isOdd() {
@@ -63,7 +45,7 @@ export default function Toggle(props: ToggleProps) {
   }
 
   function getBackgroundColor() {
-    return eventId != null ? colors.toggled : isOdd() ? colors.odd : colors.free
+    return scheduled ? colors.toggled : isOdd() ? colors.odd : colors.free
   }
 
   return (

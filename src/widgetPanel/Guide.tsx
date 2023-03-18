@@ -20,8 +20,8 @@ export default function Guide(props: { activeStep: string; slots: Array<Slot> })
   function generateGuides() {
     return props.slots.map((slot) => {
       return (
-        <div key={slot.id} className={slot.id === props.activeStep ? 'highlight' : ''}>
-          {slotToGuideName(slot.id)}
+        <div key={slot.timeId} className={slot.timeId === props.activeStep ? 'highlight' : ''}>
+          {slotToGuideName(slot.timeId)}
         </div>
       )
     })

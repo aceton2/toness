@@ -1,17 +1,12 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import TonerService from '../_services/toner'
-import { Slot, SoundCfg } from '../_services/interfaces';
+import { Slot } from '../_services/interfaces'
 import Guide from './Guide'
 import Toggle from './Toggle'
 import Track from './Track'
+import useToneStore from '../_store/store'
 
-const titles: { [key: string]: string } = {
-  drum: 'Drums',
-  bass: 'Bass',
-  chords: 'Chords',
-  samples: 'Samples',
-}
 
 const WidgetBox = styled.div`
   --track-label-width: 50px;
@@ -32,13 +27,13 @@ const Bar = styled.div`
   display: grid;
   grid-template-columns: repeat(8, 1fr);
 `
-
-export default function Widget(props: {
-  group: string
-  tracks: number
-  slots: Array<Slot>
-}) {
+/**
+ * This widget represents a instrument group
+ */
+export default function Widget() {
   const [activeStep, setActiveStep] = useState('')
+  const slots = useToneStore(state => state.activeSlots)
+  const tracks = useToneStore(state => state.activeTracks)
 
   useEffect(() => {
     TonerService.SequenceEmitter.on('step', setStep)
@@ -51,16 +46,12 @@ export default function Widget(props: {
     setActiveStep(step)
   }
 
-  function getLiveSounds(): Array<SoundCfg> {
-    return TonerService.getInstruments()
-      .slice(0, props.tracks)
-      .filter((inst) => inst.group === props.group)
-  }
-
   // COMPONENTS
 
   function getTracks() {
-    return getLiveSounds().map((sound) => (
+    return TonerService.getInstruments()
+      .slice(0, tracks)
+      .map((sound) => (
       <Track key={sound.id} name={sound.name}>
         {getBars(sound.id)}
       </Track>
@@ -68,12 +59,12 @@ export default function Widget(props: {
   }
 
   function getBars(soundId: number) {
-    const bars = Array.from(new Set(props.slots.map((i) => i.bar)))
+    const bars = Array.from(new Set(slots.map(slot => slot.bar)))
     return bars.map((bar: number) => (
       <Bar key={bar}>
         {getToggles(
           soundId,
-          props.slots.filter((slot) => slot.bar === bar)
+          slots.filter((slot) => slot.bar === bar)
         )}
       </Bar>
     ))
@@ -83,9 +74,9 @@ export default function Widget(props: {
     return slots.map((slot, index) => (
       <Toggle
         key={index.toString()}
-        timeId={slot.id}
+        timeId={slot.timeId}
         instrumentId={soundId}
-        isActive={activeStep === slot.id}
+        isActive={activeStep === slot.timeId}
       />
     ))
   }
@@ -93,9 +84,9 @@ export default function Widget(props: {
   // RENDER
 
   return (
-    <WidgetBox className={getLiveSounds().length < 1 ? 'hidden' : ''}>
-      <WidgetTitle>{titles[props.group]}</WidgetTitle>
-      <Guide slots={props.slots} activeStep={activeStep} />
+    <WidgetBox>
+      <WidgetTitle>Tracks</WidgetTitle>
+      <Guide slots={slots} activeStep={activeStep} />
       {getTracks()}
     </WidgetBox>
   )
