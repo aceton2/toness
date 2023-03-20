@@ -45,10 +45,9 @@ function syncActiveTracks() {
 }
 
 function syncScheduledEvents() {
-  const scheduledEvents = ToneStore.getState().scheduledEvents
   const activeScheduledEvents = Object.keys(transportEventIds);
   const grid16 = ToneStore.getState().resolution === '16n'
-  const desiredScheduledEvents = scheduledEvents.filter(ev => grid16 ? true : !is16th(ev))
+  const desiredScheduledEvents = ToneStore.getState().scheduledEvents.filter(ev => grid16 ? true : !is16th(ev))
   desiredScheduledEvents.forEach(scheduledEvent => {
     if(activeScheduledEvents.indexOf(scheduledEvent) === -1) { schedule(scheduledEvent) }
   })
@@ -64,6 +63,10 @@ function is16th(event: string) {
 
 function setLoopEnd(bar: number): void {
   Transport.setLoopPoints('0:0:0', `${bar}:0:0`)
+  Object.keys(transportEventIds).forEach(scheduledEvent => {
+    const eventBar = scheduledEvent.split('|')[0].split(':')[0]
+    if(parseInt(eventBar) >= bar) { delete transportEventIds[scheduledEvent] }
+  })
   Transport.cancel(`${bar}:0:0`)
 }
 
@@ -89,8 +92,10 @@ let unSubs: Array<() => void>;
 export function initSequencer() {
 
   unSubs = [
+    // clean this up
     ToneStore.subscribe((state) => state.activeTracks, syncActiveTracks),
     ToneStore.subscribe((state) => state.activeBars, syncActiveSlots),
+    ToneStore.subscribe((state) => state.activeBars, syncScheduledEvents),
     ToneStore.subscribe((state) => state.resolution, syncActiveSlots),
     ToneStore.subscribe((state) => state.resolution, syncScheduledEvents),
     ToneStore.subscribe((state) => state.bpm, setBpm),
