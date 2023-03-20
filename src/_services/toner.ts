@@ -1,93 +1,47 @@
-import { Transport, Player, context, start, Loop, Emitter } from 'tone'
+import { Transport, Player, context, start, Loop, Emitter, Recorder, Volume } from 'tone'
+import useToneStore from '../_store/store'
+import { Instrument } from './interfaces'
 
-export interface SoundCfg {
-  id: number
-  group: string
-  name: string
-  source: [Player, PlayRates]
-}
+// NODES
 
-export interface PlayRates {
-  duration?: number
-  offset?: number
-  fadeOut?: number
-}
+const recorder = new Recorder()
+const vol = new Volume(0).toDestination();
 
 // STEPPER
 
-export let SequenceEmitter = new Emitter()
+let SequenceEmitter = new Emitter()
 let stepper: Loop | null
 
 // INSTRUMENTS
-
-let instruments: Array<SoundCfg> = []
-let ids = 0
-export const defaultPlayRates: PlayRates = {
-  duration: 2,
-  fadeOut: 0.2,
-  offset: 0,
-}
-
-const instrumentsDefn: { [Key: string]: any } = {
-  drum: {
-    kick: [new Player('/sounds/kick70.mp3').toDestination(), { duration: 0.5 }],
-    snare: [new Player('/sounds/snare.mp3').toDestination(), { duration: 2 }],
-    hat: [new Player('/sounds/highhat.mp3').toDestination(), { duration: 2 }],
-  },
-  // bass: {
-  //     'A2': [new Player('/sounds/bass.mp3').toDestination(), { duration: 0.5, fadeOut: 0.4 }],
-  // },
-  // chords: {
-  //     'F#m': [new Player('/sounds/synthF.mp3').toDestination(), { duration: 0.5 }],
-  // }
-}
-
-function fillInstrumentsArray(): void {
-  for (let group in instrumentsDefn) {
-    for (let name in instrumentsDefn[group]) {
-      instruments.push({
-        id: ids++,
-        group: group,
-        name: name,
-        source: instrumentsDefn[group][name],
-      })
-    }
-  }
-}
+let instruments: Array<Instrument> = [
+  {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), duration: 0.5 },
+  {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), duration: 2 },
+  {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3'), duration: 2 },
+]
 
 function getPlayInstrumentTrigger(id: number): (arg0: number) => void {
-  const defn = instruments.filter((sound: SoundCfg) => sound.id === id)[0].source
-  const rates = { ...defaultPlayRates, ...defn[1] }
-  return (time) => defn[0].start(time, rates.offset, rates.duration)
+  const instrument = instruments.find((sound: Instrument) => sound.id === id)
+  const rates = { fadeOut: 0.2, offset: 0, duration: instrument?.duration }
+  return (time) => instrument?.player.start(time, rates.offset, rates.duration)
 }
 
-function addSample(player: Player, rates: PlayRates) {
+let ids = 100;
+function addSample(player: Player) {
   instruments.push({
     id: ids++,
-    group: 'samples',
     name: ids.toString(),
-    source: [player, rates],
+    player: player,
+    fadeOut: 0.2, 
+    offset: 0, 
+    duration: 2
   })
+  player.connect(recorder)
 }
 
 // SCHEDULING
 
-function scheduleEvent(
-  triggerTime: string,
-  triggerFunction: (arg0: number) => void
-): number {
-  return Transport.schedule((time) => {
-    triggerFunction(time)
-  }, triggerTime)
-}
-
-function scheduleI(triggerTime: string, instrumentId: number): number {
-  return scheduleEvent(triggerTime, getPlayInstrumentTrigger(instrumentId))
-}
-
 function clearTransport() {
   Transport.cancel()
-  SequenceEmitter.emit('cleared')
   stepper = null
   startStepper()
 }
@@ -95,7 +49,7 @@ function clearTransport() {
 // START/STOP
 
 function toggle(): void {
-  Transport.state === 'stopped' ? startT() : stopT()
+  Transport.state === 'stopped' ? startT() : Transport.stop()
 }
 
 async function startT() {
@@ -104,11 +58,6 @@ async function startT() {
   }
   startStepper()
   Transport.start()
-}
-
-function stopT() {
-  SequenceEmitter.emit('step', 'stop')
-  Transport.stop()
 }
 
 function addKeyboardListener() {
@@ -122,32 +71,51 @@ function addKeyboardListener() {
 function startStepper() {
   stepper = stepper
     ? stepper
-    : new Loop(
-      (time) =>
-        SequenceEmitter.emit('step', (Transport.position as string).split('.')[0]),
-      '8n'
-    )
+    : new Loop((time) => emitStep(), '16n')
   if (stepper.state === 'stopped') stepper.start(0)
+}
+
+function emitStep() {
+  const emit16ths = useToneStore.getState().resolution === '16n'
+  const step = (Transport.position as string).split('.')[0]
+  const eigths = ['0', '2'].indexOf(step.split(':')[2]) != -1
+  if(emit16ths || eigths) {
+    SequenceEmitter.emit('step', step)
+  }
+}
+
+function muteOutput() {
+  vol.mute = true;
+}
+
+function unmuteOutput() {
+  vol.mute = false;
 }
 
 // DEFAULT INIT
 
 function runInit() {
-  fillInstrumentsArray()
   addKeyboardListener()
   clearTransport()
+  instruments.forEach(i => {
+    i.player.connect(recorder).connect(vol)
+  })
 }
 
 runInit()
 
 // EXPORTS
 
-const tonerIFace = {
-  scheduleI,
+const TonerServiceIFace = {
+  getPlayInstrumentTrigger,
   addSample,
   toggle,
-  getInstruments: (): Array<SoundCfg> => instruments,
+  getInstruments: (): Array<Instrument> => instruments,
   clearAll: clearTransport,
+  recorder,
+  SequenceEmitter,
+  muteOutput,
+  unmuteOutput
 }
 
-export default tonerIFace
+export default TonerServiceIFace

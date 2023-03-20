@@ -13,6 +13,7 @@ body {
 
   color: ghostwhite;
   --panel-color-1: #d46174;
+  --panel-color-2: #e38471;
   --off-color-1: #ecdda6;
   --off-color-2: #36454f;
   --off-color-3: whitesmoke;
@@ -38,7 +39,7 @@ button {
   /* styling */
   border: 0;
   border-radius: 0.25rem;
-  background: #e38471;
+  background: var(--panel-color-2);
   color: white;
   font-family: -system-ui, sans-serif;
   font-size: 1rem;
@@ -65,4 +66,4 @@ button:disabled {
   cursor: default;
 }
 
-button:hover{background-color: var(--off-color-1);}
+button:hover{background-color: var(--panel-color-1);}

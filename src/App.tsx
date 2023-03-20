@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Controls from './controlPanel/Controls';
 import Widget from './widgetPanel/Widget';
 import Modal from './modalPanel/Modal';
+import { createMidiJson } from './_services/midi';
 
 import Mask from './auxComps/Mask';
-import Toner from './_services/toner';
-import Sequencer from './_services/sequencer';
+
+import { initSequencer, unsubSequencerSubscriptions } from './_services/sequencer';
 
 const Header = styled.div`
   padding: 5px;
@@ -20,56 +21,43 @@ const MainFrame = styled.div`
   border-radius: 5px; 
 `;
 
-interface Instrument {
-  group: string
-}
+initSequencer();
 
 export default function App() {
-
-  const [tracks, setTracks] = useState(1);
-  const [slots, setSlots] = useState(Sequencer.getSlots());
   const [showSampler, setShowSampler] = useState(false);
 
-  function addTrack() {
-    if (tracks < Toner.getInstruments().length) {
-      setTracks(tracks + 1);
+  useEffect(() => {
+    return unsubSequencerSubscriptions
+  }, [])
+
+  function dropHandler(ev: any) {
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+
+    if (ev.dataTransfer.items) {
+      // Use DataTransferItemList interface to access the file(s)
+      [...ev.dataTransfer.items].forEach((item, i) => {
+        // If dropped items aren't files, reject them
+        if (item.kind === "file") {
+          const file = item.getAsFile();
+          createMidiJson(file)
+        }
+      });
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      [...ev.dataTransfer.files].forEach((file, i) => {
+        createMidiJson(file)
+      });
     }
-  }
-
-  function removeTrack() {
-    if (tracks > 1) {
-      setTracks(tracks - 1);
-    }
-  }
-
-  function getWidgets() {
-    const groups: Array<string> = Array.from(new Set(Toner.getInstruments().map((i: Instrument) => i.group)));
-    return groups.map(group => (
-      <Widget
-        key={group}
-        group={group}
-        tracks={tracks}
-        slots={slots}
-      />
-    ))
-  }
-
-  function updateSlots() {
-    setSlots(Sequencer.getSlots())
   }
 
   return (
-    <div>
+    <div id="drop_zone" onDrop={dropHandler} onDragEnter={ev => ev.preventDefault()}>
       <Header> 124 sample sequencer ⛵ </Header>
       <Mask />
       <MainFrame>
-        <Controls
-          addTrack={addTrack}
-          removeTrack={removeTrack}
-          updateSlots={updateSlots}
-          showSamplerModal={() => setShowSampler(true)}
-        />
-        {getWidgets()}
+        <Controls showSamplerModal={() => setShowSampler(true)}/>
+        <Widget/>
       </MainFrame>
       <Modal show={showSampler} hideModal={() => setShowSampler(false)} />
     </div>

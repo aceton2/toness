@@ -1,13 +1,15 @@
-import { Slot } from '../_services/sequencer'
+import { Slot } from '../_services/interfaces'
 import styled from 'styled-components'
+import useToneStore, { selectIsFullGrid } from '../_store/store'
 
-const GuideBox = styled.div`
+const GuideBox = styled.div<{ double: boolean }>`
   display: grid;
-  grid-template-columns: repeat(32, 1fr);
+  grid-template-columns: repeat(${props => props.double ? 64 : 32}, 1fr);
   text-align: center;
   font-size: 0.7rem;
   line-height: 1rem;
   margin-left: var(--track-label-width);
+  padding-left: 4px;
 
   & > div.highlight {
     border-radius: 5px;
@@ -16,20 +18,29 @@ const GuideBox = styled.div`
   }
 `
 
+const sixteenthStr = {
+  '1': 'e',
+  '2': '+',
+  '3': 'a',
+}
+
 export default function Guide(props: { activeStep: string; slots: Array<Slot> }) {
+  const doubledGrid = useToneStore(selectIsFullGrid)
+
   function generateGuides() {
     return props.slots.map((slot) => {
       return (
-        <div key={slot.id} className={slot.id === props.activeStep ? 'highlight' : ''}>
-          {slotToGuideName(slot.id)}
+        <div key={slot.timeId} className={slot.timeId === props.activeStep ? 'highlight' : ''}>
+          {slotToGuideName(slot.timeId)}
         </div>
       )
     })
   }
 
   function slotToGuideName(slot: any) {
-    return slot.split(':')[2] === '2' ? '+' : Number(slot.slice(2)[0]) + 1
+    const [_, quarter, sixteenth] = slot.split(':');
+    return sixteenth === '0' ? parseInt(quarter) + 1 : sixteenthStr[sixteenth as '1' | '2' | '3']
   }
 
-  return <GuideBox>{generateGuides()}</GuideBox>
+  return <GuideBox double={doubledGrid}>{generateGuides()}</GuideBox>
 }
