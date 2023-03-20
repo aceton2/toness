@@ -1,6 +1,6 @@
 import { Slot } from '../_services/interfaces'
 import styled from 'styled-components'
-import useToneStore from '../_store/store'
+import useToneStore, { selectIsFullGrid } from '../_store/store'
 
 const GuideBox = styled.div<{ double: boolean }>`
   display: grid;
@@ -24,7 +24,7 @@ const sixteenthStr = {
 }
 
 export default function Guide(props: { activeStep: string; slots: Array<Slot> }) {
-  const doubledGrid = useToneStore(state => state.resolution === '16n')
+  const doubledGrid = useToneStore(selectIsFullGrid)
 
   function generateGuides() {
     return props.slots.map((slot) => {

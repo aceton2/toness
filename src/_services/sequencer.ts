@@ -4,8 +4,7 @@ import { Slot } from './interfaces'
 import ToneStore from '../_store/store';
 import useToneStore from '../_store/store';
 
-
-const transportEvents: {[key: string]: number} = {}
+const transportEventIds: {[key: string]: number} = {} // the key is a scheduledEvent
 const sequencerSlots: Array<Slot> = generateSlots()
 
 function generateSlots(): Array<Slot> {
@@ -47,14 +46,14 @@ function syncActiveTracks() {
 
 function syncScheduledEvents() {
   const scheduledEvents = ToneStore.getState().scheduledEvents
-  const transports = Object.keys(transportEvents);
+  const activeScheduledEvents = Object.keys(transportEventIds);
   const grid16 = ToneStore.getState().resolution === '16n'
-  const activeSchedules = scheduledEvents.filter(ev => grid16 ? true : !is16th(ev))
-  activeSchedules.forEach(event => {
-    if(transports.indexOf(event) === -1) { schedule(event) }
+  const desiredScheduledEvents = scheduledEvents.filter(ev => grid16 ? true : !is16th(ev))
+  desiredScheduledEvents.forEach(scheduledEvent => {
+    if(activeScheduledEvents.indexOf(scheduledEvent) === -1) { schedule(scheduledEvent) }
   })
-  transports.forEach(event => {
-    if(activeSchedules.indexOf(event) === -1) { unschedule(event) }
+  activeScheduledEvents.forEach(scheduledEvent => {
+    if(desiredScheduledEvents.indexOf(scheduledEvent) === -1) { unschedule(scheduledEvent) }
   })
 }
 
@@ -72,15 +71,15 @@ function setBpm(val: number): void {
   Transport.bpm.value = val
 }
 
-function schedule(eventId: string) {
-  const [timeId, instrumentId] = eventId.split('|')
+function schedule(scheduledEvent: string) {
+  const [timeId, instrumentId] = scheduledEvent.split('|')
   const triggerFunction = TonerService.getPlayInstrumentTrigger(parseInt(instrumentId))
-  transportEvents[eventId] = Transport.schedule(time => triggerFunction(time), timeId)
+  transportEventIds[scheduledEvent] = Transport.schedule(time => triggerFunction(time), timeId)
 }
 
-function unschedule(eventId: string) {
-  Transport.clear(transportEvents[eventId])
-  delete transportEvents[eventId]
+function unschedule(scheduledEvent: string) {
+  Transport.clear(transportEventIds[scheduledEvent])
+  delete transportEventIds[scheduledEvent]
 }
 
 // INIT

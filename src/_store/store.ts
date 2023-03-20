@@ -11,8 +11,7 @@ interface TonesState {
   changeBars: (bars: number) => void,
   changeTracks: (tracks: number) => void,
   scheduledEvents: Array<string>,
-  addScheduledEvent: (event: string) => void,
-  removeScheduledEvent: (event: string) => void,
+  toggleScheduledEvent: (event: string) => void,
   clearSchedule: () => void,
   setBpm: (bpm: number) => void,
   toggleResolution: () => void,
@@ -37,10 +36,13 @@ const useToneStore = create<TonesState>()(
         setActiveSlots: (slots: Array<Slot>) => set(state => ({activeSlots: slots})),
         toggleResolution: () => set(state => ({resolution: state.resolution === '8n' ? '16n' : '8n'})),
         clearSchedule: () => set(state => ({scheduledEvents: []})),
-        addScheduledEvent: (event: string) => set(state => ({scheduledEvents: [...state.scheduledEvents, event]})),
-        removeScheduledEvent: (event: string) => set(state => ({
-          scheduledEvents: state.scheduledEvents.filter(sEvent => sEvent !== event)
-        })),
+        toggleScheduledEvent: (scheduledEvent: string) => set(state => {
+          return {scheduledEvents: 
+            (state.scheduledEvents.indexOf(scheduledEvent) != -1)
+            ? state.scheduledEvents.filter(sEvent => sEvent !== scheduledEvent)
+            : [...state.scheduledEvents, scheduledEvent]
+          }
+        }),
       })
       ),
       {name: 'toness'}
@@ -48,5 +50,7 @@ const useToneStore = create<TonesState>()(
     {name: "toness"}
   )
 )
+
+export const selectIsFullGrid = (state: TonesState) => state.resolution === '16n'
 
 export default useToneStore

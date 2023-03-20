@@ -5,7 +5,7 @@ import { Slot } from '../_services/interfaces'
 import Guide from './Guide'
 import Toggle from './Toggle'
 import Track from './Track'
-import useToneStore from '../_store/store'
+import useToneStore, { selectIsFullGrid } from '../_store/store'
 
 
 const WidgetBox = styled.div`
@@ -34,7 +34,9 @@ export default function Widget() {
   const [activeStep, setActiveStep] = useState('')
   const slots = useToneStore(state => state.activeSlots)
   const tracks = useToneStore(state => state.activeTracks)
-  const doubledGrid = useToneStore(state => state.resolution === '16n')
+  const doubledGrid = useToneStore(selectIsFullGrid)
+  const scheduledEvents = useToneStore(state => state.scheduledEvents)
+  const toggleScheduledEvent = useToneStore(state => state.toggleScheduledEvent)
 
   useEffect(() => {
     TonerService.SequenceEmitter.on('step', setStep)
@@ -43,11 +45,7 @@ export default function Widget() {
     }
   }, [])
 
-  const setStep = useCallback((step: string) => {
-    if(step !== 'stop') {
-        setActiveStep(step)
-    }
-  }, [])
+  const setStep = useCallback((step: string) => setActiveStep(step), [])
 
   // COMPONENTS
 
@@ -73,15 +71,23 @@ export default function Widget() {
     ))
   }
 
-  function getToggles(soundId: number, slots: Array<Slot>) {
-    return slots.map((slot, index) => (
-      <Toggle
-        key={index.toString()}
-        timeId={slot.timeId}
-        instrumentId={soundId}
-        isActive={activeStep === slot.timeId}
-      />
-    ))
+  function getToggles(instrumentId: number, slots: Array<Slot>) {
+    return slots.map((slot) => {
+      const scheduledEvent = `${slot.timeId}|${instrumentId}`
+      return (
+        <Toggle 
+          key={scheduledEvent}
+          isActive={activeStep === slot.timeId}
+          scheduledEvent={scheduledEvent}
+          scheduled={isScheduled(scheduledEvent)}
+          toggle={() => toggleScheduledEvent(scheduledEvent)}
+        />
+      )
+    })
+  }
+
+  function isScheduled(scheduledEvent: string) {
+    return scheduledEvents.indexOf(scheduledEvent) != -1
   }
 
   // RENDER

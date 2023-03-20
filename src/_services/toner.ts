@@ -41,7 +41,6 @@ function addSample(player: Player) {
 
 function clearTransport() {
   Transport.cancel()
-  SequenceEmitter.emit('cleared')
   stepper = null
   startStepper()
 }
@@ -49,7 +48,7 @@ function clearTransport() {
 // START/STOP
 
 function toggle(): void {
-  Transport.state === 'stopped' ? startT() : stopT()
+  Transport.state === 'stopped' ? startT() : Transport.stop()
 }
 
 async function startT() {
@@ -58,11 +57,6 @@ async function startT() {
   }
   startStepper()
   Transport.start()
-}
-
-function stopT() {
-  SequenceEmitter.emit('step', 'stop')
-  Transport.stop()
 }
 
 function addKeyboardListener() {

@@ -14,4 +14,6 @@ export interface Slot {
     timeId: string
   }
 
-// add interface type for timeId|instrumentId and clean up EVENT ID ambiguitiy 
+  // timeId: string (bar:quarter:sixteenth)
+  // scheduledEvent: string (timeId|instrumentId)
+  // transportEventId: number
