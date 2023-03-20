@@ -4,12 +4,22 @@ import useToneStore, { selectIsFullGrid } from '../_store/store'
 import { saveFile } from '../_services/midi';
 import { recordAudio } from '../_services/audioExport';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faStop, faPlay, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
 const TempoBox = styled.div`
   display: flex;
-  & div {
-    margin-right: 1rem;
+  & div:first-child {
+    width: 100px;
+    background: var(--panel-color-2);
+    padding: 2px 5px;
+    margin-right: 5px;
+    border-radius: 5px;
+  }
+  & input {
+    width: 300px;
+    accent-color: var(--off-color-1);
+    cursor: pointer;
   }
 `
 
@@ -63,6 +73,7 @@ export default function Controls(props: controlProps) {
   const toggleResolution = useToneStore(state => state.toggleResolution)
   const resolutionDoubled = useToneStore(selectIsFullGrid)
   const changeTracks = useToneStore(state => state.changeTracks)
+  const clearSteps = useToneStore(state => state.clearSchedule)
 
   function handleChange(e: any) {
     setBpm(e.target.value)
@@ -81,13 +92,13 @@ export default function Controls(props: controlProps) {
 
       <TempoBox>
         <div>
-          Tempo {bpm}
+          TEMPO {bpm}
         </div>
         <div>
           <input
             type="range"
-            min="33"
-            max="330"
+            min="24"
+            max="240"
             step="1"
             value={bpm}
             onChange={handleChange}
@@ -96,7 +107,8 @@ export default function Controls(props: controlProps) {
       </TempoBox>
 
       <ControlBox>
-      <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> - <FontAwesomeIcon icon={faStop}/></button>
+      <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> <span></span><FontAwesomeIcon icon={faStop}/></button>
+      <button onClick={clearSteps}><FontAwesomeIcon icon={faTrashCan}/></button>
 
       <Stretch />
 

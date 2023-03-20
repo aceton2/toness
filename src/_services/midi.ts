@@ -35,7 +35,7 @@ function createMidi(): Midi {
     midi.header = header
 
     const track = midi.addTrack();
-    const grid = 8;
+    const grid = useToneStore.getState().resolution === '8n' ? 8 : 16;
     const ticksPerSlot = ppq / (grid / 4);
 
     [0, 1, 2].forEach(instrument => {
@@ -44,9 +44,10 @@ function createMidi(): Midi {
                 const split = eventId.split('|')
                 return {timeId: split[0], instrumentId: parseInt(split[1])}
             })
+            .filter(event => (grid === 16 ? true : !is16th(event.timeId)))
             .filter(event => event.instrumentId === instrument)
-            .map(notes => convertTimeIdToSlotNumber(notes.timeId))
-            .sort((a, b) => a - b) // this may not be neccessary
+            .map(notes => convertTimeIdToSlotNumber(notes.timeId, grid))
+            .sort((a, b) => a - b)
             .forEach(slot => {
                 track.addNote({
                     midi: midiCodes[instrument],
@@ -59,10 +60,13 @@ function createMidi(): Midi {
     return midi
 }
 
-// timeId shows barNote:quarterNote:eightNote(0 or 2)
-function convertTimeIdToSlotNumber(timeId: string): number {
+function is16th(timeId: string) {
+    return ['0', '2'].indexOf(timeId.split(':')[2]) === -1
+}
+
+function convertTimeIdToSlotNumber(timeId: string, grid: number): number {
     const timeArray = timeId.split(':').map(i => parseInt(i))
-    const slot = 1 + (timeArray[0] * 8) + timeArray[1] * 2 + timeArray[2] / 2;
+    const slot = (timeArray[0] * grid) + timeArray[1] * (grid / 4) + timeArray[2] * (grid / 16);
     return slot
 }
 

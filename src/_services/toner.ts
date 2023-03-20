@@ -1,10 +1,11 @@
-import { Transport, Player, context, start, Loop, Emitter, Recorder } from 'tone'
+import { Transport, Player, context, start, Loop, Emitter, Recorder, Volume } from 'tone'
 import useToneStore from '../_store/store'
 import { Instrument } from './interfaces'
 
-// RECORDER 
+// NODES
 
 const recorder = new Recorder()
+const vol = new Volume(0).toDestination();
 
 // STEPPER
 
@@ -13,9 +14,9 @@ let stepper: Loop | null
 
 // INSTRUMENTS
 let instruments: Array<Instrument> = [
-  {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3').toDestination(), duration: 0.5 },
-  {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3').toDestination(), duration: 2 },
-  {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3').toDestination(), duration: 2 },
+  {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), duration: 0.5 },
+  {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), duration: 2 },
+  {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3'), duration: 2 },
 ]
 
 function getPlayInstrumentTrigger(id: number): (arg0: number) => void {
@@ -83,12 +84,22 @@ function emitStep() {
   }
 }
 
+function muteOutput() {
+  vol.mute = true;
+}
+
+function unmuteOutput() {
+  vol.mute = false;
+}
+
 // DEFAULT INIT
 
 function runInit() {
   addKeyboardListener()
   clearTransport()
-  instruments.forEach(i => i.player.connect(recorder))
+  instruments.forEach(i => {
+    i.player.connect(recorder).connect(vol)
+  })
 }
 
 runInit()
@@ -103,6 +114,8 @@ const TonerServiceIFace = {
   clearAll: clearTransport,
   recorder,
   SequenceEmitter,
+  muteOutput,
+  unmuteOutput
 }
 
 export default TonerServiceIFace
