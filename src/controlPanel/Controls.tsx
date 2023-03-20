@@ -1,14 +1,56 @@
 import styled from 'styled-components'
 import TonerService from '../_services/toner'
-import useToneStore from '../_store/store'
+import useToneStore, { selectIsFullGrid } from '../_store/store'
+import { saveFile } from '../_services/midi';
+import { recordAudio } from '../_services/audioExport';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faStop, faPlay, faRefresh } from '@fortawesome/free-solid-svg-icons';
+
+const TempoBox = styled.div`
+  display: flex;
+  & div {
+    margin-right: 1rem;
+  }
+`
 
 const ControlBox = styled.div`
-  margin-bottom: 1rem;
-  position: relative;
+  margin: 1rem 0px 0.5rem;
+  background: var(--off-color-1);
+  border-radius: 5px;
+  padding: 5px;
+  display: flex;
+`
 
+const SubControlBox = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem;
   button {
-    margin-right: 0.5rem;
+    background: var(--off-color-2);
+    &:hover {
+      background: var(--panel-color-1)
+    }
   }
+`
+
+const MultiSelect = styled.div`
+  display: flex;
+  border-radius: 5px;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0px;
+  width: 120px;
+  margin: 4px 0px;
+  & div {
+    flex: 1;
+    padding: 5px;
+    background: var(--panel-color-1);
+    text-align: center;
+  }
+  & .active {background: var(--off-color-2) }
+`
+const Stretch = styled.div`
+  flex: 1;
 `
 
 interface controlProps {
@@ -18,9 +60,9 @@ interface controlProps {
 export default function Controls(props: controlProps) {
   const [bpm, setBpm] = useToneStore(state => [state.bpm, state.setBpm])
   const changeBars = useToneStore(state => state.changeBars)
-  const changeTracks = useToneStore(state => state.changeTracks)
-  const clearSteps = useToneStore(state => state.clearSchedule)
   const toggleResolution = useToneStore(state => state.toggleResolution)
+  const resolutionDoubled = useToneStore(selectIsFullGrid)
+  const changeTracks = useToneStore(state => state.changeTracks)
 
   function handleChange(e: any) {
     setBpm(e.target.value)
@@ -35,25 +77,46 @@ export default function Controls(props: controlProps) {
   }
 
   return (
-    <ControlBox>
-      <button onClick={toggleTransporter}>start/stop</button>
-      <button onClick={() => changeTracks(1)}>+T</button>
-      <button onClick={() => changeTracks(-1)}>-T</button>
-      <button onClick={clearSteps}>clear steps</button>
-      <button onClick={() => changeBars(1)}>add bar</button>
-      <button onClick={() => changeBars(-1)}>remove bar</button>
-      <button onClick={props.showSamplerModal}>open sampler</button>
-      <button onClick={toggleResolution}>16ths</button>
+    <div>
 
-      <input
-        type="range"
-        min="33"
-        max="330"
-        step="1"
-        value={bpm}
-        onChange={handleChange}
-      />
-      {bpm}
-    </ControlBox>
+      <TempoBox>
+        <div>
+          Tempo {bpm}
+        </div>
+        <div>
+          <input
+            type="range"
+            min="33"
+            max="330"
+            step="1"
+            value={bpm}
+            onChange={handleChange}
+          />
+        </div>
+      </TempoBox>
+
+      <ControlBox>
+      <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> - <FontAwesomeIcon icon={faStop}/></button>
+
+      <Stretch />
+
+      <button onClick={saveFile}>Save Midi</button>
+      <button onClick={() => recordAudio()}>Save Audio</button>
+
+      </ControlBox>
+
+      <SubControlBox>
+        <Stretch />
+        <button onClick={() => changeTracks(1)}>+ Voice</button>
+        <button onClick={() => changeTracks(-1)}>- Voice</button>
+        <button onClick={() => changeBars(1)}>+ Bar</button>
+        <button onClick={() => changeBars(-1)}>- Bar</button>
+        <Stretch />
+        <MultiSelect onClick={toggleResolution}>
+          <div className={!resolutionDoubled ? 'active' : ''}>8ths</div>
+          <div className={resolutionDoubled ? 'active' : ''}>16ths</div>
+        </MultiSelect>
+      </SubControlBox>
+    </div>
   )
 }

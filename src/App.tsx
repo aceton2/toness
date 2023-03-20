@@ -3,13 +3,11 @@ import styled from 'styled-components';
 import Controls from './controlPanel/Controls';
 import Widget from './widgetPanel/Widget';
 import Modal from './modalPanel/Modal';
+import { createMidiJson } from './_services/midi';
 
 import Mask from './auxComps/Mask';
 
-import { createMidiJson, saveFile } from './_services/midi';
 import { initSequencer, unsubSequencerSubscriptions } from './_services/sequencer';
-import { recordAudio } from './_services/audioExport';
-import useToneStore from './_store/store';
 
 const Header = styled.div`
   padding: 5px;
@@ -23,22 +21,10 @@ const MainFrame = styled.div`
   border-radius: 5px; 
 `;
 
-const DropBox = styled.div`
-  margin: auto;
-  padding: 20px;
-  text-align: center;
-  border-radius: 5px;
-  height: 150px;
-  width: 150px;
-  background: var(--off-color-2);
-  margin-bottom: 100px;
-`
-
 initSequencer();
 
 export default function App() {
   const [showSampler, setShowSampler] = useState(false);
-  const bars = useToneStore(state => state.activeBars)
 
   useEffect(() => {
     return unsubSequencerSubscriptions
@@ -66,21 +52,14 @@ export default function App() {
   }
 
   return (
-    <div>
+    <div id="drop_zone" onDrop={dropHandler} onDragEnter={ev => ev.preventDefault()}>
       <Header> 124 sample sequencer ⛵ </Header>
       <Mask />
       <MainFrame>
-        <button onClick={saveFile}>Save Midi</button>
-        <button onClick={() => recordAudio(bars)}>Save Audio</button>
         <Controls showSamplerModal={() => setShowSampler(true)}/>
         <Widget/>
       </MainFrame>
       <Modal show={showSampler} hideModal={() => setShowSampler(false)} />
-      <DropBox
-        id="drop_zone"
-        onDrop={dropHandler}>
-        <p>Drag one or more files to this <i>drop zone</i>.</p>
-      </DropBox>
     </div>
   );
 }

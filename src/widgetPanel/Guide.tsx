@@ -9,6 +9,7 @@ const GuideBox = styled.div<{ double: boolean }>`
   font-size: 0.7rem;
   line-height: 1rem;
   margin-left: var(--track-label-width);
+  padding-left: 4px;
 
   & > div.highlight {
     border-radius: 5px;

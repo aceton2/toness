@@ -30,8 +30,8 @@ const useToneStore = create<TonesState>()(
         bpm: 120,
         resolution: '8n',
         scheduledEvents: [],
-        changeBars: (bars: number) => set(state => ({activeBars: state.activeBars + bars})), // min-max 1-4
-        changeTracks: (tracks: number) => set(state => ({activeTracks: state.activeTracks + tracks})), // min-max 1-4
+        changeBars: (bars: number) => set(state => ({activeBars: getNewBars(state.activeBars, bars)})),
+        changeTracks: (tracks: number) => set(state => ({activeTracks: getNewTracks(state.activeTracks, tracks)})),
         setBpm: (bpm: number) => set(state => ({ bpm })),
         setActiveSlots: (slots: Array<Slot>) => set(state => ({activeSlots: slots})),
         toggleResolution: () => set(state => ({resolution: state.resolution === '8n' ? '16n' : '8n'})),
@@ -50,6 +50,16 @@ const useToneStore = create<TonesState>()(
     {name: "toness"}
   )
 )
+
+function getNewBars(activeBars: number, change: number): number {
+  const newBars = activeBars + change;
+  return (newBars > 0 && newBars < 5) ? newBars : activeBars
+}
+
+function getNewTracks(activeTracks: number, change: number): number {
+  const newTracks = activeTracks + change;
+  return (newTracks > 0 && newTracks < 4) ? newTracks : activeTracks
+}
 
 export const selectIsFullGrid = (state: TonesState) => state.resolution === '16n'
 

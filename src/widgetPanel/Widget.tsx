@@ -16,13 +16,6 @@ const WidgetBox = styled.div`
   }
 `
 
-const WidgetTitle = styled.div`
-  margin: 1rem 0rem 0.5rem;
-  padding: 5px;
-  background-color: var(--off-color-2);
-  border-radius: 5px;
-`
-
 const Bar = styled.div<{ doubled: boolean }>`
   display: grid;
   grid-template-columns: repeat(${props => props.doubled ? 16 : 8}, 1fr);
@@ -94,7 +87,6 @@ export default function Widget() {
 
   return (
     <WidgetBox>
-      <WidgetTitle>Tracks</WidgetTitle>
       <Guide slots={slots} activeStep={activeStep} />
       {getTracks()}
     </WidgetBox>

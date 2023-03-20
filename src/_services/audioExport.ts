@@ -1,5 +1,6 @@
 import { Transport, context, start } from 'tone'
 import TonerService from './toner'
+import useToneStore from '../_store/store';
 
 async function saveRecording() {
     // the recorded audio is returned as a blob
@@ -13,7 +14,8 @@ async function saveRecording() {
     Transport.off("stop", saveRecording);
 }
 
-export async function recordAudio(bars: number) {
+export async function recordAudio() {
+    const bars = useToneStore.getState().activeBars
     if(TonerService.recorder.state !== "started") { TonerService.recorder.start(); }
     if (context.state !== 'running') { await start() }
     Transport.on("stop", saveRecording)

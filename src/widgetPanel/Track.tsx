@@ -7,7 +7,14 @@ const TrackWithLabel = styled.div`
 
 const Label = styled.div`
   width: var(--track-label-width);
-  line-height: 100%;
+  padding: 2px;
+  & div {
+    padding: 5px;
+    border-radius: 5px;
+    height: 46px;
+    background: var(--off-color-2);
+    opacity: 0.7;
+  }
 `
 
 const TrackBars = styled.div`
@@ -24,7 +31,7 @@ interface SoundProps {
 export default function Track(props: SoundProps) {
   return (
     <TrackWithLabel>
-      <Label>{props.name}</Label>
+      <Label><div>{props.name}</div></Label>
       <TrackBars>{props.children}</TrackBars>
     </TrackWithLabel>
   )
