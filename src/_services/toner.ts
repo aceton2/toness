@@ -1,4 +1,5 @@
 import { Transport, Player, context, start, Loop, Emitter, Recorder } from 'tone'
+import useToneStore from '../_store/store'
 import { Instrument } from './interfaces'
 
 // RECORDER 
@@ -75,12 +76,17 @@ function addKeyboardListener() {
 function startStepper() {
   stepper = stepper
     ? stepper
-    : new Loop(
-      (time) =>
-        SequenceEmitter.emit('step', (Transport.position as string).split('.')[0]),
-      '8n'
-    )
+    : new Loop((time) => emitStep(), '16n')
   if (stepper.state === 'stopped') stepper.start(0)
+}
+
+function emitStep() {
+  const emit16ths = useToneStore.getState().resolution === '16n'
+  const step = (Transport.position as string).split('.')[0]
+  const eigths = ['0', '2'].indexOf(step.split(':')[2]) != -1
+  if(emit16ths || eigths) {
+    SequenceEmitter.emit('step', step)
+  }
 }
 
 // DEFAULT INIT

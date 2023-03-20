@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback } from 'react'
 import styled from 'styled-components'
 import useToneStore from '../_store/store'
 
@@ -24,15 +24,13 @@ interface ToggleProps {
   instrumentId: number
 }
 
-export default function Toggle(props: ToggleProps) {
-  const [scheduled, setScheduled] = useState(false)
-  const [scheduledEv, addEv, removeEv] = useToneStore(store => [store.scheduledEvents, store.addScheduledEvent, store.removeScheduledEvent])
-  const eventId = `${props.timeId}|${props.instrumentId}`;
-  // create a selector callback for the specific timeslot and then listen in effect whether scheduled or not
 
-  useEffect(() => {
-    setScheduled(scheduledEv.some(ev => ev === eventId))
-  }, [scheduledEv, eventId])
+
+export default function Toggle(props: ToggleProps) {
+  const [addEv, removeEv] = useToneStore(store => [store.addScheduledEvent, store.removeScheduledEvent])
+  const eventId = `${props.timeId}|${props.instrumentId}`;
+
+  const scheduled = useToneStore(useCallback((state) => state.scheduledEvents.some(ev => ev === eventId), [eventId]))
 
   function handleClick() {
     !scheduled

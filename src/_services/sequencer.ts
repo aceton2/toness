@@ -5,7 +5,7 @@ import ToneStore from '../_store/store';
 import useToneStore from '../_store/store';
 
 
-const transportEvents: {[key: string]: number} = {} // key is eventId, prop is transportId
+const transportEvents: {[key: string]: number} = {}
 const sequencerSlots: Array<Slot> = generateSlots()
 
 function generateSlots(): Array<Slot> {
@@ -45,14 +45,22 @@ function syncActiveTracks() {
   )
 }
 
-function syncScheduledEvents(scheduledEvents: Array<string>) {
+function syncScheduledEvents() {
+  const scheduledEvents = ToneStore.getState().scheduledEvents
   const transports = Object.keys(transportEvents);
-  scheduledEvents.forEach(event => {
+  const grid16 = ToneStore.getState().resolution === '16n'
+  const activeSchedules = scheduledEvents.filter(ev => grid16 ? true : !is16th(ev))
+  activeSchedules.forEach(event => {
     if(transports.indexOf(event) === -1) { schedule(event) }
   })
   transports.forEach(event => {
-    if(scheduledEvents.indexOf(event) === -1) { unschedule(event) }
+    if(activeSchedules.indexOf(event) === -1) { unschedule(event) }
   })
+}
+
+function is16th(event: string) {
+  const part = event.split('|')[0].split(':')[2];
+  return ['0', '2'].indexOf(part) === -1
 }
 
 function setLoopEnd(bar: number): void {
@@ -85,6 +93,7 @@ export function initSequencer() {
     ToneStore.subscribe((state) => state.activeTracks, syncActiveTracks),
     ToneStore.subscribe((state) => state.activeBars, syncActiveSlots),
     ToneStore.subscribe((state) => state.resolution, syncActiveSlots),
+    ToneStore.subscribe((state) => state.resolution, syncScheduledEvents),
     ToneStore.subscribe((state) => state.bpm, setBpm),
     ToneStore.subscribe((state) => state.scheduledEvents, syncScheduledEvents),
   ];
@@ -94,7 +103,7 @@ export function initSequencer() {
   syncActiveSlots()
   syncActiveTracks()
   setBpm(storeState.bpm)
-  syncScheduledEvents(storeState.scheduledEvents)
+  syncScheduledEvents()
 
   Transport.loop = true
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import TonerService from '../_services/toner'
 import { Slot } from '../_services/interfaces'
@@ -23,9 +23,9 @@ const WidgetTitle = styled.div`
   border-radius: 5px;
 `
 
-const Bar = styled.div`
+const Bar = styled.div<{ doubled: boolean }>`
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(${props => props.doubled ? 16 : 8}, 1fr);
 `
 /**
  * This widget represents a instrument group
@@ -34,6 +34,7 @@ export default function Widget() {
   const [activeStep, setActiveStep] = useState('')
   const slots = useToneStore(state => state.activeSlots)
   const tracks = useToneStore(state => state.activeTracks)
+  const doubledGrid = useToneStore(state => state.resolution === '16n')
 
   useEffect(() => {
     TonerService.SequenceEmitter.on('step', setStep)
@@ -42,9 +43,11 @@ export default function Widget() {
     }
   }, [])
 
-  function setStep(step: string) {
-    setActiveStep(step)
-  }
+  const setStep = useCallback((step: string) => {
+    if(step !== 'stop') {
+        setActiveStep(step)
+    }
+  }, [])
 
   // COMPONENTS
 
@@ -61,7 +64,7 @@ export default function Widget() {
   function getBars(soundId: number) {
     const bars = Array.from(new Set(slots.map(slot => slot.bar)))
     return bars.map((bar: number) => (
-      <Bar key={bar}>
+      <Bar doubled={doubledGrid} key={bar}>
         {getToggles(
           soundId,
           slots.filter((slot) => slot.bar === bar)

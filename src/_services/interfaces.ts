@@ -14,4 +14,4 @@ export interface Slot {
     timeId: string
   }
 
-// timeId|instrumentId
+// add interface type for timeId|instrumentId and clean up EVENT ID ambiguitiy 
