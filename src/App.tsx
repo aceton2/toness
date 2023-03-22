@@ -2,26 +2,24 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Controls from './controlPanel/Controls';
 import Widget from './widgetPanel/Widget';
-import Modal from './modalPanel/Modal';
+import Header from './controlPanel/Header';
 import { createMidiJson } from './_services/midi';
 
 import Mask from './auxComps/Mask';
 
 import { initSequencer, unsubSequencerSubscriptions } from './_services/sequencer';
+import SamplerPanel from './samplerPanel/Sampler';
+import SamplerService from './_services/sampler';
 
-const Header = styled.div`
-  padding: 5px;
-  background-color: var(--off-color-2);
-  font-style: italic;
-`;
 
 const MainFrame = styled.div`
-  margin: 1rem;
-  padding: 2rem;
+  margin: 0rem 1rem 1rem;
+  padding: 1.5rem 2rem;
   border-radius: 5px; 
 `;
 
 initSequencer();
+SamplerService.startMic()
 
 export default function App() {
   const [showSampler, setShowSampler] = useState(false);
@@ -53,13 +51,13 @@ export default function App() {
 
   return (
     <div id="drop_zone" onDrop={dropHandler} onDragEnter={ev => ev.preventDefault()}>
-      <Header> 124 sample sequencer ⛵ </Header>
+      <Header />
       <Mask />
       <MainFrame>
+        <SamplerPanel />
         <Controls showSamplerModal={() => setShowSampler(true)}/>
         <Widget/>
       </MainFrame>
-      <Modal show={showSampler} hideModal={() => setShowSampler(false)} />
     </div>
   );
 }

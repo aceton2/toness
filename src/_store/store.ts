@@ -13,7 +13,7 @@ interface TonesState {
   scheduledEvents: Array<string>,
   toggleScheduledEvent: (event: string) => void,
   clearSchedule: () => void,
-  setBpm: (bpm: number) => void,
+  setBpm: (bpm: string) => void,
   toggleResolution: () => void,
   setActiveSlots: (slots: Array<Slot>) => void,
 }
@@ -32,7 +32,7 @@ const useToneStore = create<TonesState>()(
         scheduledEvents: [],
         changeBars: (bars: number) => set(state => ({activeBars: getNewBars(state.activeBars, bars)})),
         changeTracks: (tracks: number) => set(state => ({activeTracks: getNewTracks(state.activeTracks, tracks)})),
-        setBpm: (bpm: number) => set(state => ({ bpm })),
+        setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
         setActiveSlots: (slots: Array<Slot>) => set(state => ({activeSlots: slots})),
         toggleResolution: () => set(state => ({resolution: state.resolution === '8n' ? '16n' : '8n'})),
         clearSchedule: () => set(state => ({scheduledEvents: []})),
@@ -58,7 +58,7 @@ function getNewBars(activeBars: number, change: number): number {
 
 function getNewTracks(activeTracks: number, change: number): number {
   const newTracks = activeTracks + change;
-  return (newTracks > 0 && newTracks < 4) ? newTracks : activeTracks
+  return (newTracks > 0 && newTracks < 8) ? newTracks : activeTracks
 }
 
 export const selectIsFullGrid = (state: TonesState) => state.resolution === '16n'

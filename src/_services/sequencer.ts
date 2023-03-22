@@ -39,9 +39,9 @@ function syncActiveSlots() {
 
 function syncActiveTracks() {
   const tracks = ToneStore.getState().activeTracks
-  TonerService.getInstruments().forEach((inst, index) => 
-    inst.player.mute = index >= tracks
-  )
+  TonerService.getInstruments().forEach((inst, index) => {
+    if(inst.player) { inst.player.mute = index >= tracks }
+  })
 }
 
 function syncScheduledEvents() {

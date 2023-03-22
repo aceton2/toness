@@ -1,6 +1,6 @@
 import { Transport, Player, context, start, Loop, Emitter, Recorder, Volume } from 'tone'
 import useToneStore from '../_store/store'
-import { Instrument } from './interfaces'
+import { Instrument, PadName } from './interfaces'
 
 // NODES
 
@@ -13,29 +13,31 @@ let SequenceEmitter = new Emitter()
 let stepper: Loop | null
 
 // INSTRUMENTS
+
+const padDefault = {duration: 2, fadeOut: 0.2, offset: 0}
+
 let instruments: Array<Instrument> = [
   {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), duration: 0.5 },
   {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), duration: 2 },
   {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3'), duration: 2 },
+  // pads
+  {id: 3, name: 'red', player: undefined, ...padDefault },
+  {id: 4, name: 'sol', player: undefined, ...padDefault },
+  {id: 5, name: 'gelb', player: undefined, ...padDefault },
+  {id: 6, name: 'rot', player: undefined, ...padDefault },
 ]
 
 function getPlayInstrumentTrigger(id: number): (arg0: number) => void {
   const instrument = instruments.find((sound: Instrument) => sound.id === id)
   const rates = { fadeOut: 0.2, offset: 0, duration: instrument?.duration }
-  return (time) => instrument?.player.start(time, rates.offset, rates.duration)
+  return (time) => instrument?.player?.start(time, rates.offset, rates.duration)
 }
 
-let ids = 100;
-function addSample(player: Player) {
-  instruments.push({
-    id: ids++,
-    name: ids.toString(),
-    player: player,
-    fadeOut: 0.2, 
-    offset: 0, 
-    duration: 2
-  })
-  player.connect(recorder)
+function addSample(audioURL: string, padName: PadName) {
+  const pad = instruments.find(i => i.name === padName)
+  if(!pad) return
+  pad.player = new Player(audioURL);
+  pad.player.connect(recorder).connect(vol)
 }
 
 // SCHEDULING
@@ -63,6 +65,7 @@ async function startT() {
 function addKeyboardListener() {
   document.addEventListener('keydown', (e) => {
     if (e.key === ' ') {
+      e.preventDefault()
       toggle()
     }
   })
@@ -98,8 +101,9 @@ function runInit() {
   addKeyboardListener()
   clearTransport()
   instruments.forEach(i => {
-    i.player.connect(recorder).connect(vol)
+    i.player?.connect(recorder).connect(vol)
   })
+  // update instruments available in store
 }
 
 runInit()
@@ -111,11 +115,12 @@ const TonerServiceIFace = {
   addSample,
   toggle,
   getInstruments: (): Array<Instrument> => instruments,
+  getPadNames: () => instruments.filter(i => i.id > 2).map(i => i.name) as Array<PadName>,
   clearAll: clearTransport,
   recorder,
   SequenceEmitter,
   muteOutput,
-  unmuteOutput
+  unmuteOutput,
 }
 
 export default TonerServiceIFace
