@@ -79,7 +79,7 @@ export default function Pad(props: {iam: PadName}) {
       }
 
     return (
-    <PadBox onMouseDown={() => startRecording()} onMouseUp={() => stopRecording()}>
+    <PadBox onMouseDown={() => startRecording()} onMouseUp={() => stopRecording()} onMouseLeave={() => stopRecording()}>
         { !recording ? '' : (
             <Blur> <div> recording...</div> </Blur>
         )}
