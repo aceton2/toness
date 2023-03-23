@@ -1,6 +1,6 @@
 import { Transport, Player, context, start, Loop, Emitter, Recorder, Volume } from 'tone'
 import useToneStore from '../_store/store'
-import { Instrument, PadName } from './interfaces'
+import { Instrument, PadName, ToneParams } from './interfaces'
 
 // NODES
 
@@ -17,9 +17,9 @@ let stepper: Loop | null
 const padDefault = {duration: 2, fadeOut: 0.2, offset: 0}
 
 let instruments: Array<Instrument> = [
-  {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), duration: 0.5 },
-  {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), duration: 2 },
-  {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3'), duration: 2 },
+  {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), ...padDefault, duration: 0.5 },
+  {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), ...padDefault, duration: 2 },
+  {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3'), ...padDefault, duration: 2 },
   // pads
   {id: 3, name: 'red', player: undefined, ...padDefault },
   {id: 4, name: 'sol', player: undefined, ...padDefault },
@@ -28,9 +28,9 @@ let instruments: Array<Instrument> = [
 ]
 
 function getPlayInstrumentTrigger(id: number): (arg0: number) => void {
-  const instrument = instruments.find((sound: Instrument) => sound.id === id)
-  const rates = { fadeOut: 0.2, offset: 0, duration: instrument?.duration }
-  return (time) => instrument?.player?.start(time, rates.offset, rates.duration)
+  const instrument = instruments.find(i => i.id === id)
+  if(instrument?.player && instrument?.fadeOut) { instrument.player.fadeOut = instrument.fadeOut }
+  return (time) => instrument?.player?.start(time, instrument.offset, instrument.duration)
 }
 
 function addSample(audioURL: string, padName: PadName) {
@@ -38,6 +38,15 @@ function addSample(audioURL: string, padName: PadName) {
   if(!pad) return
   pad.player = new Player(audioURL);
   pad.player.connect(recorder).connect(vol)
+}
+
+function updateInstrumentParams(instrument: Instrument, params: ToneParams) {  
+  if(instrument.player) {
+    instrument.offset = (params.offset / 100) * instrument.player.buffer.duration
+    instrument.duration = (params.duration / 100) * instrument.player.buffer.duration 
+    instrument.player.fadeOut = (params.fadeOut / 100) * instrument.player.buffer.duration
+    instrument.player.fadeIn = (params.fadeIn / 100) * instrument.player.buffer.duration
+  }
 }
 
 // SCHEDULING
@@ -81,7 +90,7 @@ function startStepper() {
 function emitStep() {
   const emit16ths = useToneStore.getState().resolution === '16n'
   const step = (Transport.position as string).split('.')[0]
-  const eigths = ['0', '2'].indexOf(step.split(':')[2]) != -1
+  const eigths = ['0', '2'].indexOf(step.split(':')[2]) !== -1
   if(emit16ths || eigths) {
     SequenceEmitter.emit('step', step)
   }
@@ -116,6 +125,8 @@ const TonerServiceIFace = {
   toggle,
   getInstruments: (): Array<Instrument> => instruments,
   getPadNames: () => instruments.filter(i => i.id > 2).map(i => i.name) as Array<PadName>,
+  getPadByName: (name: string) => instruments.find(i => i.name === name),
+  updateInstrumentParams,
   clearAll: clearTransport,
   recorder,
   SequenceEmitter,

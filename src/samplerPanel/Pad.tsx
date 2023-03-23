@@ -1,35 +1,63 @@
 import styled from "styled-components"
 import SamplerService from "../_services/sampler"
-import { faPlayCircle } from '@fortawesome/free-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { PadName } from "../_services/interfaces";
+import TonerService from "../_services/toner";
+import { PadName, ToneParams } from "../_services/interfaces";
 import { useState } from "react";
 
 const PadBox = styled.div`
-    position: relative;
-    background: var(--off-color-2);
-    border-radius: 5px;
-    margin: 5px;
-    height: 150px;
-    display: flex;
-    flex-direction: column;   
-    cursor: pointer; 
+  position: relative;
+  border-radius: 5px;
+  margin: 5px; 
+`
+
+const RecordingBox = styled.div`
+  height: 120px;
+  background: var(--off-color-2);
+  border-radius: 5px 5px 0px 0px;
+
+  display: flex;
+  flex-direction: column;   
+  cursor: pointer;
+`
+
+const PadControl = styled.div`
+  height: 30px;
+  background: #556d7c;
+  border-radius: 0px 0px 5px 5px;
+  
+  text-align: center;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+
+  font-size: 0.8rem;
+
+  & > div {
+    margin-left: 0.1rem;
+  }
+  & input {
+    width: 85%;
+    font-size: 0.8rem;
+    border: 1px solid whitesmoke;
+    color: white;
+    background: #556d7c;
+    border-radius: 2px;
+  }
 `
 
 const Blur = styled.div `
-    position: absolute;
-    border-radius: 5px;
-    backdrop-filter: blur(4px);
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 2;
-    & div {
-        text-align: center;
-        font-style: italic;
-        margin-top: 1rem;
-    }
+  position: absolute;
+  border-radius: 5px;
+  backdrop-filter: blur(4px);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  & div {
+      text-align: center;
+      font-style: italic;
+      margin-top: 1rem;
+  }
 `
 
 const WaveViewPort = styled.div`
@@ -51,47 +79,76 @@ const Title = styled.div`
   text-align: center;
 `
 
-const Stretch = styled.div`
-    flex: 1;
-`
+type ParamName = 'duration' | 'fadeOut' | 'offset' | 'fadeIn'
 
-const PadControl = styled.div`
-  height: 30px;
-  border-radius: 0px 0px 5px 5px;
-  background: #556d7c;
-  text-align: center;
-  & svg {
-    margin-top: 0.75rem;
-  }
-`
+interface ParamCfg {displayName: string, name: ParamName, min: number, max: number, step: number, default: number}
+
+const paramConfigObj: {[key: string]: ParamCfg} = {
+  offset: {displayName: 'start', name: 'offset', min: 0, max: 99, step: 1, default: 0},
+  fadeOut: {displayName: 'f-in', name: 'fadeOut', min: 0, max: 99, step: 1, default: 20},
+  duration: {displayName: 'duration', name: 'duration', min: 0, max: 99, step: 1, default: 99},
+  fadeIn: {displayName: 'f-out', name: 'fadeIn', min: 0, max: 99, step: 1, default: 20},
+}
+const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
 
 export default function Pad(props: {iam: PadName}) {
     const [recording, setRecording] = useState(false)
+    const [params, setParams] = useState<ToneParams>({
+      offset: paramConfigObj.offset.default,
+      duration: paramConfigObj.duration.default,
+      fadeOut: paramConfigObj.fadeOut.default,
+      fadeIn: paramConfigObj.fadeIn.default,
+    })
+
+    const instrument = TonerService.getPadByName(props.iam)
     
     function startRecording() {
-        setRecording(true)
-        SamplerService.startRecorder(props.iam)
-      }
-    
-      function stopRecording() {
+      setRecording(true)
+      SamplerService.startRecorder(props.iam)
+    }
+  
+    function stopRecording() {
+      if(recording) {
         setRecording(false)
         SamplerService.stopRecorder()
       }
+    }
+
+    function updateParams(value: string, key: ParamName) {
+      setParams(state => {
+        state[key] = parseFloat(value)
+        if(instrument) { TonerService.updateInstrumentParams(instrument, state) }
+        return {...state}
+      })
+    }
 
     return (
-    <PadBox onMouseDown={() => startRecording()} onMouseUp={() => stopRecording()} onMouseLeave={() => stopRecording()}>
+    <PadBox onMouseLeave={() => stopRecording()} onMouseUp={() => stopRecording()}>
         { !recording ? '' : (
             <Blur> <div> recording...</div> </Blur>
         )}
-        <Title>{props.iam}</Title>
-        <WaveViewPort className={`viewPort_${props.iam}`}>
-          <canvas className="visualizer" height="60px" width="400px"></canvas>
-          <canvas className="wave" height="60px" width="400px"></canvas>
-          <canvas className="control" height="60px" width="400px"></canvas>
-        </WaveViewPort>
-        <Stretch />
+        <RecordingBox onMouseDown={() => startRecording()}>
+          <Title>{props.iam}</Title>
+          <WaveViewPort className={`viewPort_${props.iam}`}>
+            <canvas className="wave" height="60px" width="100px"></canvas>
+          </WaveViewPort>
+        </RecordingBox>
+
         <PadControl>
-            {/* <FontAwesomeIcon icon={faPlayCircle}/> */}
+            {
+              paramConfigs.map((cfg) => (
+                <div key={cfg.name}>
+                  <div>{cfg.displayName}</div>
+                  <input type="number" 
+                    value={params[cfg.name]} 
+                    onChange={(e) => updateParams(e.target.value, cfg.name)} 
+                    min={cfg.min}
+                    max={cfg.max}
+                    step={cfg.step}
+                  />
+                </div>
+              ))
+            }
         </PadControl>
     </PadBox>
     )

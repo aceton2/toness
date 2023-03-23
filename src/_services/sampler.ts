@@ -10,10 +10,6 @@ function bindCanvasElements(iam: string): [HTMLCanvasElement, CanvasRenderingCon
   const parentEl  = document.querySelector(`.viewPort_${iam}`) as Element
   const waveCanvas = parentEl.querySelector('.wave') as HTMLCanvasElement
   const waveCtx = waveCanvas.getContext('2d') as CanvasRenderingContext2D
-  
-  // const controlCanvas = parentEl.querySelector('.control')
-  // const ctrlCtx = controlCanvas.getContext('2d')
-  // controlCanvas.addEventListener('click', editCurrentSample)
 
   window.onresize = function () {
     // NEEDS TO REDRAW THE WAVES
@@ -96,7 +92,9 @@ function startRecorder(iam: PadName) {
 }
 
 function stopRecorder() {
-  mediaRecorder.stop()
+  if(mediaRecorder) {
+    mediaRecorder.stop()
+  }
 }
 
 async function startMic() {

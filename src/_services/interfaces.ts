@@ -8,7 +8,15 @@ export interface Instrument {
     offset?: number
     fadeOut?: number
     padId?: number
-  }
+}
+
+export interface ToneParams {
+  offset: number,
+  duration: number,
+  fadeOut: number,
+  fadeIn: number
+  // pitchSemiTones: number,
+}
 
 export interface Slot {
     bar: number
