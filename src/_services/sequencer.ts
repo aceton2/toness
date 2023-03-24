@@ -1,8 +1,19 @@
-import { Transport } from 'tone'
+import { Transport, context, start, Loop, Emitter } from 'tone'
 import TonerService from './toner'
 import { Slot } from './interfaces'
 import ToneStore from '../_store/store';
 import useToneStore from '../_store/store';
+
+// STEPPER
+
+let sequenceEmitter = new Emitter()
+let stepper: Loop | null
+
+// STORE LISTENERS
+
+let unSubs: Array<() => void>;
+
+// SLOTS 
 
 const transportEventIds: {[key: string]: number} = {} // the key is a scheduledEvent
 const sequencerSlots: Array<Slot> = generateSlots()
@@ -85,11 +96,56 @@ function unschedule(scheduledEvent: string) {
   delete transportEventIds[scheduledEvent]
 }
 
+// CONTROLS
+
+function clearTransport() {
+  Transport.cancel()
+  stepper = null
+  startStepper()
+}
+
+function toggleTransport(): void {
+  Transport.state === 'stopped' ? startTransport() : Transport.stop()
+}
+
+async function startTransport() {
+  if (context.state !== 'running') {
+    await start()
+  }
+  startStepper()
+  Transport.start()
+}
+
+function addKeyboardListener() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === ' ') {
+      toggleTransport()
+    }
+  })
+}
+
+function startStepper() {
+  stepper = stepper
+    ? stepper
+    : new Loop((time) => emitStep(), '16n')
+  if (stepper.state === 'stopped') stepper.start(0)
+}
+
+function emitStep() {
+  const emit16ths = useToneStore.getState().resolution === '16n'
+  const step = (Transport.position as string).split('.')[0]
+  const eigths = ['0', '2'].indexOf(step.split(':')[2]) !== -1
+  if(emit16ths || eigths) {
+    sequenceEmitter.emit('step', step)
+  }
+}
+
 // INIT
 
-let unSubs: Array<() => void>;
+function initSequencer() {
 
-export function initSequencer() {
+  addKeyboardListener()
+  clearTransport()
 
   unSubs = [
     // clean this up
@@ -112,7 +168,17 @@ export function initSequencer() {
   Transport.loop = true
 }
 
-export function unsubSequencerSubscriptions() {
+function unsubSequencerSubscriptions() {
   unSubs.forEach(unsub => unsub())
 }
 
+
+const SequencerService = {
+  initSequencer,
+  unsubSequencerSubscriptions,
+  sequenceEmitter,
+  clearTransport,
+  toggleTransport,
+}
+
+export default SequencerService

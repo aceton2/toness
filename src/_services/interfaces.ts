@@ -1,21 +1,22 @@
-import { Player } from 'tone'
+import { PitchShift, Player } from 'tone'
 
 export interface Instrument {
     id: number
     name: string
     player?: Player
-    duration?: number
-    offset?: number
-    fadeOut?: number
-    padId?: number
+    duration: number
+    offset: number
+    fadeOut: number
+    padId?: number,
+    pitchShift?: PitchShift
 }
 
 export interface ToneParams {
-  offset: number,
-  duration: number,
-  fadeOut: number,
-  fadeIn: number
-  // pitchSemiTones: number,
+  offset: number, // 0-99
+  duration: number, // 0-99
+  fadeOut: number, // 0-99
+  fadeIn: number // 0-99
+  pitchShift: number, // -48-48
 }
 
 export interface Slot {

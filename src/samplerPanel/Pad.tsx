@@ -32,10 +32,10 @@ const PadControl = styled.div`
   font-size: 0.8rem;
 
   & > div {
-    margin-left: 0.1rem;
+    margin: 0 0.1rem;
   }
   & input {
-    width: 85%;
+    width: 80%;
     font-size: 0.8rem;
     border: 1px solid whitesmoke;
     color: white;
@@ -79,7 +79,7 @@ const Title = styled.div`
   text-align: center;
 `
 
-type ParamName = 'duration' | 'fadeOut' | 'offset' | 'fadeIn'
+type ParamName = 'duration' | 'fadeOut' | 'offset' | 'fadeIn' | 'pitchShift'
 
 interface ParamCfg {displayName: string, name: ParamName, min: number, max: number, step: number, default: number}
 
@@ -88,20 +88,23 @@ const paramConfigObj: {[key: string]: ParamCfg} = {
   fadeOut: {displayName: 'f-in', name: 'fadeOut', min: 0, max: 99, step: 1, default: 20},
   duration: {displayName: 'duration', name: 'duration', min: 0, max: 99, step: 1, default: 99},
   fadeIn: {displayName: 'f-out', name: 'fadeIn', min: 0, max: 99, step: 1, default: 20},
+  pitchShift: {displayName: 'shift', name: 'pitchShift', min: -48, max: 48, step: 1, default: 0},
 }
 const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
 
 export default function Pad(props: {iam: PadName}) {
     const [recording, setRecording] = useState(false)
+    const [active, setActive] = useState(false)
     const [params, setParams] = useState<ToneParams>({
       offset: paramConfigObj.offset.default,
       duration: paramConfigObj.duration.default,
       fadeOut: paramConfigObj.fadeOut.default,
       fadeIn: paramConfigObj.fadeIn.default,
+      pitchShift: paramConfigObj.pitchShift.default
     })
 
     const instrument = TonerService.getPadByName(props.iam)
-    
+
     function startRecording() {
       setRecording(true)
       SamplerService.startRecorder(props.iam)
@@ -110,6 +113,7 @@ export default function Pad(props: {iam: PadName}) {
     function stopRecording() {
       if(recording) {
         setRecording(false)
+        setActive(true)
         SamplerService.stopRecorder()
       }
     }
@@ -135,7 +139,7 @@ export default function Pad(props: {iam: PadName}) {
         </RecordingBox>
 
         <PadControl>
-            {
+            { active ? (
               paramConfigs.map((cfg) => (
                 <div key={cfg.name}>
                   <div>{cfg.displayName}</div>
@@ -148,6 +152,7 @@ export default function Pad(props: {iam: PadName}) {
                   />
                 </div>
               ))
+              ) : ''
             }
         </PadControl>
     </PadBox>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import styled from 'styled-components';
 import Controls from './controlPanel/Controls';
 import Widget from './widgetPanel/Widget';
@@ -7,9 +7,9 @@ import { createMidiJson } from './_services/midi';
 
 import Mask from './auxComps/Mask';
 
-import { initSequencer, unsubSequencerSubscriptions } from './_services/sequencer';
 import SamplerPanel from './samplerPanel/Sampler';
 import SamplerService from './_services/sampler';
+import SequencerService from './_services/sequencer';
 
 
 const MainFrame = styled.div`
@@ -18,14 +18,13 @@ const MainFrame = styled.div`
   border-radius: 5px; 
 `;
 
-initSequencer();
+SequencerService.initSequencer();
 SamplerService.startMic()
 
 export default function App() {
-  const [showSampler, setShowSampler] = useState(false);
 
   useEffect(() => {
-    return unsubSequencerSubscriptions
+    return SequencerService.unsubSequencerSubscriptions
   }, [])
 
   function dropHandler(ev: any) {
@@ -55,7 +54,7 @@ export default function App() {
       <Mask />
       <MainFrame>
         <SamplerPanel />
-        <Controls showSamplerModal={() => setShowSampler(true)}/>
+        <Controls />
         <Widget/>
       </MainFrame>
     </div>

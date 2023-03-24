@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import TonerService from '../_services/toner'
+import SequencerService from '../_services/sequencer'
 import { Slot } from '../_services/interfaces'
 import Guide from './Guide'
 import Toggle from './Toggle'
@@ -32,9 +33,9 @@ export default function Widget() {
   const toggleScheduledEvent = useToneStore(state => state.toggleScheduledEvent)
 
   useEffect(() => {
-    TonerService.SequenceEmitter.on('step', setStep)
+    SequencerService.sequenceEmitter.on('step', setStep)
     return () => {
-      TonerService.SequenceEmitter.off('step', setStep)
+      SequencerService.sequenceEmitter.off('step', setStep)
     }
   }, [])
 
@@ -80,7 +81,7 @@ export default function Widget() {
   }
 
   function isScheduled(scheduledEvent: string) {
-    return scheduledEvents.indexOf(scheduledEvent) != -1
+    return scheduledEvents.indexOf(scheduledEvent) !== -1
   }
 
   // RENDER

@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import TonerService from '../_services/toner'
+import SequencerService from '../_services/sequencer'
 import useToneStore, { selectIsFullGrid } from '../_store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons';
@@ -39,11 +39,7 @@ const Stretch = styled.div`
   flex: 1;
 `
 
-interface controlProps {
-  showSamplerModal: () => void
-}
-
-export default function Controls(props: controlProps) {
+export default function Controls() {
   const changeBars = useToneStore(state => state.changeBars)
   const toggleResolution = useToneStore(state => state.toggleResolution)
   const resolutionDoubled = useToneStore(selectIsFullGrid)
@@ -51,7 +47,7 @@ export default function Controls(props: controlProps) {
   const clearSteps = useToneStore(state => state.clearSchedule)
 
   function toggleTransporter() {
-    TonerService.toggle()
+    SequencerService.toggleTransport()
     const e = document.activeElement as HTMLInputElement
     if ('blur' in e) {
       e.blur() // to avoid cross-canceling with spacebar listener
