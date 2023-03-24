@@ -1,4 +1,4 @@
-import { PitchShift, Player } from 'tone'
+import { PitchShift, Player, Volume } from 'tone'
 
 export interface Instrument {
     id: number
@@ -9,6 +9,7 @@ export interface Instrument {
     fadeOut: number
     padId?: number,
     pitchShift?: PitchShift
+    channelVolume: Volume
 }
 
 export interface ToneParams {

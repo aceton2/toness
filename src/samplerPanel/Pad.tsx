@@ -103,7 +103,7 @@ export default function Pad(props: {iam: PadName}) {
       pitchShift: paramConfigObj.pitchShift.default
     })
 
-    const instrument = TonerService.getPadByName(props.iam)
+    const instrument = TonerService.getInstrumentByName(props.iam)
 
     function startRecording() {
       setRecording(true)
