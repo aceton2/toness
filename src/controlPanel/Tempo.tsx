@@ -7,8 +7,8 @@ const TempoBox = styled.div`
     width: 120px;
     accent-color: var(--off-color-1);
     cursor: pointer;
-    height: 5px;
-    padding-top: 10px;
+    height: 2px;
+    margin-top: 11px;
   }
   & button {
     margin: 0px 0.25rem;
