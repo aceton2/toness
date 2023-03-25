@@ -50,7 +50,6 @@ function slotToGuideName(slot: any): string | undefined {
 export default function Toggle(props: ToggleProps) {
   let getGuideName = useCallback(() => slotToGuideName(props.scheduledEvent), [props.scheduledEvent])
   let guideName = getGuideName();
-  console.log(props.scheduledEvent, guideName)
 
   function isOdd() {
     return Number(props.scheduledEvent.split('|')[0].split(':')[0]) % 2 === 1
