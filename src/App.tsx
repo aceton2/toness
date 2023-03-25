@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import Controls from './controlPanel/Controls';
 import Widget from './widgetPanel/Widget';
@@ -18,14 +18,19 @@ const MainFrame = styled.div`
   border-radius: 5px; 
 `;
 
-SequencerService.initSequencer();
-SamplerService.startMic()
-
 export default function App() {
+  const elementRef = useRef(null);
 
   useEffect(() => {
+    if(elementRef.current) {
+      const width = (elementRef.current as HTMLDivElement).getBoundingClientRect().width
+      if(width > 800) {
+        SequencerService.initSequencer();
+        SamplerService.startMic();
+      }
+    }
     return SequencerService.unsubSequencerSubscriptions
-  }, [])
+  }, [elementRef])
 
   function dropHandler(ev: any) {
     // Prevent default behavior (Prevent file from being opened)
@@ -49,9 +54,9 @@ export default function App() {
   }
 
   return (
-    <div id="drop_zone" onDrop={dropHandler} onDragEnter={ev => ev.preventDefault()}>
+    <div id="drop_zone" onDrop={dropHandler} onDragEnter={ev => ev.preventDefault()} ref={elementRef}>
       <Header />
-      <Mask />
+      <Mask/>
       <MainFrame>
         <SamplerPanel />
         <Controls />
