@@ -1,8 +1,10 @@
+import { useState, useRef, useEffect } from "react";
 import styled from "styled-components"
 import SamplerService from "../_services/sampler"
 import TonerService from "../_services/toner";
 import { PadName, ToneParams } from "../_services/interfaces";
-import { useState } from "react";
+import useToneStore from "../_store/store";
+import DrawerService from "../_services/drawer";
 
 const PadBox = styled.div`
   position: relative;
@@ -91,29 +93,37 @@ const paramConfigObj: {[key: string]: ParamCfg} = {
   pitchShift: {displayName: 'shift', name: 'pitchShift', min: -48, max: 48, step: 1, default: 0},
 }
 const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
+const defaultToneParams = Object.keys(paramConfigObj).reduce((prev, current) => (
+  {...prev, [current]: paramConfigObj[current].default}
+  ), {})
 
 export default function Pad(props: {iam: PadName}) {
+    const elementRef = useRef(null);
+    const hasSound = useToneStore(state => state.activeInstruments.indexOf(props.iam) !== -1)
     const [recording, setRecording] = useState(false)
-    const [active, setActive] = useState(false)
-    const [params, setParams] = useState<ToneParams>({
-      offset: paramConfigObj.offset.default,
-      duration: paramConfigObj.duration.default,
-      fadeOut: paramConfigObj.fadeOut.default,
-      fadeIn: paramConfigObj.fadeIn.default,
-      pitchShift: paramConfigObj.pitchShift.default
-    })
+    const [params, setParams] = useState<ToneParams>(defaultToneParams as ToneParams)
 
     const instrument = TonerService.getInstrumentByName(props.iam)
 
+    useEffect(() => {
+      if(!elementRef.current) return
+      if(hasSound && instrument.audioURL) {
+        DrawerService.drawAudioUrl(instrument.audioURL, (elementRef.current as HTMLElement))
+      } else {
+        DrawerService.clearSample((elementRef.current as HTMLElement))
+      }
+    }, [hasSound, elementRef])
+
     function startRecording() {
       setRecording(true)
-      SamplerService.startRecorder(props.iam)
+      if(elementRef.current) {
+        SamplerService.startRecorder(props.iam, (elementRef.current as HTMLElement))
+      }
     }
   
     function stopRecording() {
       if(recording) {
         setRecording(false)
-        setActive(true)
         SamplerService.stopRecorder()
       }
     }
@@ -133,13 +143,13 @@ export default function Pad(props: {iam: PadName}) {
         )}
         <RecordingBox onMouseDown={() => startRecording()}>
           <Title>{props.iam}</Title>
-          <WaveViewPort className={`viewPort_${props.iam}`}>
+          <WaveViewPort ref={elementRef}>
             <canvas className="wave" height="60px" width="100px"></canvas>
           </WaveViewPort>
         </RecordingBox>
 
         <PadControl>
-            { active ? (
+            { hasSound ? (
               paramConfigs.map((cfg) => (
                 <div key={cfg.name}>
                   <div>{cfg.displayName}</div>

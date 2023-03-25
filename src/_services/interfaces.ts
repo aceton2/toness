@@ -10,6 +10,7 @@ export interface Instrument {
     padId?: number,
     pitchShift?: PitchShift
     channelVolume: Volume
+    audioURL?: string
 }
 
 export interface ToneParams {
@@ -26,6 +27,8 @@ export interface Slot {
 }
 
 export type PadName = 'red' | 'sol' | 'gelb' | 'rot'
+
+export let blobType = {type: "audio/ogg; codecs=opus"}
 
   // timeId: string (bar:quarter:sixteenth)
   // scheduledEvent: string (timeId|instrumentId)

@@ -1,5 +1,6 @@
 import { Player, Recorder, Volume, PitchShift } from 'tone'
 import { Instrument, PadName, ToneParams } from './interfaces'
+import useToneStore from '../_store/store';
 
 // NODES
 
@@ -7,28 +8,41 @@ const controlRoomRecorder = new Recorder()
 const masterVolume = new Volume(0).toDestination();
 
 // INSTRUMENTS
-
-const padDefault = {duration: 2, fadeOut: 0.2, offset: 0}
+function getDefaultSetup() {
+  return {duration: 2, fadeOut: 0.2, offset: 0, channelVolume: new Volume(0)}
+}
 
 let instrumentsObj: {[key: string]: Instrument} = {
-  kick: {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), ...padDefault, duration: 0.5, channelVolume: new Volume(0) },
-  snare: {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), ...padDefault, duration: 2, channelVolume: new Volume(0) },
-  hat: {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3'), ...padDefault, duration: 2, channelVolume: new Volume(0) },
-  red: {id: 3, name: 'red', player: undefined, ...padDefault, pitchShift: new PitchShift(), channelVolume: new Volume(0) },
-  sol: {id: 4, name: 'sol', player: undefined, ...padDefault, pitchShift: new PitchShift(), channelVolume: new Volume(0) },
-  gelb: {id: 5, name: 'gelb', player: undefined, ...padDefault, pitchShift: new PitchShift(), channelVolume: new Volume(0) },
-  rot: {id: 6, name: 'rot', player: undefined, ...padDefault, pitchShift: new PitchShift(), channelVolume: new Volume(0) },
+  kick: {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), ...getDefaultSetup(), duration: 0.5 },
+  snare: {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), ...getDefaultSetup(), duration: 2 },
+  hat: {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3'), ...getDefaultSetup(), duration: 2 },
+  red: {id: 3, name: 'red', player: undefined, ...getDefaultSetup(), pitchShift: new PitchShift() },
+  sol: {id: 4, name: 'sol', player: undefined, ...getDefaultSetup(), pitchShift: new PitchShift() },
+  gelb: {id: 5, name: 'gelb', player: undefined, ...getDefaultSetup(), pitchShift: new PitchShift() },
+  rot: {id: 6, name: 'rot', player: undefined, ...getDefaultSetup(), pitchShift: new PitchShift() },
 }
 let instruments = Array.from(Object.values(instrumentsObj))
 
-function addDrums() {
-  [0, 1, 2].forEach(id => {
-    const instrument = instruments.find(i => i.id === id)
-    if(instrument?.player) {
+function addExistingSounds() {
+  instruments.forEach(instrument => {
+    if(instrument.player) {
       instrument.player.chain(instrument.channelVolume)
       instrument.channelVolume.fan(controlRoomRecorder, masterVolume)
+    } else {
+      reloadFromLS(instrument)
     }
   })
+  updateStoreActiveInstruments()
+}
+
+async function reloadFromLS(instrument: Instrument) {
+  const existingBlobStr = localStorage.getItem(`audioBlob_${instrument.name}`)
+  if(existingBlobStr) {
+    const res = await fetch(existingBlobStr);
+    const blob = await res.blob();
+    const audioURL = window.URL.createObjectURL(blob)
+    addSample(audioURL, instrument.name as PadName)
+  }
 }
 
 function getPlayInstrumentTrigger(id: number): (arg0: number) => void {
@@ -40,10 +54,12 @@ function getPlayInstrumentTrigger(id: number): (arg0: number) => void {
 function addSample(audioURL: string, padName: PadName) {
   const pad = instruments.find(i => i.name === padName)
   if(pad && pad?.pitchShift) {
+    pad.audioURL = audioURL
     pad.player = new Player(audioURL);
     pad.player.chain(pad.pitchShift, pad.channelVolume)
     pad.channelVolume.fan(controlRoomRecorder, masterVolume)    
   }
+  updateStoreActiveInstruments()
 }
 
 function updateInstrumentParams(instrument: Instrument, params: ToneParams) {  
@@ -56,6 +72,22 @@ function updateInstrumentParams(instrument: Instrument, params: ToneParams) {
       instrument.pitchShift.pitch = params.pitchShift / 2
     }
   }
+}
+
+function clearPads() {
+  instruments.forEach(i => {
+    if(i.pitchShift) { // pads identified because they have pitch shift
+      i.audioURL = undefined
+      i.player = undefined
+      localStorage.removeItem(`audioBlob_${i.name}`)
+    }
+  })
+  updateStoreActiveInstruments()
+}
+
+function updateStoreActiveInstruments() {
+  const active = instruments.filter(i => i.player).map(i => i.name)
+  useToneStore.getState().setActiveInstruments(active)
 }
 
 function setVolume(name: string, val: number) {
@@ -72,19 +104,12 @@ function unmuteOutput() {
   masterVolume.mute = false;
 }
 
-// DEFAULT INIT
-
-function runInit() {
-  addDrums()
-}
-
-runInit()
-
 // EXPORTS
 
 const TonerServiceIFace = {
   getPlayInstrumentTrigger,
   addSample,
+  addExistingSounds,
   getInstruments: (): Array<Instrument> => instruments,
   getInstrumentByName: (name: string) => instrumentsObj[name],
   getPadNames: () => instruments.filter(i => i.id > 2).map(i => i.name) as Array<PadName>,
@@ -93,6 +118,7 @@ const TonerServiceIFace = {
   muteOutput,
   unmuteOutput,
   setVolume,
+  clearPads,
 }
 
 export default TonerServiceIFace

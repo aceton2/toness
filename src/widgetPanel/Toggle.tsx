@@ -40,7 +40,7 @@ const sixteenthStr = {
 }
 
 function slotToGuideName(slot: any): string | undefined {
-  if(slot.split('|')[1] != 0) return
+  if(slot.split('|')[1] !== 0) return
   const [_, quarter, sixteenth] = slot.split('|')[0].split(':')
   return sixteenth === '0' ? (parseInt(quarter) + 1).toString() : sixteenthStr[sixteenth as '1' | '2' | '3']
 }

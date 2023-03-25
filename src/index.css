@@ -50,7 +50,7 @@ button {
   line-height: 1.2;
   white-space: nowrap;
   text-decoration: none;
-  padding: 0px 5px;
+  padding: 2px 5px 0px;
   margin: 0px 0.2rem;
   cursor: pointer;
 }

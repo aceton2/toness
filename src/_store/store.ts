@@ -8,6 +8,8 @@ interface TonesState {
   activeBars: number,
   bpm: number,
   resolution: '16n' | '8n',
+  activeInstruments: Array<string>
+  resetSequencer: () => void,
   changeBars: (bars: number) => void,
   changeTracks: (tracks: number) => void,
   scheduledEvents: Array<string>,
@@ -16,6 +18,7 @@ interface TonesState {
   setBpm: (bpm: string) => void,
   toggleResolution: () => void,
   setActiveSlots: (slots: Array<Slot>) => void,
+  setActiveInstruments: (active: Array<string>) => void
 }
 
 
@@ -30,6 +33,8 @@ const useToneStore = create<TonesState>()(
         bpm: 120,
         resolution: '8n',
         scheduledEvents: [],
+        activeInstruments: [],
+        resetSequencer: () => set(state => ({activeBars: 1, activeTracks: 1, scheduledEvents: []})),
         changeBars: (bars: number) => set(state => ({activeBars: getNewBars(state.activeBars, bars)})),
         changeTracks: (tracks: number) => set(state => ({activeTracks: getNewTracks(state.activeTracks, tracks)})),
         setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
@@ -43,6 +48,7 @@ const useToneStore = create<TonesState>()(
             : [...state.scheduledEvents, scheduledEvent]
           }
         }),
+        setActiveInstruments: (active: Array<string>) => set(state => ({activeInstruments: active}))
       })
       ),
       {name: 'toness'}

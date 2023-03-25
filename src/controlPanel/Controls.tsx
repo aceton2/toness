@@ -1,9 +1,9 @@
 import styled from 'styled-components'
 import SequencerService from '../_services/sequencer'
+import TonerService from '../_services/toner'
 import useToneStore, { selectIsFullGrid } from '../_store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons';
-import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
 const ControlBox = styled.div`
   margin-bottom: 0.5rem;
@@ -44,7 +44,8 @@ export default function Controls() {
   const toggleResolution = useToneStore(state => state.toggleResolution)
   const resolutionDoubled = useToneStore(selectIsFullGrid)
   const changeTracks = useToneStore(state => state.changeTracks)
-  const clearSteps = useToneStore(state => state.clearSchedule)
+  const resetSequencer = useToneStore(state => state.resetSequencer)
+  const clearSchedule = useToneStore(state => state.clearSchedule)
 
   function toggleTransporter() {
     SequencerService.toggleTransport()
@@ -54,11 +55,22 @@ export default function Controls() {
     }
   }
 
+  function clearAll() {
+    resetSequencer()
+    clearPads()
+  }
+
+  function clearPads() {
+    TonerService.clearPads()
+  }
+
   return (
     <ControlBox>
 
       <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> <span></span><FontAwesomeIcon icon={faStop}/></button>
-      <button onClick={clearSteps}><FontAwesomeIcon icon={faTrashCan}/></button>
+      <button onClick={clearSchedule}>X STEPS</button>
+      <button onClick={clearPads}>X PADS</button>
+      <button onClick={clearAll}>RESET</button>
 
       <Stretch />
 

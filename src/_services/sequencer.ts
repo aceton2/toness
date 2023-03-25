@@ -146,6 +146,7 @@ function initSequencer() {
 
   addKeyboardListener()
   clearTransport()
+  TonerService.addExistingSounds()
 
   unSubs = [
     // clean this up
