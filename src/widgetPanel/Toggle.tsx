@@ -24,6 +24,8 @@ const Guide = styled.div`
   height: 1rem;
   font-size: 0.8rem;
   padding-left: 30%;
+  
+  font-weight: 600;
 `
 
 interface ToggleProps {
@@ -40,7 +42,7 @@ const sixteenthStr = {
 }
 
 function slotToGuideName(slot: any): string | undefined {
-  if(slot.split('|')[1] !== 0) return
+  if(slot.split('|')[1] !== '0') return
   const [_, quarter, sixteenth] = slot.split('|')[0].split(':')
   return sixteenth === '0' ? (parseInt(quarter) + 1).toString() : sixteenthStr[sixteenth as '1' | '2' | '3']
 }
@@ -48,6 +50,7 @@ function slotToGuideName(slot: any): string | undefined {
 export default function Toggle(props: ToggleProps) {
   let getGuideName = useCallback(() => slotToGuideName(props.scheduledEvent), [props.scheduledEvent])
   let guideName = getGuideName();
+  console.log(props.scheduledEvent, guideName)
 
   function isOdd() {
     return Number(props.scheduledEvent.split('|')[0].split(':')[0]) % 2 === 1

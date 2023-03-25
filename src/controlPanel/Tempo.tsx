@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import useToneStore from '../_store/store';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPersonRunning } from '@fortawesome/free-solid-svg-icons';
 
 const TempoBox = styled.div`
   display: flex;
@@ -16,11 +18,8 @@ const TempoBox = styled.div`
 `
 
 const TempoDisplay = styled.div`
-    width: 120px;
-    background: var(--panel-color-2);
+    width: 40px;
     padding: 4px;
-    margin-right: 5px;
-    border-radius: 5px;
 `
 
 export default function Tempo() {
@@ -29,7 +28,7 @@ export default function Tempo() {
     return (
         <TempoBox>
             <TempoDisplay>
-                Current Tempo: {bpm}
+                <FontAwesomeIcon icon={faPersonRunning}/> {bpm}
             </TempoDisplay>
             <div>
                 <input
