@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import TonerService from '../_services/toner'
 import SequencerService from '../_services/sequencer'
 import { Slot } from '../_services/interfaces'
-import Guide from './Guide'
 import Toggle from './Toggle'
 import Track from './Track'
 import useToneStore, { selectIsFullGrid } from '../_store/store'
@@ -11,6 +10,7 @@ import useToneStore, { selectIsFullGrid } from '../_store/store'
 
 const WidgetBox = styled.div`
   --track-label-width: 50px;
+  margin-top: 1.5rem;
 
   &.hidden {
     display: none;
@@ -88,7 +88,6 @@ export default function Widget() {
 
   return (
     <WidgetBox>
-      <Guide slots={slots} activeStep={activeStep} />
       {getTracks()}
     </WidgetBox>
   )
