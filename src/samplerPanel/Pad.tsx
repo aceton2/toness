@@ -113,7 +113,7 @@ export default function Pad(props: {iam: PadName}) {
       if(hasSound && instrument.audioURL) {
         DrawerService.drawAudioUrl(instrument.audioURL, (elementRef.current as HTMLElement))
       } else {
-        DrawerService.clearSample((elementRef.current as HTMLElement), 'wave')
+        DrawerService.clearAllCanvas((elementRef.current as HTMLElement))
       }
     }, [hasSound, elementRef])
 

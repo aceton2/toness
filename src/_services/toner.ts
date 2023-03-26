@@ -79,6 +79,9 @@ function clearPads() {
     if(i.pitchShift) { // pads identified because they have pitch shift
       i.audioURL = undefined
       i.player = undefined
+      i.duration = 2
+      i.fadeOut = 0.2
+      i.offset = 0
       localStorage.removeItem(`audioBlob_${i.name}`)
     }
   })

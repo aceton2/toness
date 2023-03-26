@@ -1,11 +1,14 @@
 import { ToneAudioBuffer } from 'tone'
 import { ToneParams } from './interfaces'
 
+function clearAllCanvas(parentEl: Element) {
+    clearSample(parentEl, 'wave')
+    clearSample(parentEl, 'edit')
+}
+
 function clearSample(parentEl: Element, className: 'wave' | 'edit') {
-    const waveCanvas = parentEl.querySelector(`.${className}`) as HTMLCanvasElement
-    const waveCtx = waveCanvas.getContext('2d') as CanvasRenderingContext2D
-    waveCtx.fillStyle = '#36454f' //off-color-2
-    waveCtx.fillRect(0, 0, waveCanvas.width, waveCanvas.height)
+    const canvas = parentEl.querySelector(`.${className}`) as HTMLCanvasElement
+    canvas.width = 0
 }
 
 function normalizeParams(params: ToneParams, unity: number) {
@@ -86,7 +89,7 @@ function drawSample(channelBuffer: Float32Array, parentEl: Element) {
   
 const exp = {
     drawAudioUrl,
-    clearSample,
+    clearAllCanvas,
     updateEditLayer
 }
 
