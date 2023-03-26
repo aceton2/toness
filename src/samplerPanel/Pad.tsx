@@ -72,6 +72,9 @@ const WaveViewPort = styled.div`
   .control {
     z-index: 2;
   }
+  & .edit {
+    fill-opacity: 0;
+  }
 `
 
 const Title = styled.div`
@@ -87,9 +90,9 @@ interface ParamCfg {displayName: string, name: ParamName, min: number, max: numb
 
 const paramConfigObj: {[key: string]: ParamCfg} = {
   offset: {displayName: 'start', name: 'offset', min: 0, max: 99, step: 1, default: 0},
-  fadeOut: {displayName: 'f-in', name: 'fadeOut', min: 0, max: 99, step: 1, default: 20},
+  fadeIn: {displayName: 'f-in', name: 'fadeIn', min: 0, max: 99, step: 1, default: 20},
   duration: {displayName: 'duration', name: 'duration', min: 0, max: 99, step: 1, default: 99},
-  fadeIn: {displayName: 'f-out', name: 'fadeIn', min: 0, max: 99, step: 1, default: 20},
+  fadeOut: {displayName: 'f-out', name: 'fadeOut', min: 0, max: 99, step: 1, default: 20},
   pitchShift: {displayName: 'shift', name: 'pitchShift', min: -48, max: 48, step: 1, default: 0},
 }
 const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
@@ -110,7 +113,7 @@ export default function Pad(props: {iam: PadName}) {
       if(hasSound && instrument.audioURL) {
         DrawerService.drawAudioUrl(instrument.audioURL, (elementRef.current as HTMLElement))
       } else {
-        DrawerService.clearSample((elementRef.current as HTMLElement))
+        DrawerService.clearSample((elementRef.current as HTMLElement), 'wave')
       }
     }, [hasSound, elementRef])
 
@@ -120,7 +123,7 @@ export default function Pad(props: {iam: PadName}) {
         SamplerService.startRecorder(props.iam, (elementRef.current as HTMLElement))
       }
     }
-  
+
     function stopRecording() {
       if(recording) {
         setRecording(false)
@@ -131,7 +134,10 @@ export default function Pad(props: {iam: PadName}) {
     function updateParams(value: string, key: ParamName) {
       setParams(state => {
         state[key] = parseFloat(value)
-        if(instrument) { TonerService.updateInstrumentParams(instrument, state) }
+        if(instrument && elementRef.current) { 
+          TonerService.updateInstrumentParams(instrument, state) 
+          DrawerService.updateEditLayer(state, (elementRef.current as HTMLElement))
+        }
         return {...state}
       })
     }
@@ -145,6 +151,7 @@ export default function Pad(props: {iam: PadName}) {
           <Title>{props.iam}</Title>
           <WaveViewPort ref={elementRef}>
             <canvas className="wave" height="60px" width="100px"></canvas>
+            <canvas className="edit" height="60px" width="100px"></canvas>
           </WaveViewPort>
         </RecordingBox>
 

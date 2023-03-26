@@ -1,10 +1,53 @@
 import { ToneAudioBuffer } from 'tone'
+import { ToneParams } from './interfaces'
 
-function clearSample(parentEl: Element) {
-  const waveCanvas = parentEl.querySelector('.wave') as HTMLCanvasElement
-  const waveCtx = waveCanvas.getContext('2d') as CanvasRenderingContext2D
-  waveCtx.fillStyle = '#36454f' //off-color-2
-  waveCtx.fillRect(0, 0, waveCanvas.width, waveCanvas.height)
+function clearSample(parentEl: Element, className: 'wave' | 'edit') {
+    const waveCanvas = parentEl.querySelector(`.${className}`) as HTMLCanvasElement
+    const waveCtx = waveCanvas.getContext('2d') as CanvasRenderingContext2D
+    waveCtx.fillStyle = '#36454f' //off-color-2
+    waveCtx.fillRect(0, 0, waveCanvas.width, waveCanvas.height)
+}
+
+function normalizeParams(params: ToneParams, unity: number) {
+  return {
+    offset: (params.offset / 100) * unity,
+    fadeIn: (params.fadeIn / 100) * unity,
+    duration: (params.duration / 100) * unity,
+    fadeOut: (params.fadeOut / 100) * unity
+  }
+}
+
+function updateEditLayer(params: ToneParams, parentEl: Element) {
+    const canvas = parentEl.querySelector('.edit') as HTMLCanvasElement
+    canvas.width = parentEl.clientWidth - 10;
+
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+    const WIDTH = canvas.width
+    const HEIGHT = canvas.height
+
+    ctx.fillStyle = 'rgba(0,0,0,0)'
+    ctx.lineWidth = 1
+
+    const HEIGHT_PARAM_HIGH = HEIGHT * 0.2;
+    const HEIGHT_PARAM_LOW = HEIGHT * 0.8;
+
+    const normedParams = normalizeParams(params, WIDTH)
+    const startX = normedParams.offset
+    const fillFullX = startX + normedParams.fadeIn
+    const durationX = startX + normedParams.duration
+    const fillDropX = durationX - normedParams.fadeOut
+
+    ctx.strokeStyle = 'rgba(0,0,0,0)'
+
+    ctx.beginPath()
+    ctx.moveTo(startX, HEIGHT_PARAM_LOW)
+    ctx.lineTo(fillFullX, HEIGHT_PARAM_HIGH)
+    ctx.lineTo(fillDropX, HEIGHT_PARAM_HIGH)
+    ctx.lineTo(durationX, HEIGHT_PARAM_LOW)
+    ctx.lineTo(startX, HEIGHT_PARAM_LOW)
+    ctx.fillStyle = 'rgba(248,248,255, 0.5)'
+    ctx.fill()
+    ctx.stroke()
 }
 
 function drawAudioUrl(audioURL: string, parentEl: Element) {
@@ -43,7 +86,8 @@ function drawSample(channelBuffer: Float32Array, parentEl: Element) {
   
 const exp = {
     drawAudioUrl,
-    clearSample
+    clearSample,
+    updateEditLayer
 }
 
 export default exp
