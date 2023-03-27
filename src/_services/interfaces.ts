@@ -13,23 +13,63 @@ export interface Instrument {
     audioURL?: string
 }
 
-export interface ToneParams {
-  offset: number, // 0-99
-  duration: number, // 0-99
-  fadeOut: number, // 0-99
-  fadeIn: number // 0-99
-  pitchShift: number, // -48-48
-}
-
+/** 
+ * convention for slot events -
+ * timeId: string (bar:quarter:sixteenth)
+ * scheduledEvent: string (timeId|instrumentId)
+ * transportEventId: number
+ */
 export interface Slot {
     bar: number
     timeId: string
 }
 
-export type PadName = 'red' | 'sol' | 'gelb' | 'rot'
 
-export let blobType = {type: "audio/ogg; codecs=opus"}
 
-  // timeId: string (bar:quarter:sixteenth)
-  // scheduledEvent: string (timeId|instrumentId)
-  // transportEventId: number
+// PAD PARAMS
+
+export enum EnvelopeParam {
+  duration,
+  fadeOut, 
+  offset, 
+  fadeIn, 
+  pitchShift
+}
+
+export interface PadParam {
+  [EnvelopeParam.duration]: number,
+  [EnvelopeParam.fadeOut]: number,
+  [EnvelopeParam.offset]: number,
+  [EnvelopeParam.fadeIn]: number,
+  [EnvelopeParam.pitchShift]: number,
+  custom: boolean,
+  audioUrl?: string
+}
+
+export type PadParams = {
+  red: PadParam,
+  sol: PadParam,
+  gelb: PadParam,
+  rot: PadParam,
+};
+
+// DEFAULTS 
+
+export const defaultPad: PadParam = { 
+  [EnvelopeParam.duration]: 99, 
+  [EnvelopeParam.fadeOut]: 20, 
+  [EnvelopeParam.offset]: 0, 
+  [EnvelopeParam.fadeIn]: 20, 
+  [EnvelopeParam.pitchShift]: 0,
+  custom: false
+}
+
+export const defaultStoreParams: PadParams = {
+  red: {...defaultPad},
+  sol: {...defaultPad},
+  gelb: {...defaultPad},
+  rot: {...defaultPad}
+}
+
+export type PadName = keyof typeof defaultStoreParams
+

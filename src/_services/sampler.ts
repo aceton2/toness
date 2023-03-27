@@ -1,40 +1,38 @@
 import TonerService from './toner'
-import { PadName, blobType } from './interfaces';
+import { PadName } from './interfaces';
 
-// STREAM
-let mediaRecorder: MediaRecorder;
-let mediaDeviceStream: MediaStream;
+// RECORDER
+let mediaRecorder: MediaRecorder | undefined;
 
-// BLOB 
-
-let attemptingStream = false;
 async function setStream() {
-  attemptingStream = true;
   if (navigator.mediaDevices.getUserMedia) {
-    await navigator.mediaDevices.getUserMedia({ audio: true }).then(
-      stream => mediaDeviceStream = stream, 
-      error => console.log('The following error occured: ' + error))
+    return await navigator.mediaDevices.getUserMedia({ audio: true })
   } else {
     console.log('getUserMedia not supported on your browser!')
   }
 }
 
-function setupSampler(iam: PadName, parentEl: Element) {
-  mediaRecorder = new MediaRecorder(mediaDeviceStream)
+async function setupSampler(iam: PadName, parentEl: Element): Promise<MediaRecorder | undefined> {
+  const mediaDeviceStream = await setStream()
+  if(!mediaDeviceStream) return;
+  const mediaRecorder = new MediaRecorder(mediaDeviceStream)
 
   let chunks: Array<Blob> = []
 
   mediaRecorder.onstop = function (e) {
-    const blob = new Blob(chunks, blobType)
+    const blob = new Blob(chunks, {type: "audio/ogg; codecs=opus"})
     chunks = []
     const audioURL = window.URL.createObjectURL(blob)
     saveBlob(blob, iam)
     TonerService.addSample(audioURL, iam)
+    mediaDeviceStream.getAudioTracks()[0].stop()
   }
 
   mediaRecorder.ondataavailable = function (e) {
     chunks.push(e.data)
   }
+
+  return mediaRecorder
 }
 
 async function saveBlob(blob: Blob, padName: PadName) {
@@ -49,9 +47,11 @@ async function saveBlob(blob: Blob, padName: PadName) {
 
 // EXPORTS
 
-function startRecorder(iam: PadName, parentEl: Element) {
-  setupSampler(iam, parentEl)
-  mediaRecorder.start()
+async function startRecorder(iam: PadName, parentEl: Element) {
+  mediaRecorder = await setupSampler(iam, parentEl)
+  if(mediaRecorder) {
+    mediaRecorder.start()
+  }
 }
 
 function stopRecorder() {
@@ -60,16 +60,9 @@ function stopRecorder() {
   }
 }
 
-async function startMic() {
-  if(!attemptingStream) {
-    await setStream()
-  }
-}
-
 const api = {
   startRecorder,
   stopRecorder,
-  startMic,
 }
 
 export default api

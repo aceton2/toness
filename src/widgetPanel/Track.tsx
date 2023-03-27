@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import TonerService from '../_services/toner'
-import useToneStore from '../_store/store'
+import useToneStore, { selectPadAudioUrl } from '../_store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMicrophoneLinesSlash } from '@fortawesome/free-solid-svg-icons';
 
@@ -65,7 +65,8 @@ interface SoundProps {
 export default function Track(props: SoundProps) {
   const instrument = TonerService.getInstrumentByName(props.name)
   const [volume, setVolume] = useState(0)
-  const hasSound = useToneStore(state => state.activeInstruments.indexOf(props.name) !== -1)
+  const hasAudioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.name), [props.name]))
+  const hasSound = instrument.id < 3 || hasAudioUrl
 
   function playInstrument() {
     if(instrument?.player) {

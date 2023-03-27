@@ -1,5 +1,5 @@
 import { Player, Recorder, Volume, PitchShift } from 'tone'
-import { Instrument, PadName, ToneParams } from './interfaces'
+import { Instrument, PadName, PadParams, EnvelopeParam, defaultPad } from './interfaces'
 import useToneStore from '../_store/store';
 
 // NODES
@@ -8,6 +8,7 @@ const controlRoomRecorder = new Recorder()
 const masterVolume = new Volume(0).toDestination();
 
 // INSTRUMENTS
+
 function getDefaultSetup() {
   return {duration: 2, fadeOut: 0.2, offset: 0, channelVolume: new Volume(0)}
 }
@@ -32,7 +33,6 @@ function addExistingSounds() {
       reloadFromLS(instrument)
     }
   })
-  updateStoreActiveInstruments()
 }
 
 async function reloadFromLS(instrument: Instrument) {
@@ -59,19 +59,24 @@ function addSample(audioURL: string, padName: PadName) {
     pad.player.chain(pad.pitchShift, pad.channelVolume)
     pad.channelVolume.fan(controlRoomRecorder, masterVolume)    
   }
-  updateStoreActiveInstruments()
+  updateStoreActivePads(padName, audioURL)
 }
 
-function updateInstrumentParams(instrument: Instrument, params: ToneParams) {  
-  if(instrument.player) {
-    instrument.offset = (params.offset / 100) * instrument.player.buffer.duration
-    instrument.duration = (params.duration / 100) * instrument.player.buffer.duration 
-    instrument.player.fadeOut = (params.fadeOut / 100) * instrument.player.buffer.duration
-    instrument.player.fadeIn = (params.fadeIn / 100) * instrument.player.buffer.duration
-    if(instrument.pitchShift) {
-      instrument.pitchShift.pitch = params.pitchShift / 2
+function syncPadParams(params: PadParams) {  
+  Object.keys(params).forEach(padName => {
+    const envelope = params[padName as PadName] 
+    const i = instrumentsObj[padName]
+    if(i.player && i.pitchShift && envelope) { // pads identified because they have pitch shift
+      const unity = i.player.buffer.duration / 100
+      i.offset = envelope[EnvelopeParam.offset] * unity
+      i.duration = envelope[EnvelopeParam.duration]* unity
+      i.player.fadeOut = envelope[EnvelopeParam.fadeOut] * unity
+      i.player.fadeIn = envelope[EnvelopeParam.fadeIn] * unity
+      if(i.pitchShift) {
+        i.pitchShift.pitch = envelope[EnvelopeParam.pitchShift] / 2
+      }
     }
-  }
+  })
 }
 
 function clearPads() {
@@ -79,18 +84,22 @@ function clearPads() {
     if(i.pitchShift) { // pads identified because they have pitch shift
       i.audioURL = undefined
       i.player = undefined
-      i.duration = 2
-      i.fadeOut = 0.2
-      i.offset = 0
       localStorage.removeItem(`audioBlob_${i.name}`)
+      updateStoreActivePads(i.name as PadName)
     }
   })
-  updateStoreActiveInstruments()
 }
 
-function updateStoreActiveInstruments() {
-  const active = instruments.filter(i => i.player).map(i => i.name)
-  useToneStore.getState().setActiveInstruments(active)
+function getPadNames() {
+  return instruments.filter(i => i.id > 2).map(i => i.name) as Array<PadName>
+}
+
+function updateStoreActivePads(padName: PadName, audioUrl?: string) {
+  const padParams = useToneStore.getState().padParams
+  useToneStore.getState().setPadParams(padName, {
+    ...padParams[padName],  
+    ...(audioUrl ? {audioUrl} : defaultPad) // if no audioUrl revert everything to default
+  })
 }
 
 function setVolume(name: string, val: number) {
@@ -107,6 +116,8 @@ function unmuteOutput() {
   masterVolume.mute = false;
 }
 
+useToneStore.subscribe((state) => state.padParams, syncPadParams)
+
 // EXPORTS
 
 const TonerServiceIFace = {
@@ -115,8 +126,7 @@ const TonerServiceIFace = {
   addExistingSounds,
   getInstruments: (): Array<Instrument> => instruments,
   getInstrumentByName: (name: string) => instrumentsObj[name],
-  getPadNames: () => instruments.filter(i => i.id > 2).map(i => i.name) as Array<PadName>,
-  updateInstrumentParams,
+  getPadNames,
   controlRoomRecorder,
   muteOutput,
   unmuteOutput,

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
-import { Slot } from '../_services/interfaces'
+import { Slot, PadParams, PadName, defaultStoreParams, PadParam } from '../_services/interfaces'
 
 interface TonesState {
   activeSlots: Array<Slot>,
@@ -8,7 +8,7 @@ interface TonesState {
   activeBars: number,
   bpm: number,
   resolution: '16n' | '8n',
-  activeInstruments: Array<string>
+  padParams: PadParams,
   resetSequencer: () => void,
   changeBars: (bars: number) => void,
   changeTracks: (tracks: number) => void,
@@ -18,7 +18,7 @@ interface TonesState {
   setBpm: (bpm: string) => void,
   toggleResolution: () => void,
   setActiveSlots: (slots: Array<Slot>) => void,
-  setActiveInstruments: (active: Array<string>) => void
+  setPadParams: (pad: PadName, params: PadParam) => void
 }
 
 
@@ -27,13 +27,15 @@ const useToneStore = create<TonesState>()(
     persist(
       subscribeWithSelector(
       (set) => ({
-        activeSlots: [],
-        activeTracks: 1,
-        activeBars: 2,
-        bpm: 124,
-        resolution: '8n',
-        scheduledEvents: [],
-        activeInstruments: [],
+        // listeners listed in comment
+        activeSlots: [], // WIDGET -> for bar generation
+        activeTracks: 1, // SEQUENCER -> for setting mutes * WIDGET -> for setting track visibility
+        activeBars: 2, // SEQUENCER -> for setting active slots
+        bpm: 124, // SEQUENCER -> for setting bpm * TEMPO -> for button
+        resolution: '8n',  // SEQUENCER -> for setting active slots * CONTROLS -> for button
+        scheduledEvents: [], // SEQUENCER -> for transport sync * TOGGLE -> for step styling
+        padParams: defaultStoreParams, // TONER -> for setting play params * PAD -> for setting controls
+        setPadParams: (padName, params) => set(state => ({padParams: {...state.padParams, [padName]: params}})),
         resetSequencer: () => set(state => ({activeBars: 1, activeTracks: 1, scheduledEvents: [], bpm: 124})),
         changeBars: (bars: number) => set(state => ({activeBars: getNewBars(state.activeBars, bars)})),
         changeTracks: (tracks: number) => set(state => ({activeTracks: getNewTracks(state.activeTracks, tracks)})),
@@ -43,12 +45,11 @@ const useToneStore = create<TonesState>()(
         clearSchedule: () => set(state => ({scheduledEvents: []})),
         toggleScheduledEvent: (scheduledEvent: string) => set(state => {
           return {scheduledEvents: 
-            (state.scheduledEvents.indexOf(scheduledEvent) != -1)
+            (state.scheduledEvents.indexOf(scheduledEvent) !== -1)
             ? state.scheduledEvents.filter(sEvent => sEvent !== scheduledEvent)
             : [...state.scheduledEvents, scheduledEvent]
           }
         }),
-        setActiveInstruments: (active: Array<string>) => set(state => ({activeInstruments: active}))
       })
       ),
       {name: 'toness'}
@@ -69,4 +70,10 @@ function getNewTracks(activeTracks: number, change: number): number {
 
 export const selectIsFullGrid = (state: TonesState) => state.resolution === '16n'
 
+export const selectPadAudioUrl = (state: TonesState, name: string) => {
+  const param = state.padParams[name as PadName]
+  return param?.audioUrl
+}
+
 export default useToneStore
+

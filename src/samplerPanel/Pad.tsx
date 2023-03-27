@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components"
 import SamplerService from "../_services/sampler"
 import TonerService from "../_services/toner";
-import { PadName, ToneParams } from "../_services/interfaces";
-import useToneStore from "../_store/store";
+import { PadName, EnvelopeParam, defaultPad } from "../_services/interfaces";
+import useToneStore, { selectPadAudioUrl } from "../_store/store";
 import DrawerService from "../_services/drawer";
 
 const PadBox = styled.div`
@@ -84,62 +84,49 @@ const Title = styled.div`
   text-align: center;
 `
 
-type ParamName = 'duration' | 'fadeOut' | 'offset' | 'fadeIn' | 'pitchShift'
-
-interface ParamCfg {displayName: string, name: ParamName, min: number, max: number, step: number, default: number}
-
+interface ParamCfg {displayName: string, name: EnvelopeParam, min: number, max: number, step: number}
 const paramConfigObj: {[key: string]: ParamCfg} = {
-  offset: {displayName: 'start', name: 'offset', min: 0, max: 99, step: 1, default: 0},
-  fadeIn: {displayName: 'f-in', name: 'fadeIn', min: 0, max: 99, step: 1, default: 20},
-  duration: {displayName: 'duration', name: 'duration', min: 0, max: 99, step: 1, default: 99},
-  fadeOut: {displayName: 'f-out', name: 'fadeOut', min: 0, max: 99, step: 1, default: 20},
-  pitchShift: {displayName: 'shift', name: 'pitchShift', min: -48, max: 48, step: 1, default: 0},
+  offset: {displayName: 'start', name: EnvelopeParam.offset, min: 0, max: 99, step: 1},
+  fadeIn: {displayName: 'f-in', name: EnvelopeParam.fadeIn, min: 0, max: 99, step: 1},
+  duration: {displayName: 'duration', name: EnvelopeParam.duration, min: 0, max: 99, step: 1},
+  fadeOut: {displayName: 'f-out', name: EnvelopeParam.fadeOut, min: 0, max: 99, step: 1},
+  pitchShift: {displayName: 'shift', name: EnvelopeParam.pitchShift, min: -48, max: 48, step: 1},
 }
 const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
-const defaultToneParams = Object.keys(paramConfigObj).reduce((prev, current) => (
-  {...prev, [current]: paramConfigObj[current].default}
-  ), {})
 
 export default function Pad(props: {iam: PadName}) {
-    const elementRef = useRef(null);
-    const hasSound = useToneStore(state => state.activeInstruments.indexOf(props.iam) !== -1)
+    const elementRef = useRef(null)
+    const audioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.iam), [props.iam]))
+    const [padParams, setPadParams] = useToneStore(state => [state.padParams[props.iam], state.setPadParams])
     const [recording, setRecording] = useState(false)
-    const [params, setParams] = useState<ToneParams>(defaultToneParams as ToneParams)
-
-    const instrument = TonerService.getInstrumentByName(props.iam)
 
     useEffect(() => {
       if(!elementRef.current) return
-      if(hasSound && instrument.audioURL) {
-        DrawerService.drawAudioUrl(instrument.audioURL, (elementRef.current as HTMLElement))
-      } else {
-        DrawerService.clearAllCanvas((elementRef.current as HTMLElement))
-      }
-    }, [hasSound, elementRef])
+      DrawerService.drawAudioUrl(elementRef.current, audioUrl)
+    }, [elementRef, audioUrl])
+
+    useEffect(() => {
+      if(!elementRef.current) return
+      DrawerService.updateEditLayer(padParams, elementRef.current)
+    }, [elementRef, padParams])
 
     function startRecording() {
+      if(!elementRef.current) return
+      DrawerService.clearAllCanvas(elementRef.current)
       setRecording(true)
-      if(elementRef.current) {
-        SamplerService.startRecorder(props.iam, (elementRef.current as HTMLElement))
-      }
+      setPadParams(props.iam, {...defaultPad})
+      SamplerService.startRecorder(props.iam, elementRef.current)
     }
 
     function stopRecording() {
       if(recording) {
-        setRecording(false)
         SamplerService.stopRecorder()
+        setRecording(false)
       }
     }
 
-    function updateParams(value: string, key: ParamName) {
-      setParams(state => {
-        state[key] = parseFloat(value)
-        if(instrument && elementRef.current) { 
-          TonerService.updateInstrumentParams(instrument, state) 
-          DrawerService.updateEditLayer(state, (elementRef.current as HTMLElement))
-        }
-        return {...state}
-      })
+    function updateParams(value: string, paramName: EnvelopeParam) {
+      setPadParams(props.iam, {...padParams, [paramName]: parseInt(value), custom: true})
     }
 
     return (
@@ -156,12 +143,12 @@ export default function Pad(props: {iam: PadName}) {
         </RecordingBox>
 
         <PadControl>
-            { hasSound ? (
+            { audioUrl ? (
               paramConfigs.map((cfg) => (
                 <div key={cfg.name}>
                   <div>{cfg.displayName}</div>
                   <input type="number" 
-                    value={params[cfg.name]} 
+                    value={padParams[cfg.name]} 
                     onChange={(e) => updateParams(e.target.value, cfg.name)} 
                     min={cfg.min}
                     max={cfg.max}

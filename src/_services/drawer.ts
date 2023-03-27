@@ -1,5 +1,5 @@
 import { ToneAudioBuffer } from 'tone'
-import { ToneParams } from './interfaces'
+import { PadParam, EnvelopeParam } from './interfaces'
 
 function clearAllCanvas(parentEl: Element) {
     clearSample(parentEl, 'wave')
@@ -11,16 +11,10 @@ function clearSample(parentEl: Element, className: 'wave' | 'edit') {
     canvas.width = 0
 }
 
-function normalizeParams(params: ToneParams, unity: number) {
-  return {
-    offset: (params.offset / 100) * unity,
-    fadeIn: (params.fadeIn / 100) * unity,
-    duration: (params.duration / 100) * unity,
-    fadeOut: (params.fadeOut / 100) * unity
-  }
-}
+function updateEditLayer(params: PadParam, parentEl: Element) {
 
-function updateEditLayer(params: ToneParams, parentEl: Element) {
+    if(!params.custom) { return }
+
     const canvas = parentEl.querySelector('.edit') as HTMLCanvasElement
     canvas.width = parentEl.clientWidth - 10;
 
@@ -34,11 +28,11 @@ function updateEditLayer(params: ToneParams, parentEl: Element) {
     const HEIGHT_PARAM_HIGH = HEIGHT * 0.2;
     const HEIGHT_PARAM_LOW = HEIGHT * 0.8;
 
-    const normedParams = normalizeParams(params, WIDTH)
-    const startX = normedParams.offset
-    const fillFullX = startX + normedParams.fadeIn
-    const durationX = startX + normedParams.duration
-    const fillDropX = durationX - normedParams.fadeOut
+    const unity = WIDTH / 100
+    const startX = params[EnvelopeParam.offset] * unity
+    const fillFullX = startX + params[EnvelopeParam.fadeIn] * unity
+    const durationX = startX + params[EnvelopeParam.duration] * unity
+    const fillDropX = durationX - params[EnvelopeParam.fadeOut] * unity
 
     ctx.strokeStyle = 'rgba(0,0,0,0)'
 
@@ -53,7 +47,10 @@ function updateEditLayer(params: ToneParams, parentEl: Element) {
     ctx.stroke()
 }
 
-function drawAudioUrl(audioURL: string, parentEl: Element) {
+function drawAudioUrl(parentEl: Element, audioURL?: string, ) {
+    if(!audioURL) {
+      clearAllCanvas(parentEl)
+    }
     const buffer = new ToneAudioBuffer(audioURL, () => {
         drawSample(buffer.getChannelData(0), parentEl)
       })
