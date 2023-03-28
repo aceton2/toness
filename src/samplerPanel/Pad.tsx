@@ -113,9 +113,9 @@ export default function Pad(props: {iam: PadName}) {
     function startRecording() {
       if(!elementRef.current) return
       DrawerService.clearAllCanvas(elementRef.current)
+      SamplerService.startRecorder(props.iam, elementRef.current)
       setRecording(true)
       setPadParams(props.iam, {...defaultPad})
-      SamplerService.startRecorder(props.iam, elementRef.current)
     }
 
     function stopRecording() {

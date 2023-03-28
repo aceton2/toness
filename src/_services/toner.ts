@@ -57,9 +57,9 @@ function addSample(audioURL: string, padName: PadName) {
     pad.audioURL = audioURL
     pad.player = new Player(audioURL);
     pad.player.chain(pad.pitchShift, pad.channelVolume)
-    pad.channelVolume.fan(controlRoomRecorder, masterVolume)    
+    pad.channelVolume.fan(controlRoomRecorder, masterVolume) 
+    pad.player.buffer.onload = () => updateStoreActivePads(padName, {...defaultPad, audioUrl: audioURL})
   }
-  updateStoreActivePads(padName, audioURL)
 }
 
 function syncPadParams(params: PadParams) {  
@@ -67,14 +67,16 @@ function syncPadParams(params: PadParams) {
     const envelope = params[padName as PadName] 
     const i = instrumentsObj[padName]
     if(i.player && i.pitchShift && envelope) { // pads identified because they have pitch shift
-      const unity = i.player.buffer.duration / 100
+      let unity = i.player.buffer.duration / 100
       i.offset = envelope[EnvelopeParam.offset] * unity
-      i.duration = envelope[EnvelopeParam.duration]* unity
+      i.duration = envelope[EnvelopeParam.duration] * unity
       i.player.fadeOut = envelope[EnvelopeParam.fadeOut] * unity
       i.player.fadeIn = envelope[EnvelopeParam.fadeIn] * unity
       if(i.pitchShift) {
         i.pitchShift.pitch = envelope[EnvelopeParam.pitchShift] / 2
       }
+      console.log("unity", i.name, unity, i.duration)
+      
     }
   })
 }
@@ -85,7 +87,7 @@ function clearPads() {
       i.audioURL = undefined
       i.player = undefined
       localStorage.removeItem(`audioBlob_${i.name}`)
-      updateStoreActivePads(i.name as PadName)
+      updateStoreActivePads(i.name as PadName, defaultPad)
     }
   })
 }
@@ -94,11 +96,11 @@ function getPadNames() {
   return instruments.filter(i => i.id > 2).map(i => i.name) as Array<PadName>
 }
 
-function updateStoreActivePads(padName: PadName, audioUrl?: string) {
+function updateStoreActivePads(padName: PadName, newValues: any) {
   const padParams = useToneStore.getState().padParams
   useToneStore.getState().setPadParams(padName, {
-    ...padParams[padName],  
-    ...(audioUrl ? {audioUrl} : defaultPad) // if no audioUrl revert everything to default
+    ...padParams[padName], 
+    ...newValues,
   })
 }
 

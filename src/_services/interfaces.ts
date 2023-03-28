@@ -61,7 +61,8 @@ export const defaultPad: PadParam = {
   [EnvelopeParam.offset]: 0, 
   [EnvelopeParam.fadeIn]: 20, 
   [EnvelopeParam.pitchShift]: 0,
-  custom: false
+  custom: false,
+  audioUrl: undefined
 }
 
 export const defaultStoreParams: PadParams = {
