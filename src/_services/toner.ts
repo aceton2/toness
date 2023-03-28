@@ -75,8 +75,6 @@ function syncPadParams(params: PadParams) {
       if(i.pitchShift) {
         i.pitchShift.pitch = envelope[EnvelopeParam.pitchShift] / 2
       }
-      console.log("unity", i.name, unity, i.duration)
-      
     }
   })
 }
