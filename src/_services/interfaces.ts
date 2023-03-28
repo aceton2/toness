@@ -4,9 +4,9 @@ export interface Instrument {
     id: number
     name: string
     player?: Player
-    duration: number
-    offset: number
-    fadeOut: number
+    duration?: number
+    offset?: number
+    fadeOut?: number
     padId?: number,
     pitchShift?: PitchShift
     channelVolume: Volume

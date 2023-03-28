@@ -8,19 +8,16 @@ const controlRoomRecorder = new Recorder()
 const masterVolume = new Volume(0).toDestination();
 
 // INSTRUMENTS
-
-function getDefaultSetup() {
-  return {duration: 2, fadeOut: 0.2, offset: 0, channelVolume: new Volume(0)}
-}
+const drumDefaults = {duration: 2, fadeOut: 0.2, offset: 0}
 
 let instrumentsObj: {[key: string]: Instrument} = {
-  kick: {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), ...getDefaultSetup(), duration: 0.5 },
-  snare: {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), ...getDefaultSetup(), duration: 2 },
-  hat: {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3'), ...getDefaultSetup(), duration: 2 },
-  red: {id: 3, name: 'red', player: undefined, ...getDefaultSetup(), pitchShift: new PitchShift() },
-  sol: {id: 4, name: 'sol', player: undefined, ...getDefaultSetup(), pitchShift: new PitchShift() },
-  gelb: {id: 5, name: 'gelb', player: undefined, ...getDefaultSetup(), pitchShift: new PitchShift() },
-  rot: {id: 6, name: 'rot', player: undefined, ...getDefaultSetup(), pitchShift: new PitchShift() },
+  kick: {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), channelVolume: new Volume(0), ...drumDefaults, duration: 0.5 },
+  snare: {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), channelVolume: new Volume(0), ...drumDefaults },
+  hat: {id: 2, name: 'hat', player: new Player('/sounds/highhat.mp3'), channelVolume: new Volume(0), ...drumDefaults },
+  red: {id: 3, name: 'red', player: undefined, channelVolume: new Volume(0), pitchShift: new PitchShift() },
+  sol: {id: 4, name: 'sol', player: undefined, channelVolume: new Volume(0), pitchShift: new PitchShift() },
+  gelb: {id: 5, name: 'gelb', player: undefined, channelVolume: new Volume(0), pitchShift: new PitchShift() },
+  rot: {id: 6, name: 'rot', player: undefined, channelVolume: new Volume(0), pitchShift: new PitchShift() },
 }
 let instruments = Array.from(Object.values(instrumentsObj))
 

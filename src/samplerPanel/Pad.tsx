@@ -90,7 +90,7 @@ const paramConfigObj: {[key: string]: ParamCfg} = {
   fadeIn: {displayName: 'f-in', name: EnvelopeParam.fadeIn, min: 0, max: 99, step: 1},
   duration: {displayName: 'duration', name: EnvelopeParam.duration, min: 0, max: 99, step: 1},
   fadeOut: {displayName: 'f-out', name: EnvelopeParam.fadeOut, min: 0, max: 99, step: 1},
-  pitchShift: {displayName: 'shift', name: EnvelopeParam.pitchShift, min: -48, max: 48, step: 1},
+  pitchShift: {displayName: 'pitch', name: EnvelopeParam.pitchShift, min: -48, max: 48, step: 1},
 }
 const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
 
