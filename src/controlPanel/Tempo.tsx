@@ -18,7 +18,7 @@ const TempoBox = styled.div`
 `
 
 const TempoDisplay = styled.div`
-    width: 40px;
+    width: 56px;
     padding: 4px;
 `
 
@@ -28,13 +28,13 @@ export default function Tempo() {
     return (
         <TempoBox>
             <TempoDisplay>
-                <FontAwesomeIcon icon={faPersonRunning}/> {bpm}
+                BPM {bpm}
             </TempoDisplay>
             <div>
                 <input
                     type="range"
                     min="24"
-                    max="240"
+                    max="241"
                     step="1"
                     value={bpm}
                     onChange={e => setBpm(e.target.value)}

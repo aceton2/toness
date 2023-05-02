@@ -10,7 +10,9 @@ const ControlBox = styled.div`
   background: var(--off-color-1);
   border-radius: 5px;
   padding: 5px;
+  padding-left: 60px;
   display: flex;
+  position: relative;
   button {
     background: var(--off-color-2);
     &:hover {
@@ -37,6 +39,16 @@ const MultiSelect = styled.div`
 
 const Stretch = styled.div`
   flex: 1;
+`
+
+const Floater = styled.div`
+    position: absolute;
+    left: -31px;
+    top: -11px;
+    background: var(--off-color-2);
+    z-index: 1;
+    border-radius: 2px;
+    padding: 1px;
 `
 
 export default function Controls() {
@@ -66,18 +78,19 @@ export default function Controls() {
 
   return (
     <ControlBox>
+      <Floater>SEQUENCER</Floater>
 
       <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> <span></span><FontAwesomeIcon icon={faStop}/></button>
       <button onClick={clearSchedule}>X STEPS</button>
       <button onClick={clearPads}>X PADS</button>
       <button onClick={clearAll}>RESET</button>
+{/* 
+      <Stretch /> */}
 
-      <Stretch />
-
-      <button onClick={() => changeTracks(1)}>+ Voice</button>
-      <button onClick={() => changeTracks(-1)}>- Voice</button>
-      <button onClick={() => changeBars(1)}>+ Bar</button>
-      <button onClick={() => changeBars(-1)}>- Bar</button>
+      <button onClick={() => changeTracks(1)}>ADD VOICE</button>
+      <button onClick={() => changeTracks(-1)}>REMOVE VOICE</button>
+      <button onClick={() => changeBars(1)}>ADD BAR</button>
+      <button onClick={() => changeBars(-1)}>REMOVE BAR</button>
       <Stretch />
       
       <MultiSelect onClick={toggleResolution}>
