@@ -24,7 +24,25 @@ export interface Slot {
     timeId: string
 }
 
+// TRACK PARAMS
 
+interface TrackParam {
+  mute: boolean
+}
+
+export interface TrackParams {
+  [id: number]: TrackParam
+}
+
+export const defaultTrackParams = {
+  0: {mute: false},
+  1: {mute: false},
+  2: {mute: false},
+  3: {mute: false},
+  4: {mute: false},
+  5: {mute: false},
+  6: {mute: false},
+}
 
 // PAD PARAMS
 
@@ -33,7 +51,8 @@ export enum EnvelopeParam {
   fadeOut, 
   offset, 
   fadeIn, 
-  pitchShift
+  pitchShift,
+  amplitude
 }
 
 export interface PadParam {
@@ -42,6 +61,7 @@ export interface PadParam {
   [EnvelopeParam.offset]: number,
   [EnvelopeParam.fadeIn]: number,
   [EnvelopeParam.pitchShift]: number,
+  [EnvelopeParam.amplitude]: number,
   custom: boolean,
   audioUrl?: string
 }
@@ -59,8 +79,9 @@ export const defaultPad: PadParam = {
   [EnvelopeParam.duration]: 99, 
   [EnvelopeParam.fadeOut]: 20, 
   [EnvelopeParam.offset]: 0, 
-  [EnvelopeParam.fadeIn]: 20, 
+  [EnvelopeParam.fadeIn]: 0, 
   [EnvelopeParam.pitchShift]: 0,
+  [EnvelopeParam.amplitude]: 0,
   custom: false,
   audioUrl: undefined
 }

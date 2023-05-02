@@ -5,6 +5,7 @@ import TonerService from "../_services/toner";
 import { PadName, EnvelopeParam, defaultPad } from "../_services/interfaces";
 import useToneStore, { selectPadAudioUrl } from "../_store/store";
 import DrawerService from "../_services/drawer";
+import useDebouncedTrigger from "./useDebouncedTrigger";
 
 const PadBox = styled.div`
   position: relative;
@@ -29,7 +30,7 @@ const PadControl = styled.div`
   
   text-align: center;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 
   font-size: 0.8rem;
 
@@ -77,19 +78,21 @@ const WaveViewPort = styled.div`
   }
 `
 
-const Title = styled.div`
-  margin: 0px auto;
-  width: 50px;
-  padding-top: 1rem;
+const Title = styled.div<{color: string}>`
+  margin: 0px;
+  height: 20px;
   text-align: center;
+  border-radius: 5px 5px 0px 0px;
+  background: var(${props => `--pad-${props.color}`});
 `
 
 interface ParamCfg {displayName: string, name: EnvelopeParam, min: number, max: number, step: number}
 const paramConfigObj: {[key: string]: ParamCfg} = {
   offset: {displayName: 'start', name: EnvelopeParam.offset, min: 0, max: 99, step: 1},
-  fadeIn: {displayName: 'f-in', name: EnvelopeParam.fadeIn, min: 0, max: 99, step: 1},
+  // fadeIn: {displayName: 'f-in', name: EnvelopeParam.fadeIn, min: 0, max: 99, step: 1},
   duration: {displayName: 'duration', name: EnvelopeParam.duration, min: 0, max: 99, step: 1},
-  fadeOut: {displayName: 'f-out', name: EnvelopeParam.fadeOut, min: 0, max: 99, step: 1},
+  // fadeOut: {displayName: 'f-out', name: EnvelopeParam.fadeOut, min: 0, max: 99, step: 1},
+  volume: {displayName: 'volume', name: EnvelopeParam.amplitude, min: -24, max: 24, step: 1},
   pitchShift: {displayName: 'pitch', name: EnvelopeParam.pitchShift, min: -48, max: 48, step: 1},
 }
 const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
@@ -97,8 +100,19 @@ const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
 export default function Pad(props: {iam: PadName}) {
     const elementRef = useRef(null)
     const audioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.iam), [props.iam]))
+    const trigger = TonerService.getPlayInstrumentTrigger(TonerService.getInstrumentByName(props.iam).id)
     const [padParams, setPadParams] = useToneStore(state => [state.padParams[props.iam], state.setPadParams])
     const [recording, setRecording] = useState(false)
+    const [mouseDwn, setMouseDwn] = useState(false)
+    const {triggered, initDebounce} = useDebouncedTrigger()
+
+    const startRecording = useCallback(() => {
+      if(!elementRef.current) return
+      DrawerService.clearAllCanvas(elementRef.current)
+      SamplerService.startRecorder(props.iam, elementRef.current)
+      setRecording(true)
+      setPadParams(props.iam, {...defaultPad})
+    }, [props.iam, setPadParams])
 
     useEffect(() => {
       if(!elementRef.current) return
@@ -110,12 +124,21 @@ export default function Pad(props: {iam: PadName}) {
       DrawerService.updateEditLayer(padParams, elementRef.current)
     }, [elementRef, padParams])
 
-    function startRecording() {
-      if(!elementRef.current) return
-      DrawerService.clearAllCanvas(elementRef.current)
-      SamplerService.startRecorder(props.iam, elementRef.current)
-      setRecording(true)
-      setPadParams(props.iam, {...defaultPad})
+    useEffect(() => {
+      if(triggered && mouseDwn) {
+        startRecording()
+      }
+    }, [triggered, mouseDwn, startRecording])
+
+    function mouseDown() {
+      setMouseDwn(true)
+      initDebounce()
+    }
+
+    function mouseUp() {
+      setMouseDwn(false)
+      stopRecording()
+      if(!triggered) { trigger(0) }
     }
 
     function stopRecording() {
@@ -130,12 +153,14 @@ export default function Pad(props: {iam: PadName}) {
     }
 
     return (
-    <PadBox onMouseLeave={() => stopRecording()} onMouseUp={() => stopRecording()}>
+    <PadBox 
+      onMouseLeave={() => mouseUp()} 
+      onMouseUp={() => mouseUp()}>
         { !recording ? '' : (
             <Blur> <div> recording...</div> </Blur>
         )}
-        <RecordingBox onMouseDown={() => startRecording()}>
-          <Title>{props.iam}</Title>
+        <RecordingBox onMouseDown={() => mouseDown()}>
+          <Title color={props.iam}></Title>
           <WaveViewPort ref={elementRef}>
             <canvas className="wave" height="60px" width="100px"></canvas>
             <canvas className="edit" height="60px" width="100px"></canvas>

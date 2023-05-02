@@ -15,6 +15,11 @@ body {
   background-attachment: fixed;
   background-size: cover;
 
+  --wisteria: #B59ECDff;
+  --celestial-blue: #338ECCff;
+  --melon: #FAB8B5ff;
+  --maya-blue: #8AC5F4ff;
+
   color: ghostwhite;
   --panel-color-1: #d46174;
   --panel-color-2: #e38471;
@@ -22,6 +27,13 @@ body {
   --off-color-2: #36454f;
   --off-color-3: whitesmoke;
   --inactive-color: grey;
+  --pad-kick: var(--off-color-2);
+  --pad-snare: var(--off-color-2);
+  --pad-hat: var(--off-color-2);
+  --pad-red: var(--wisteria);
+  --pad-sol: var(--celestial-blue);
+  --pad-gelb: var(--melon);
+  --pad-rot: var(--maya-blue);
 }
 
 button {

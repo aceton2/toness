@@ -29,10 +29,10 @@ const MultiSelect = styled.div`
   & div {
     flex: 1;
     padding: 5px;
-    background: var(--panel-color-1);
+    background: var(--off-color-2);
     text-align: center;
   }
-  & .active {background: var(--off-color-2) }
+  & .active {background: var(--panel-color-1) }
 `
 
 const Stretch = styled.div`

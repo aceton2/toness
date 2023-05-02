@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
-import { Slot, PadParams, PadName, defaultStoreParams, PadParam } from '../_services/interfaces'
+import { Slot, PadParams, PadName, defaultStoreParams, PadParam, TrackParams, defaultTrackParams } from '../_services/interfaces'
 
 interface TonesState {
   activeSlots: Array<Slot>,
@@ -9,6 +9,7 @@ interface TonesState {
   bpm: number,
   resolution: '16n' | '8n',
   padParams: PadParams,
+  trackSettings: TrackParams,
   resetSequencer: () => void,
   changeBars: (bars: number) => void,
   changeTracks: (tracks: number) => void,
@@ -19,6 +20,7 @@ interface TonesState {
   toggleResolution: () => void,
   setActiveSlots: (slots: Array<Slot>) => void,
   setPadParams: (pad: PadName, params: PadParam) => void
+  toggleTrackMute: (id: number) => void
 }
 
 
@@ -35,6 +37,7 @@ const useToneStore = create<TonesState>()(
         resolution: '8n',  // SEQUENCER -> for setting active slots * CONTROLS -> for button
         scheduledEvents: [], // SEQUENCER -> for transport sync * TOGGLE -> for step styling
         padParams: defaultStoreParams, // TONER -> for setting play params * PAD -> for setting controls
+        trackSettings: defaultTrackParams, // TONER -> for setting volume mutes * TRACK -> for showing state
         setPadParams: (padName, params) => set(state => ({padParams: {...state.padParams, [padName]: params}})),
         resetSequencer: () => set(state => ({activeBars: 1, activeTracks: 1, scheduledEvents: [], bpm: 124})),
         changeBars: (bars: number) => set(state => ({activeBars: getNewBars(state.activeBars, bars)})),
@@ -43,6 +46,9 @@ const useToneStore = create<TonesState>()(
         setActiveSlots: (slots: Array<Slot>) => set(state => ({activeSlots: slots})),
         toggleResolution: () => set(state => ({resolution: state.resolution === '8n' ? '16n' : '8n'})),
         clearSchedule: () => set(state => ({scheduledEvents: []})),
+        toggleTrackMute: (id) => set(state => (
+          {trackSettings: {...state.trackSettings, [id]: {mute: !state.trackSettings[id].mute} }}
+        )),
         toggleScheduledEvent: (scheduledEvent: string) => set(state => {
           return {scheduledEvents: 
             (state.scheduledEvents.indexOf(scheduledEvent) !== -1)
@@ -73,6 +79,10 @@ export const selectIsFullGrid = (state: TonesState) => state.resolution === '16n
 export const selectPadAudioUrl = (state: TonesState, name: string) => {
   const param = state.padParams[name as PadName]
   return param?.audioUrl
+}
+
+export const selectTrackSetting = (state: TonesState, id: number) => {
+  return state.trackSettings[id]
 }
 
 export default useToneStore

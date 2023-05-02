@@ -32,7 +32,7 @@ function updateEditLayer(params: PadParam, parentEl: Element) {
     const startX = params[EnvelopeParam.offset] * unity
     const fillFullX = startX + params[EnvelopeParam.fadeIn] * unity
     const durationX = startX + params[EnvelopeParam.duration] * unity
-    const fillDropX = durationX - params[EnvelopeParam.fadeOut] * unity
+    const fillDropX = durationX // - params[EnvelopeParam.fadeOut] * unity
 
     ctx.strokeStyle = 'rgba(0,0,0,0)'
 

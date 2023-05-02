@@ -1,5 +1,5 @@
 import { Player, Recorder, Volume, PitchShift } from 'tone'
-import { Instrument, PadName, PadParams, EnvelopeParam, defaultPad } from './interfaces'
+import { Instrument, PadName, PadParams, EnvelopeParam, defaultPad, TrackParams } from './interfaces'
 import useToneStore from '../_store/store';
 
 // NODES
@@ -69,9 +69,18 @@ function syncPadParams(params: PadParams) {
       i.duration = envelope[EnvelopeParam.duration] * unity
       i.player.fadeOut = envelope[EnvelopeParam.fadeOut] * unity
       i.player.fadeIn = envelope[EnvelopeParam.fadeIn] * unity
+      setVolume(i.name, envelope[EnvelopeParam.amplitude])
       if(i.pitchShift) {
         i.pitchShift.pitch = envelope[EnvelopeParam.pitchShift] / 2
       }
+    }
+  })
+}
+
+function syncTrackSettings(trackSettings: TrackParams) {
+  instruments.forEach(i => {
+    if(i.channelVolume) {
+      i.channelVolume.mute = trackSettings[i.id].mute
     }
   })
 }
@@ -114,6 +123,7 @@ function unmuteOutput() {
 }
 
 useToneStore.subscribe((state) => state.padParams, syncPadParams)
+useToneStore.subscribe((state) => state.trackSettings, syncTrackSettings)
 
 // EXPORTS
 
@@ -127,7 +137,6 @@ const TonerServiceIFace = {
   controlRoomRecorder,
   muteOutput,
   unmuteOutput,
-  setVolume,
   clearPads,
 }
 
