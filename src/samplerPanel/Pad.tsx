@@ -66,7 +66,7 @@ const Blur = styled.div `
 const WaveViewPort = styled.div`
   position: relative;
   padding: 5px;
-  height: 60px;
+  height: 85px;
   canvas {
     position: absolute;
   }
@@ -167,8 +167,8 @@ export default function Pad(props: {iam: PadName}) {
         <RecordingBox onMouseDown={() => recordOrPlay()}>
           <Title color={props.iam}></Title>
           <WaveViewPort ref={elementRef}>
-            <canvas className="wave" height="60px" width="100px"></canvas>
-            <canvas className="edit" height="60px" width="100px"></canvas>
+            <canvas className="wave" height="85px" width="100px"></canvas>
+            <canvas className="edit" height="85px" width="100px"></canvas>
           </WaveViewPort>
         </RecordingBox>
 
