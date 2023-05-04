@@ -1,7 +1,5 @@
 import styled from 'styled-components';
 import useToneStore from '../_store/store';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPersonRunning } from '@fortawesome/free-solid-svg-icons';
 
 const TempoBox = styled.div`
   display: flex;

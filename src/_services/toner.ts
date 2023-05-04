@@ -87,13 +87,17 @@ function syncTrackSettings(trackSettings: TrackParams) {
 
 function clearPads() {
   instruments.forEach(i => {
-    if(i.pitchShift) { // pads identified because they have pitch shift
-      i.audioURL = undefined
-      i.player = undefined
-      localStorage.removeItem(`audioBlob_${i.name}`)
-      updateStoreActivePads(i.name as PadName, defaultPad)
-    }
+    resetPad(i)
   })
+}
+
+function resetPad(i: Instrument) {
+  if(i.pitchShift) { // pads identified because they have pitch shift
+    i.audioURL = undefined
+    i.player = undefined
+    localStorage.removeItem(`audioBlob_${i.name}`)
+    updateStoreActivePads(i.name as PadName, defaultPad)
+  }
 }
 
 function getPadNames() {
@@ -138,6 +142,7 @@ const TonerServiceIFace = {
   muteOutput,
   unmuteOutput,
   clearPads,
+  resetPad,
 }
 
 export default TonerServiceIFace

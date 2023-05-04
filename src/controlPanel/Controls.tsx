@@ -82,10 +82,9 @@ export default function Controls() {
 
       <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> <span></span><FontAwesomeIcon icon={faStop}/></button>
       <button onClick={clearSchedule}>X STEPS</button>
-      <button onClick={clearPads}>X PADS</button>
       <button onClick={clearAll}>RESET</button>
-{/* 
-      <Stretch /> */}
+
+      <Stretch />
 
       <button onClick={() => changeTracks(1)}>ADD VOICE</button>
       <button onClick={() => changeTracks(-1)}>REMOVE VOICE</button>

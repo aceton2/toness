@@ -86,6 +86,17 @@ const Title = styled.div<{color: string}>`
   background: var(${props => `--pad-${props.color}`});
 `
 
+const TopControl = styled.div`
+  position: absolute;
+  z-index: 2;
+  top: 2px;
+  right: 5px;
+  & button {
+    background: none;
+    font-weight: 600;
+  }
+`
+
 interface ParamCfg {displayName: string, name: EnvelopeParam, min: number, max: number, step: number}
 const paramConfigObj: {[key: string]: ParamCfg} = {
   offset: {displayName: 'start', name: EnvelopeParam.offset, min: 0, max: 99, step: 1},
@@ -103,8 +114,6 @@ export default function Pad(props: {iam: PadName}) {
     const trigger = TonerService.getPlayInstrumentTrigger(TonerService.getInstrumentByName(props.iam).id)
     const [padParams, setPadParams] = useToneStore(state => [state.padParams[props.iam], state.setPadParams])
     const [recording, setRecording] = useState(false)
-    const [mouseDwn, setMouseDwn] = useState(false)
-    const {triggered, initDebounce} = useDebouncedTrigger()
 
     const startRecording = useCallback(() => {
       if(!elementRef.current) return
@@ -124,21 +133,8 @@ export default function Pad(props: {iam: PadName}) {
       DrawerService.updateEditLayer(padParams, elementRef.current)
     }, [elementRef, padParams])
 
-    useEffect(() => {
-      if(triggered && mouseDwn) {
-        startRecording()
-      }
-    }, [triggered, mouseDwn, startRecording])
-
-    function mouseDown() {
-      setMouseDwn(true)
-      initDebounce()
-    }
-
-    function mouseUp() {
-      setMouseDwn(false)
-      stopRecording()
-      if(!triggered) { trigger(0) }
+    function recordOrPlay() {
+      audioUrl ?  trigger(0) : startRecording()
     }
 
     function stopRecording() {
@@ -152,14 +148,23 @@ export default function Pad(props: {iam: PadName}) {
       setPadParams(props.iam, {...padParams, [paramName]: parseInt(value), custom: true})
     }
 
+    function clearPad() {
+      TonerService.resetPad(TonerService.getInstrumentByName(props.iam))
+    }
+
     return (
     <PadBox 
-      onMouseLeave={() => mouseUp()} 
-      onMouseUp={() => mouseUp()}>
+      onMouseLeave={() => stopRecording()} 
+      onMouseUp={() => stopRecording()}>
+        { audioUrl && 
+          <TopControl>
+            <button onClick={clearPad}>X</button>
+          </TopControl>
+        }
         { !recording ? '' : (
             <Blur> <div> recording...</div> </Blur>
         )}
-        <RecordingBox onMouseDown={() => mouseDown()}>
+        <RecordingBox onMouseDown={() => recordOrPlay()}>
           <Title color={props.iam}></Title>
           <WaveViewPort ref={elementRef}>
             <canvas className="wave" height="60px" width="100px"></canvas>
