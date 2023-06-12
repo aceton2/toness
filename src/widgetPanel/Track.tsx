@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import styled from 'styled-components'
-import TonerService from '../_services/toner'
+import TonerService, { nameToDisplayId } from '../_services/toner'
 import useToneStore, { selectPadAudioUrl, selectTrackSetting } from '../_store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMicrophoneLinesSlash } from '@fortawesome/free-solid-svg-icons';
@@ -33,9 +33,7 @@ const Label = styled.div`
   & svg {
     width: 50%;
     height: 50%;
-    color: var(--off-color-1);
-    margin-left: 20%;
-    padding-top:5px;
+    padding-top:1px;
   }
 `
 
@@ -43,7 +41,8 @@ const LabelName = styled.div`
   width: 100%;
   border-radius: 2px;
   text-align: center;
-  height: 12px;
+  height: 15px;
+  font-weight: 600;
   background: var(${props => `--pad-${props.color}`});
 `
 
@@ -58,11 +57,10 @@ const TrackIcon = styled.div<{alert: boolean, clickable: boolean}>`
   width: 38px;
   border-radius: 3px;
   margin: auto;
-  margin-top: 6px;
+  margin-top: 10px;
+  text-align: center;
   cursor: ${props => props.clickable ? 'pointer' : 'default'};
-  & svg {
-    color: var(${props => props.alert ? '--panel-color-1' : props.clickable ? '--off-color-1' : '--inactive-color'});
-  }
+  color: var(${props => props.alert ? '--panel-color-1' : props.clickable ? '--off-color-1' : '--inactive-color'});
 `
 
 interface SoundProps {
@@ -81,13 +79,20 @@ export default function Track(props: SoundProps) {
     toggleTrackMute(instrument.id)
   }
 
+  function getDisplayName(name: string) {
+    // @ts-ignore
+    return nameToDisplayId[name];
+  }
+
   return (
     <TrackWithLabel>
       { !hasSound ? <Mask /> : '' }
       <Label>
-        <LabelName color={props.name}>{instrument.id < 3 ? props.name : ''}</LabelName>
+        <LabelName color={props.name}>{getDisplayName(props.name)}</LabelName>
         { hasSound ?
-          <TrackIcon alert={trackSetting?.mute} clickable={true} onClick={toggleMute}><FontAwesomeIcon icon={faVolumeXmark}></FontAwesomeIcon></TrackIcon>
+          <TrackIcon alert={trackSetting?.mute} clickable={true} onClick={toggleMute}>
+            M
+          </TrackIcon>
           : <TrackIcon alert={false} clickable={false}><FontAwesomeIcon icon={faMicrophoneLinesSlash}></FontAwesomeIcon></TrackIcon> }
       </Label>
       <TrackBars>{props.children}</TrackBars>

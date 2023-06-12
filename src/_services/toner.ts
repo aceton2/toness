@@ -10,6 +10,16 @@ const masterVolume = new Volume(0).toDestination();
 // INSTRUMENTS
 const drumDefaults = {duration: 2, fadeOut: 0.2, offset: 0}
 
+export const nameToDisplayId = {
+  "kick": "kick",
+  "snare": "snare",
+  "hat": "hat",
+  "red": "1",
+  "sol": "2",
+  "gelb": "3",
+  "rot": "4"
+}
+
 let instrumentsObj: {[key: string]: Instrument} = {
   kick: {id: 0, name: 'kick', player: new Player('/sounds/kick70.mp3'), channelVolume: new Volume(0), ...drumDefaults, duration: 0.5 },
   snare: {id: 1, name: 'snare', player: new Player('/sounds/snare.mp3'), channelVolume: new Volume(0), ...drumDefaults },

@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components"
 import SamplerService from "../_services/sampler"
-import TonerService from "../_services/toner";
+import TonerService, { nameToDisplayId } from "../_services/toner";
 import { PadName, EnvelopeParam, defaultPad } from "../_services/interfaces";
 import useToneStore, { selectPadAudioUrl } from "../_store/store";
 import DrawerService from "../_services/drawer";
-import useDebouncedTrigger from "./useDebouncedTrigger";
 
 const PadBox = styled.div`
   position: relative;
@@ -90,10 +89,16 @@ const TopControl = styled.div`
   position: absolute;
   z-index: 2;
   top: 2px;
-  right: 5px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-weight: 600;
+  cursor: default;
   & button {
+    position: absolute;
+    right: 5px;
+    top: 0px;
     background: none;
-    font-weight: 600;
   }
 `
 
@@ -103,7 +108,7 @@ const paramConfigObj: {[key: string]: ParamCfg} = {
   // fadeIn: {displayName: 'f-in', name: EnvelopeParam.fadeIn, min: 0, max: 99, step: 1},
   duration: {displayName: 'duration', name: EnvelopeParam.duration, min: 0, max: 99, step: 1},
   // fadeOut: {displayName: 'f-out', name: EnvelopeParam.fadeOut, min: 0, max: 99, step: 1},
-  volume: {displayName: 'volume', name: EnvelopeParam.amplitude, min: -24, max: 24, step: 1},
+  volume: {displayName: 'amplitude', name: EnvelopeParam.amplitude, min: -24, max: 24, step: 1},
   pitchShift: {displayName: 'pitch', name: EnvelopeParam.pitchShift, min: -48, max: 48, step: 1},
 }
 const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
@@ -156,11 +161,12 @@ export default function Pad(props: {iam: PadName}) {
     <PadBox 
       onMouseLeave={() => stopRecording()} 
       onMouseUp={() => stopRecording()}>
-        { audioUrl && 
           <TopControl>
-            <button onClick={clearPad}>X</button>
+            <div>{nameToDisplayId[props.iam]}</div>
+            { audioUrl &&
+              <button onClick={clearPad}>Delete</button> 
+            }
           </TopControl>
-        }
         { !recording ? '' : (
             <Blur> <div> recording...</div> </Blur>
         )}

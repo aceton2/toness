@@ -20,6 +20,13 @@ const ControlBox = styled.div`
     }
   }
 `
+const SelectLabel = styled.div`
+  line-height: 2rem;
+  font-weight: bold;
+  color: var(--off-color-2);
+  padding-right: 5px;
+  padding-top: 1px;
+`
 
 const MultiSelect = styled.div`
   display: flex;
@@ -27,7 +34,7 @@ const MultiSelect = styled.div`
   cursor: pointer;
   overflow: hidden;
   padding: 0px;
-  width: 120px;
+  width: 180px;
   & div {
     flex: 1;
     padding: 5px;
@@ -86,12 +93,13 @@ export default function Controls() {
 
       <Stretch />
 
-      <button onClick={() => changeTracks(1)}>ADD VOICE</button>
-      <button onClick={() => changeTracks(-1)}>REMOVE VOICE</button>
-      <button onClick={() => changeBars(1)}>ADD BAR</button>
-      <button onClick={() => changeBars(-1)}>REMOVE BAR</button>
+      <button onClick={() => changeTracks(1)}>+ VOICE</button>
+      <button onClick={() => changeTracks(-1)}>- VOICE</button>
+      <button onClick={() => changeBars(1)}>+ BAR</button>
+      <button onClick={() => changeBars(-1)}>- BAR</button>
       <Stretch />
-      
+     
+      <SelectLabel>Select Grid:</SelectLabel>
       <MultiSelect onClick={toggleResolution}>
         <div className={!resolutionDoubled ? 'active' : ''}>8ths</div>
         <div className={resolutionDoubled ? 'active' : ''}>16ths</div>
