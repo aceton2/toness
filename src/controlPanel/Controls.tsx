@@ -93,8 +93,8 @@ export default function Controls() {
 
       <Stretch />
 
-      <button onClick={() => changeTracks(1)}>+ VOICE</button>
-      <button onClick={() => changeTracks(-1)}>- VOICE</button>
+      <button onClick={() => changeTracks(1)}>+ TRACK</button>
+      <button onClick={() => changeTracks(-1)}>- TRACK</button>
       <button onClick={() => changeBars(1)}>+ BAR</button>
       <button onClick={() => changeBars(-1)}>- BAR</button>
       <Stretch />
