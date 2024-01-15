@@ -7,25 +7,27 @@ let colors = {
   toggled: 'var(--off-color-2)',
 }
 
-const StepDiv = styled.div`
-  padding: 2px;
-  cursor: pointer;
+const StepMargin = styled.div`
+  margin: 2px;
+  height: 54px;
   position: relative;
+  cursor: default;
 `
 
 const Step = styled.div`
   height: 100%;
   border-radius: 2px;
+  margin:auto;
+  cursor: pointer;
 `
 
 const Guide = styled.div`
   position: absolute;
-  top: -1rem;
-  height: 1rem;
-  font-size: 0.8rem;
-  padding-left: 30%;
-  
+  top: -1.4rem;
+  font-size: 1.2rem;
   font-weight: 600;
+  text-align: center;
+  width: 100%;
 `
 
 interface ToggleProps {
@@ -60,9 +62,10 @@ export default function Toggle(props: ToggleProps) {
   }
 
   return (
-    <StepDiv style={{ opacity: props.isActive ? '1' : '0.7' }}>
+    <StepMargin style={{ opacity: props.isActive ? '1' : '0.7' }}>
       { guideName ? <Guide>{guideName}</Guide> : '' }
-      <Step style={{ backgroundColor: getBackgroundColor() }} onClick={() => props.toggle()}></Step>
-    </StepDiv>
+      <Step style={{ backgroundColor: getBackgroundColor() }} onClick={() => props.toggle()}>
+      </Step>
+    </StepMargin>
   )
 }

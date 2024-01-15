@@ -3,6 +3,7 @@ import TonerService from './toner'
 import { Slot } from './interfaces'
 import ToneStore from '../_store/store';
 import useToneStore from '../_store/store';
+import { GridResolutions } from '../_store/store';
 
 // STEPPER
 
@@ -16,13 +17,18 @@ let unSubs: Array<() => void>;
 // SLOTS 
 
 const transportEventIds: {[key: string]: number} = {} // the key is a scheduledEvent
-const sequencerSlots: Array<Slot> = generateSlots()
 
-function generateSlots(): Array<Slot> {
+const eigthSubs = {
+  '8n': ['0', '2'],
+  '16n': ['0', '1', '2', '3'],
+  '8t': ['0', '1.33', '2.66'],
+}
+
+function generateSlots(res: GridResolutions, bars: number): Array<Slot> {
   const slots: Array<Slot> = [];
-  [0, 1, 2, 3].forEach(barNum => {
-    ['0', '1', '2', '3'].forEach((quarterNum) => {
-      ['0', '1', '2', '3'].forEach((sixNum) => 
+  [0, 1, 2, 3].slice(0, bars).forEach(barNum => {
+    ['0', '1', '2', '3'].forEach((quarterNum) => { 
+      eigthSubs[res].forEach((sixNum) => 
         slots.push({
           bar: barNum,
           timeId: `${barNum}:${quarterNum}:${sixNum}`,
@@ -37,12 +43,7 @@ function syncActiveSlots() {
   const bars = ToneStore.getState().activeBars
   const res = ToneStore.getState().resolution
 
-  const activeSlots = sequencerSlots.filter(slot => {
-      if(res === '8n' && ['1', '3'].indexOf(slot.timeId.slice(-1)) !== -1) {
-        return false
-      }
-      return slot.bar <= bars - 1
-  });
+  const activeSlots = generateSlots(res, bars)
   ToneStore.getState().setActiveSlots(activeSlots)
 
   setLoopEnd(bars)
@@ -57,8 +58,7 @@ function syncActiveTracks() {
 
 function syncScheduledEvents() {
   const activeScheduledEvents = Object.keys(transportEventIds);
-  const grid16 = ToneStore.getState().resolution === '16n'
-  const desiredScheduledEvents = ToneStore.getState().scheduledEvents.filter(ev => grid16 ? true : !is16th(ev))
+  const desiredScheduledEvents = getActiveEvents()
   desiredScheduledEvents.forEach(scheduledEvent => {
     if(activeScheduledEvents.indexOf(scheduledEvent) === -1) { schedule(scheduledEvent) }
   })
@@ -67,9 +67,17 @@ function syncScheduledEvents() {
   })
 }
 
-function is16th(event: string) {
-  const part = event.split('|')[0].split(':')[2];
-  return ['0', '2'].indexOf(part) === -1
+function getActiveEvents() {
+  const resolution = ToneStore.getState().resolution
+  const allEvents = ToneStore.getState().scheduledEvents 
+  return allEvents.filter(event => {
+    const part = event.split('|')[0].split(':')[2];
+    switch(resolution) {
+      case "8n": return ['0', '2'].indexOf(part) !== -1
+      case "16n": return part.indexOf(".") === -1
+      case "8t": return ['1', '2', '3'].indexOf(part) === -1
+    }
+  })
 }
 
 function setLoopEnd(bar: number): void {

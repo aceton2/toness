@@ -2,12 +2,14 @@ import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { Slot, PadParams, PadName, defaultStoreParams, PadParam, TrackParams, defaultTrackParams } from '../_services/interfaces'
 
+export type GridResolutions =  '16n' | '8n' | '8t'
+
 interface TonesState {
   activeSlots: Array<Slot>,
   activeTracks: number,
   activeBars: number,
   bpm: number,
-  resolution: '16n' | '8n',
+  resolution: GridResolutions,
   padParams: PadParams,
   trackSettings: TrackParams,
   resetSequencer: () => void,
@@ -17,7 +19,7 @@ interface TonesState {
   toggleScheduledEvent: (event: string) => void,
   clearSchedule: () => void,
   setBpm: (bpm: string) => void,
-  toggleResolution: () => void,
+  toggleResolution: (res: GridResolutions) => void,
   setActiveSlots: (slots: Array<Slot>) => void,
   setPadParams: (pad: PadName, params: PadParam) => void
   toggleTrackMute: (id: number) => void
@@ -44,7 +46,7 @@ const useToneStore = create<TonesState>()(
         changeTracks: (tracks: number) => set(state => ({activeTracks: getNewTracks(state.activeTracks, tracks)})),
         setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
         setActiveSlots: (slots: Array<Slot>) => set(state => ({activeSlots: slots})),
-        toggleResolution: () => set(state => ({resolution: state.resolution === '8n' ? '16n' : '8n'})),
+        toggleResolution: (res: GridResolutions) => set(state => ({resolution: res})),
         clearSchedule: () => set(state => ({scheduledEvents: []})),
         toggleTrackMute: (id) => set(state => (
           {trackSettings: {...state.trackSettings, [id]: {mute: !state.trackSettings[id].mute} }}
@@ -73,8 +75,6 @@ function getNewTracks(activeTracks: number, change: number): number {
   const newTracks = activeTracks + change;
   return (newTracks > 0 && newTracks < 8) ? newTracks : activeTracks
 }
-
-export const selectIsFullGrid = (state: TonesState) => state.resolution === '16n'
 
 export const selectPadAudioUrl = (state: TonesState, name: string) => {
   const param = state.padParams[name as PadName]

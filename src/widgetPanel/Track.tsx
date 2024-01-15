@@ -4,9 +4,8 @@ import TonerService, { nameToDisplayId } from '../_services/toner'
 import useToneStore, { selectPadAudioUrl, selectTrackSetting } from '../_store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMicrophoneLinesSlash } from '@fortawesome/free-solid-svg-icons';
-import { faVolumeXmark } from '@fortawesome/free-solid-svg-icons'
 
-const TrackWithLabel = styled.div`
+const TrackDiv = styled.div`
   display: flex;
   height: 60px;
   position: relative;
@@ -46,7 +45,7 @@ const LabelName = styled.div`
   background: var(${props => `--pad-${props.color}`});
 `
 
-const TrackBars = styled.div`
+const Grid = styled.div`
   flex: 1;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -85,7 +84,7 @@ export default function Track(props: SoundProps) {
   }
 
   return (
-    <TrackWithLabel>
+    <TrackDiv>
       { !hasSound ? <Mask /> : '' }
       <Label>
         <LabelName color={props.name}>{getDisplayName(props.name)}</LabelName>
@@ -95,7 +94,7 @@ export default function Track(props: SoundProps) {
           </TrackIcon>
           : <TrackIcon alert={false} clickable={false}><FontAwesomeIcon icon={faMicrophoneLinesSlash}></FontAwesomeIcon></TrackIcon> }
       </Label>
-      <TrackBars>{props.children}</TrackBars>
-    </TrackWithLabel>
+      <Grid>{props.children}</Grid>
+    </TrackDiv>
   )
 }

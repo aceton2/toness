@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import SequencerService from '../_services/sequencer'
 import TonerService from '../_services/toner'
-import useToneStore, { selectIsFullGrid } from '../_store/store'
+import useToneStore from '../_store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons';
 
@@ -61,7 +61,7 @@ const Floater = styled.div`
 export default function Controls() {
   const changeBars = useToneStore(state => state.changeBars)
   const toggleResolution = useToneStore(state => state.toggleResolution)
-  const resolutionDoubled = useToneStore(selectIsFullGrid)
+  const gridResolution = useToneStore(state => state.resolution)
   const changeTracks = useToneStore(state => state.changeTracks)
   const resetSequencer = useToneStore(state => state.resetSequencer)
   const clearSchedule = useToneStore(state => state.clearSchedule)
@@ -100,9 +100,10 @@ export default function Controls() {
       <Stretch />
      
       <SelectLabel>Select Grid:</SelectLabel>
-      <MultiSelect onClick={toggleResolution}>
-        <div className={!resolutionDoubled ? 'active' : ''}>8ths</div>
-        <div className={resolutionDoubled ? 'active' : ''}>16ths</div>
+      <MultiSelect>
+        <div className={gridResolution === '8n' ? 'active' : ''} onClick={e => toggleResolution('8n')}>8ths</div>
+        <div className={gridResolution === '8t' ? 'active' : ''} onClick={e => toggleResolution('8t')}>Triplets</div>
+        <div className={gridResolution === '16n' ? 'active' : ''} onClick={e => toggleResolution('16n')}>16ths</div>
       </MultiSelect>
 
     </ControlBox>
