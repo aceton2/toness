@@ -1,5 +1,4 @@
-import TonerService from './toner'
-import { PadName } from './interfaces';
+import PadService from './pad'
 
 // RECORDER
 let mediaRecorder: MediaRecorder | undefined;
@@ -12,19 +11,19 @@ async function setStream() {
   }
 }
 
-async function setupSampler(iam: PadName, parentEl: Element): Promise<MediaRecorder | undefined> {
+async function setupRecorder(id: number, parentEl: Element): Promise<MediaRecorder | undefined> {
   const mediaDeviceStream = await setStream()
-  if(!mediaDeviceStream) return;
+  if (!mediaDeviceStream) return;
   const mediaRecorder = new MediaRecorder(mediaDeviceStream)
 
   let chunks: Array<Blob> = []
 
   mediaRecorder.onstop = function (e) {
-    const blob = new Blob(chunks, {type: "audio/ogg; codecs=opus"})
+    const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" })
     chunks = []
     const audioURL = window.URL.createObjectURL(blob)
-    saveBlob(blob, iam)
-    TonerService.addSample(audioURL, iam)
+    saveBlob(blob, id)
+    PadService.addSample(audioURL, id)
     mediaDeviceStream.getAudioTracks()[0].stop()
   }
 
@@ -35,11 +34,11 @@ async function setupSampler(iam: PadName, parentEl: Element): Promise<MediaRecor
   return mediaRecorder
 }
 
-async function saveBlob(blob: Blob, padName: PadName) {
+async function saveBlob(blob: Blob, id: number) {
   const reader = new FileReader()
-  reader.addEventListener('loadend', (event:ProgressEvent) => {
-    if(typeof(reader.result) === 'string') {
-      localStorage.setItem(`audioBlob_${padName}`, reader.result)
+  reader.addEventListener('loadend', (event: ProgressEvent) => {
+    if (typeof (reader.result) === 'string') {
+      localStorage.setItem(`audioBlob_${id}`, reader.result)
     }
   })
   reader.readAsDataURL(blob)
@@ -47,15 +46,15 @@ async function saveBlob(blob: Blob, padName: PadName) {
 
 // EXPORTS
 
-async function startRecorder(iam: PadName, parentEl: Element) {
-  mediaRecorder = await setupSampler(iam, parentEl)
-  if(mediaRecorder) {
+async function startRecorder(id: number, parentEl: Element) {
+  mediaRecorder = await setupRecorder(id, parentEl)
+  if (mediaRecorder) {
     mediaRecorder.start()
   }
 }
 
 function stopRecorder() {
-  if(mediaRecorder) {
+  if (mediaRecorder) {
     mediaRecorder.stop()
   }
 }

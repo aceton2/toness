@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import styled from 'styled-components';
-import Controls from './controlPanel/Controls';
-import Widget from './widgetPanel/Widget';
-import Header from './controlPanel/Header';
+import Controls from './components/controls/Controls';
+import Widget from './components/sequencer/Sequencer';
+import Header from './components/controls/Header';
 
-import Mask from './auxComps/Mask';
+import Mask from './components/misc/Mask';
 
-import SamplerPanel from './samplerPanel/Sampler';
-import SequencerService from './_services/sequencer';
+import SamplerPanel from './components/pads/Sampler';
+import SequencerService from './services/transport/sequencer';
 
 
 const MainFrame = styled.div`

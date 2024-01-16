@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import useToneStore from '../_store/store';
+import useToneStore from '../../store/store';
 
 const TempoBox = styled.div`
   display: flex;

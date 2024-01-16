@@ -1,9 +1,9 @@
 import { Midi, Header } from '@tonejs/midi'
-import useToneStore from '../_store/store';
+import useToneStore from '../../store/store';
 
 let midiJson: any;
 const ppq = 96;
-const midiCodes: {[key: number]: number} = {
+const midiCodes: { [key: number]: number } = {
     0: 36, // kick
     1: 38, // snare
     2: 42 // hat
@@ -27,7 +27,7 @@ export async function createMidiJson(file: File) {
 /**
  * This takes a schedule of events and downloads the corresponding midi file
  * @returns void
- */ 
+ */
 function createMidi(): Midi {
     const midi = new Midi()
     const header = new Header()
@@ -42,7 +42,7 @@ function createMidi(): Midi {
         useToneStore.getState().scheduledEvents
             .map(eventId => {
                 const split = eventId.split('|')
-                return {timeId: split[0], instrumentId: parseInt(split[1])}
+                return { timeId: split[0], instrumentId: parseInt(split[1]) }
             })
             .filter(event => (grid === 16 ? true : !is16th(event.timeId)))
             .filter(event => event.instrumentId === instrument)
@@ -79,7 +79,7 @@ export async function saveFile() {
         new Blob([midiObj.toArray()], { type: 'application/octet-stream' })
     );
     a.addEventListener('click', (e) => {
-      setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+        setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
     });
     a.click();
 };

@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import TonerService from '../_services/toner'
-import SequencerService from '../_services/sequencer'
-import { Slot } from '../_services/interfaces'
+import NodesService from '../../services/nodes'
+import SequencerService from '../../services/transport/sequencer'
+import { Slot } from '../../services/interfaces'
 import Toggle from './Toggle'
 import Track from './Track'
-import useToneStore, { GridResolutions } from '../_store/store'
+import useToneStore, { GridResolutions } from '../../store/store'
+import InstrumentsService from '../../services/instruments'
 
 
-const WidgetBox = styled.div`
+const SequencerBox = styled.div`
   --track-label-width: 50px;
   margin-top: 1.5rem;
 
@@ -30,19 +31,19 @@ const Bar = styled.div<{ gridResolution: GridResolutions }>`
 /**
  * This widget represents a instrument group
  */
-export default function Widget() {
+export default function Sequencer() {
   const [activeStep, setActiveStep] = useState('')
   const slots = useToneStore(state => state.activeSlots)
   const tracks = useToneStore(state => state.activeTracks)
   const gridResolution = useToneStore(state => state.resolution)
   const scheduledEvents = useToneStore(state => state.scheduledEvents)
   const toggleScheduledEvent = useToneStore(state => state.toggleScheduledEvent)
-  const trackSounds = TonerService.getInstruments().slice(0, tracks)
+  const trackSounds = InstrumentsService.instruments.slice(0, tracks)
 
   useEffect(() => {
-    SequencerService.sequenceEmitter.on('step', setStep)
+    SequencerService.stepEmitter.on('step', setStep)
     return () => {
-      SequencerService.sequenceEmitter.off('step', setStep)
+      SequencerService.stepEmitter.off('step', setStep)
     }
   }, [])
 
@@ -80,11 +81,11 @@ export default function Widget() {
   // RENDER
 
   return (
-    <WidgetBox>
-      {trackSounds.map((sound) => (
-      <Track key={sound.id} name={sound.name}>
-        {getBars(sound.id)}
+    <SequencerBox>
+      {trackSounds.map((instrument) => (
+      <Track key={instrument.id} instrument={instrument}>
+        {getBars(instrument.id)}
       </Track>))}
-    </WidgetBox>
+    </SequencerBox>
   )
 }

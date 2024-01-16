@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 import styled from 'styled-components'
-import TonerService, { nameToDisplayId } from '../_services/toner'
-import useToneStore, { selectPadAudioUrl, selectTrackSetting } from '../_store/store'
+import useToneStore, { selectPadAudioUrl, selectTrackSetting } from '../../store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMicrophoneLinesSlash } from '@fortawesome/free-solid-svg-icons';
+import { Instrument } from '../../services/interfaces'
 
 const TrackDiv = styled.div`
   display: flex;
@@ -63,13 +63,13 @@ const TrackIcon = styled.div<{alert: boolean, clickable: boolean}>`
 `
 
 interface SoundProps {
-  name: string
+  instrument: Instrument
   children: any
 }
 
 export default function Track(props: SoundProps) {
-  const instrument = TonerService.getInstrumentByName(props.name)
-  const hasAudioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.name), [props.name]))
+  const instrument = props.instrument
+  const hasAudioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, instrument.id), [instrument]))
   const trackSetting = useToneStore(useCallback(state => selectTrackSetting(state, instrument.id), [instrument.id]))
   const toggleTrackMute = useToneStore(state => state.toggleTrackMute)
   const hasSound = instrument.id < 3 || hasAudioUrl
@@ -78,16 +78,11 @@ export default function Track(props: SoundProps) {
     toggleTrackMute(instrument.id)
   }
 
-  function getDisplayName(name: string) {
-    // @ts-ignore
-    return nameToDisplayId[name];
-  }
-
   return (
     <TrackDiv>
       { !hasSound ? <Mask /> : '' }
       <Label>
-        <LabelName color={props.name}>{getDisplayName(props.name)}</LabelName>
+        <LabelName color={instrument.name}>{props.instrument.name}</LabelName>
         { hasSound ?
           <TrackIcon alert={trackSetting?.mute} clickable={true} onClick={toggleMute}>
             M

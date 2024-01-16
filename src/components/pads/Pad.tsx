@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components"
-import SamplerService from "../_services/sampler"
-import TonerService, { nameToDisplayId } from "../_services/toner";
-import { PadName, EnvelopeParam, defaultPad } from "../_services/interfaces";
-import useToneStore, { selectPadAudioUrl } from "../_store/store";
-import DrawerService from "../_services/drawer";
+import SamplerService from "../../services/pads/recorder"
+import PadService from "../../services/pads/pad";
+import { EnvelopeParam, defaultPad, Instrument } from "../../services/interfaces";
+import useToneStore, { selectPadAudioUrl } from "../../store/store";
+import DrawerService from "../../services/pads/waveRender";
+import InstrumentsService from "../../services/instruments";
 
 const PadBox = styled.div`
   position: relative;
@@ -113,20 +114,20 @@ const paramConfigObj: {[key: string]: ParamCfg} = {
 }
 const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
 
-export default function Pad(props: {iam: PadName}) {
+export default function Pad(props: {pad: Instrument}) {
     const elementRef = useRef(null)
-    const audioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.iam), [props.iam]))
-    const trigger = TonerService.getPlayInstrumentTrigger(TonerService.getInstrumentByName(props.iam).id)
-    const [padParams, setPadParams] = useToneStore(state => [state.padParams[props.iam], state.setPadParams])
+    const audioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.pad.id), [props.pad.id]))
+    const trigger = InstrumentsService.getPlayInstrumentTrigger(props.pad.id)
+    const [padParams, setPadParams] = useToneStore(state => [state.padParams[props.pad.id], state.setPadParams])
     const [recording, setRecording] = useState(false)
 
     const startRecording = useCallback(() => {
       if(!elementRef.current) return
       DrawerService.clearAllCanvas(elementRef.current)
-      SamplerService.startRecorder(props.iam, elementRef.current)
+      SamplerService.startRecorder(props.pad.id, elementRef.current)
       setRecording(true)
-      setPadParams(props.iam, {...defaultPad})
-    }, [props.iam, setPadParams])
+      setPadParams(props.pad.id, {...defaultPad})
+    }, [props.pad.id, setPadParams])
 
     useEffect(() => {
       if(!elementRef.current) return
@@ -150,11 +151,11 @@ export default function Pad(props: {iam: PadName}) {
     }
 
     function updateParams(value: string, paramName: EnvelopeParam) {
-      setPadParams(props.iam, {...padParams, [paramName]: parseInt(value), custom: true})
+      setPadParams(props.pad.id, {...padParams, [paramName]: parseInt(value), custom: true})
     }
 
     function clearPad() {
-      TonerService.resetPad(TonerService.getInstrumentByName(props.iam))
+      PadService.resetPad(props.pad.id)
     }
 
     return (
@@ -162,7 +163,7 @@ export default function Pad(props: {iam: PadName}) {
       onMouseLeave={() => stopRecording()} 
       onMouseUp={() => stopRecording()}>
           <TopControl>
-            <div>{nameToDisplayId[props.iam]}</div>
+            <div>{props.pad.name}</div>
             { audioUrl &&
               <button onClick={clearPad}>Delete</button> 
             }
@@ -171,7 +172,7 @@ export default function Pad(props: {iam: PadName}) {
             <Blur> <div> recording...</div> </Blur>
         )}
         <RecordingBox onMouseDown={() => recordOrPlay()}>
-          <Title color={props.iam}></Title>
+          <Title color={props.pad.name}></Title>
           <WaveViewPort ref={elementRef}>
             <canvas className="wave" height="85px" width="100px"></canvas>
             <canvas className="edit" height="85px" width="100px"></canvas>

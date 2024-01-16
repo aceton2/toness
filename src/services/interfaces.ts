@@ -1,16 +1,16 @@
 import { PitchShift, Player, Volume } from 'tone'
 
 export interface Instrument {
-    id: number
-    name: string
-    player?: Player
-    duration?: number
-    offset?: number
-    fadeOut?: number
-    padId?: number,
-    pitchShift?: PitchShift
-    channelVolume: Volume
-    audioURL?: string
+  id: number
+  name: string
+  player?: Player
+  duration?: number
+  offset?: number
+  fadeOut?: number
+  padId?: number,
+  pitchShift?: PitchShift
+  channelVolume: Volume
+  audioURL?: string
 }
 
 /** 
@@ -20,8 +20,8 @@ export interface Instrument {
  * transportEventId: number
  */
 export interface Slot {
-    bar: number
-    timeId: string
+  bar: number
+  timeId: string
 }
 
 // TRACK PARAMS
@@ -35,22 +35,22 @@ export interface TrackParams {
 }
 
 export const defaultTrackParams = {
-  0: {mute: false},
-  1: {mute: false},
-  2: {mute: false},
-  3: {mute: false},
-  4: {mute: false},
-  5: {mute: false},
-  6: {mute: false},
+  0: { mute: false },
+  1: { mute: false },
+  2: { mute: false },
+  3: { mute: false },
+  4: { mute: false },
+  5: { mute: false },
+  6: { mute: false },
 }
 
 // PAD PARAMS
 
 export enum EnvelopeParam {
   duration,
-  fadeOut, 
-  offset, 
-  fadeIn, 
+  fadeOut,
+  offset,
+  fadeIn,
   pitchShift,
   amplitude
 }
@@ -67,19 +67,16 @@ export interface PadParam {
 }
 
 export type PadParams = {
-  red: PadParam,
-  sol: PadParam,
-  gelb: PadParam,
-  rot: PadParam,
+  [key: number]: PadParam
 };
 
 // DEFAULTS 
 
-export const defaultPad: PadParam = { 
-  [EnvelopeParam.duration]: 99, 
-  [EnvelopeParam.fadeOut]: 20, 
-  [EnvelopeParam.offset]: 0, 
-  [EnvelopeParam.fadeIn]: 0, 
+export const defaultPad: PadParam = {
+  [EnvelopeParam.duration]: 99,
+  [EnvelopeParam.fadeOut]: 20,
+  [EnvelopeParam.offset]: 0,
+  [EnvelopeParam.fadeIn]: 0,
   [EnvelopeParam.pitchShift]: 0,
   [EnvelopeParam.amplitude]: 0,
   custom: false,
@@ -87,11 +84,10 @@ export const defaultPad: PadParam = {
 }
 
 export const defaultStoreParams: PadParams = {
-  red: {...defaultPad},
-  sol: {...defaultPad},
-  gelb: {...defaultPad},
-  rot: {...defaultPad}
+  3: { ...defaultPad },
+  4: { ...defaultPad },
+  5: { ...defaultPad },
+  6: { ...defaultPad }
 }
 
-export type PadName = keyof typeof defaultStoreParams
 

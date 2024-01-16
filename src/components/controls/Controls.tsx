@@ -1,9 +1,9 @@
 import styled from 'styled-components'
-import SequencerService from '../_services/sequencer'
-import TonerService from '../_services/toner'
-import useToneStore from '../_store/store'
+import SequencerService from '../../services/transport/sequencer'
+import useToneStore from '../../store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons';
+import PadService from '../../services/pads/pad';
 
 const ControlBox = styled.div`
   margin-bottom: 0.5rem;
@@ -76,11 +76,7 @@ export default function Controls() {
 
   function clearAll() {
     resetSequencer()
-    clearPads()
-  }
-
-  function clearPads() {
-    TonerService.clearPads()
+    PadService.clearPads()
   }
 
   return (

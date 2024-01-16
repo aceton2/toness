@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import Pad from './Pad'
-import TonerService from "../_services/toner";
+import InstrumentsService from '../../services/instruments'
 
 const Sampler = styled.div`
     display: grid;
@@ -24,7 +24,7 @@ export default function SamplerPanel() {
     return (
     <Sampler>
         <Floater>SAMPLER</Floater>
-        { TonerService.getPadNames().map(name => (<Pad key={name} iam={name}/>)) }
+        { InstrumentsService.pads.map(pad => (<Pad key={pad.name} pad={pad}/>)) }
     </Sampler>
     )
 }

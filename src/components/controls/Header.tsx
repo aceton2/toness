@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { saveFile } from '../_services/midi';
-import { recordAudio } from '../_services/audioExport';
+import { saveFile } from '../../services/exports/midi';
+import { recordAudio } from '../../services/exports/audioExport';
 import Tempo from './Tempo';
 
 const HeaderDiv = styled.div`
