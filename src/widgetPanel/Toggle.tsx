@@ -24,7 +24,7 @@ const Step = styled.div`
 const Guide = styled.div`
   position: absolute;
   top: -1.4rem;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
   text-align: center;
   width: 100%;
@@ -37,7 +37,7 @@ interface ToggleProps {
   toggle: () => void
 }
 
-const sixteenthStr = {
+const subCounts = {
   '1': 'e',
   '2': '+',
   '3': 'a',
@@ -46,7 +46,8 @@ const sixteenthStr = {
 function slotToGuideName(slot: any): string | undefined {
   if(slot.split('|')[1] !== '0') return
   const [_, quarter, sixteenth] = slot.split('|')[0].split(':')
-  return sixteenth === '0' ? (parseInt(quarter) + 1).toString() : sixteenthStr[sixteenth as '1' | '2' | '3']
+  const str16 = sixteenth.split(".")[0] as '1' | '2' | '3'
+  return sixteenth === '0' ? (parseInt(quarter) + 1).toString() : subCounts[str16]
 }
 
 export default function Toggle(props: ToggleProps) {

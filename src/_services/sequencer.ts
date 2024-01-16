@@ -142,6 +142,8 @@ function startStepper() {
   stepper.start(0)
 }
 
+// TODO: implement metronome like the stepper
+
 // INIT
 
 function initSequencer() {
