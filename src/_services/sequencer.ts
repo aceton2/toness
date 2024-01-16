@@ -108,8 +108,6 @@ function unschedule(scheduledEvent: string) {
 
 function clearTransport() {
   Transport.cancel()
-  stepper = null
-  startStepper()
 }
 
 function toggleTransport(): void {
@@ -120,7 +118,6 @@ async function startTransport() {
   if (context.state !== 'running') {
     await start()
   }
-  startStepper()
   Transport.start()
 }
 
@@ -132,20 +129,17 @@ function addKeyboardListener() {
   })
 }
 
-function startStepper() {
-  stepper = stepper
-    ? stepper
-    : new Loop((time) => emitStep(), '16n')
-  if (stepper.state === 'stopped') stepper.start(0)
+function updateStepperRes() {
+  if(stepper) {
+    stepper.interval = ToneStore.getState().resolution
+  }
 }
 
-function emitStep() {
-  const emit16ths = useToneStore.getState().resolution === '16n'
-  const step = (Transport.position as string).split('.')[0]
-  const eigths = ['0', '2'].indexOf(step.split(':')[2]) !== -1
-  if(emit16ths || eigths) {
-    sequenceEmitter.emit('step', step)
-  }
+function startStepper() {
+  stepper = new Loop((time) => {
+    sequenceEmitter.emit('step', (Transport.position as string).split('.')[0])
+  }, ToneStore.getState().resolution)
+  stepper.start(0)
 }
 
 // INIT
@@ -155,6 +149,7 @@ function initSequencer() {
   addKeyboardListener()
   clearTransport()
   TonerService.addExistingSounds()
+  startStepper()
 
   unSubs = [
     // clean this up
@@ -163,6 +158,7 @@ function initSequencer() {
     ToneStore.subscribe((state) => state.activeBars, syncScheduledEvents),
     ToneStore.subscribe((state) => state.resolution, syncActiveSlots),
     ToneStore.subscribe((state) => state.resolution, syncScheduledEvents),
+    ToneStore.subscribe((state) => state.resolution, updateStepperRes),
     ToneStore.subscribe((state) => state.bpm, setBpm),
     ToneStore.subscribe((state) => state.scheduledEvents, syncScheduledEvents),
   ];

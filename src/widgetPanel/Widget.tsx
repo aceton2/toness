@@ -68,7 +68,7 @@ export default function Widget() {
       return (
         <Toggle 
           key={scheduledEvent}
-          isActive={activeStep === slot.timeId}
+          isActive={activeStep === slot.timeId.split(".")[0]}
           scheduledEvent={scheduledEvent}
           scheduled={scheduledEvents.indexOf(scheduledEvent) !== -1}
           toggle={() => toggleScheduledEvent(scheduledEvent)}

@@ -141,7 +141,7 @@ useToneStore.subscribe((state) => state.trackSettings, syncTrackSettings)
 
 // EXPORTS
 
-const TonerServiceIFace = {
+const TonerService = {
   getPlayInstrumentTrigger,
   addSample,
   addExistingSounds,
@@ -155,4 +155,4 @@ const TonerServiceIFace = {
   resetPad,
 }
 
-export default TonerServiceIFace
+export default TonerService
