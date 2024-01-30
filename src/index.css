@@ -34,6 +34,7 @@ body {
   --pad-2: var(--wisteria); 
   --pad-3: var(--wisteria);
   --pad-4: var(--wisteria);
+  --sampler-bottom: #556d7c;
 }
 
 /* var(--celestial-blue); var(--melon); var(--maya-blue); */
@@ -85,3 +86,24 @@ button:disabled {
 }
 
 button:hover{background-color: var(--panel-color-1);}
+
+
+input[type="range"] {
+  -webkit-appearance: none;
+  margin-right: 15px;
+  height: 7px;
+  background: var(--sampler-bottom);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track,
+input[type="range"]::-moz-range-thumb {
+  -webkit-appearance: none;
+  height: 4px;
+  width: 4px;
+  border-radius: 50%;
+  background: black;
+  border: 1px solid black
+}
+

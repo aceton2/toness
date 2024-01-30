@@ -52,14 +52,18 @@ const Grid = styled.div`
 `
 
 const TrackIcon = styled.div<{alert: boolean, clickable: boolean}>`
-  margin-top: 10px;
   width: 38px;
   border-radius: 3px;
   margin: auto;
-  margin-top: 10px;
+  margin-top: 6px;
   text-align: center;
   cursor: ${props => props.clickable ? 'pointer' : 'default'};
   color: var(${props => props.alert ? '--panel-color-1' : props.clickable ? '--off-color-1' : '--inactive-color'});
+`
+
+const VolInput = styled.input`
+  accent-color: var(--panel-color-1);
+  width: 45px;
 `
 
 interface SoundProps {
@@ -72,6 +76,7 @@ export default function Track(props: SoundProps) {
   const hasAudioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, instrument.id), [instrument]))
   const trackSetting = useToneStore(useCallback(state => selectTrackSetting(state, instrument.id), [instrument.id]))
   const toggleTrackMute = useToneStore(state => state.toggleTrackMute)
+  const setTrackVolume =  useToneStore(state => state.setTrackVolume)
   const hasSound = instrument.id < 3 || hasAudioUrl
 
   function toggleMute() {
@@ -87,7 +92,13 @@ export default function Track(props: SoundProps) {
           <TrackIcon alert={trackSetting?.mute} clickable={true} onClick={toggleMute}>
             M
           </TrackIcon>
-          : <TrackIcon alert={false} clickable={false}><FontAwesomeIcon icon={faMicrophoneLinesSlash}></FontAwesomeIcon></TrackIcon> }
+          : <TrackIcon alert={false} clickable={false}> - </TrackIcon> }
+          <VolInput type="range" 
+              max={100}
+              min={0}
+              value={trackSetting.volume} 
+              onChange={e => setTrackVolume(instrument.id, parseInt(e.target.value))}
+          />
       </Label>
       <Grid>{props.children}</Grid>
     </TrackDiv>

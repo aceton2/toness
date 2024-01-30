@@ -23,6 +23,8 @@ function syncTrackSettings(trackSettings: TrackParams) {
   InstrumentsService.instruments.forEach(i => {
     if (i.channelVolume) {
       i.channelVolume.mute = trackSettings[i.id].mute
+      const vo = -12 * (100 - trackSettings[i.id].volume) / 100
+      i.channelVolume.volume.value = vo
     }
   })
 }

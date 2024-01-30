@@ -24,6 +24,7 @@ interface TonesState {
   toggleResolution: (res: GridResolutions) => void,
   setActiveTimeIds: (slots: Array<string>) => void,
   setPadParams: (id: number, params: PadParam) => void,
+  setTrackVolume: (id: number, vol: number) => void,
   toggleTrackMute: (id: number) => void,
   resetStore: () => void,
 }
@@ -50,7 +51,7 @@ const useToneStore = create<TonesState>()(
           ...initialState,
           resetStore: () => set(initialState),
           setPadParams: (padName, params) => set(state => ({ padParams: { ...state.padParams, [padName]: params } }), false, "setPadParams"),
-          resetSequencer: () => set(state => ({ activeBars: 1, activeTracks: 1, scheduledEvents: [], bpm: 124 })),
+          resetSequencer: () => set(state => ({ activeBars: 1, activeTracks: 1, scheduledEvents: [], bpm: 124, trackSettings: defaultTrackParams })),
           changeBars: (bars: number) => set(state => ({ activeBars: getNewBars(state.activeBars, bars) })),
           changeTracks: (tracks: number) => set(state => ({ activeTracks: getNewTracks(state.activeTracks, tracks) })),
           setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
@@ -58,7 +59,10 @@ const useToneStore = create<TonesState>()(
           toggleResolution: (res: GridResolutions) => set(state => ({ resolution: res })),
           clearSchedule: () => set(state => ({ scheduledEvents: [] })),
           toggleTrackMute: (id) => set(state => (
-            { trackSettings: { ...state.trackSettings, [id]: { mute: !state.trackSettings[id].mute } } }
+            { trackSettings: { ...state.trackSettings, [id]: { ...state.trackSettings[id], mute: !state.trackSettings[id].mute } } }
+          )),
+          setTrackVolume: (id: number, vol: number) => set(state => (
+            { trackSettings: { ...state.trackSettings, [id]: { ...state.trackSettings[id], volume: vol } } }
           )),
           toggleScheduledEvent: (scheduledEvent: string) => set(state => {
             return {

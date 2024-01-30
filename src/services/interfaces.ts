@@ -29,6 +29,7 @@ interface TriggerEnvelop {
 
 interface TrackParam {
   mute: boolean
+  volume: number
 }
 
 export interface TrackParams {
@@ -36,13 +37,13 @@ export interface TrackParams {
 }
 
 export const defaultTrackParams = {
-  0: { mute: false },
-  1: { mute: false },
-  2: { mute: false },
-  3: { mute: false },
-  4: { mute: false },
-  5: { mute: false },
-  6: { mute: false },
+  0: { mute: false, volume: 100 },
+  1: { mute: false, volume: 100 },
+  2: { mute: false, volume: 100 },
+  3: { mute: false, volume: 100 },
+  4: { mute: false, volume: 100 },
+  5: { mute: false, volume: 100 },
+  6: { mute: false, volume: 100 },
 }
 
 // PAD PARAMS
