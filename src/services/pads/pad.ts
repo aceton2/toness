@@ -1,8 +1,10 @@
-import { Player } from "tone";
 import { Instrument, defaultPad, PadParams, EnvelopeParam } from "../interfaces";
 import useToneStore from "../../store/store";
-import NodesService from "../nodes";
 import InstrumentsService from "../instruments";
+
+function loadSavedSamples() {
+    InstrumentsService.pads.forEach(instrument => reloadFromLocalStorage(instrument))
+}
 
 async function reloadFromLocalStorage(instrument: Instrument) {
     const existingBlobStr = localStorage.getItem(`audioBlob_${instrument.id}`)
@@ -10,18 +12,17 @@ async function reloadFromLocalStorage(instrument: Instrument) {
         const res = await fetch(existingBlobStr);
         const blob = await res.blob();
         const audioURL = window.URL.createObjectURL(blob)
-        addSample(audioURL, instrument.id)
+        addSample(audioURL, instrument)
     }
 }
 
-function addSample(audioURL: string, id: number) {
-    const pad = InstrumentsService.instruments[id]
-    if (pad && pad.pitchShift) {
-        pad.audioURL = audioURL
-        pad.player = new Player(audioURL);
-        pad.player.chain(pad.pitchShift, pad.channelVolume)
-        pad.channelVolume.fan(NodesService.controlRoomRecorder, NodesService.masterVolume)
-        pad.player.buffer.onload = () => updateStoreActivePads(id, { audioUrl: audioURL })
+function addSample(audioURL: string, pad: Instrument) {
+    pad.source = audioURL
+    pad.playHigh?.load(pad.source)
+    pad.playLow?.load(pad.source)
+    if (pad.playHigh) {
+        pad.playHigh.buffer.onload = () =>
+            updateStoreActivePads(pad.id, { audioUrl: audioURL })
     }
 }
 
@@ -29,12 +30,12 @@ function syncPadParams(params: PadParams) {
     Object.entries(params).forEach(([key, envelope]) => {
         const id = parseInt(key)
         const i = InstrumentsService.instruments[id]
-        if (i.player && envelope) {
-            let unity = i.player.buffer.duration / 100
+        if (i.playHigh && envelope) {
+            let unity = i.playHigh.buffer.duration / 100
             i.offset = envelope[EnvelopeParam.offset] * unity
             i.duration = envelope[EnvelopeParam.duration] * unity
-            i.player.fadeOut = envelope[EnvelopeParam.fadeOut] * unity
-            i.player.fadeIn = envelope[EnvelopeParam.fadeIn] * unity
+            i.fadeOut = envelope[EnvelopeParam.fadeOut] * unity
+            i.fadeIn = envelope[EnvelopeParam.fadeIn] * unity
             setVolume(id, envelope[EnvelopeParam.amplitude])
             if (i.pitchShift) {
                 i.pitchShift.pitch = envelope[EnvelopeParam.pitchShift] / 2
@@ -66,16 +67,15 @@ function updateStoreActivePads(id: number, newValues: any) {
 
 function resetPad(id: number) {
     const inst = InstrumentsService.instruments[id]
-    inst.audioURL = undefined
-    inst.player = undefined
     localStorage.removeItem(`audioBlob_${inst.id}`)
+    inst.source = undefined
     updateStoreActivePads(inst.id, defaultPad)
 }
 
 useToneStore.subscribe((state) => state.padParams, syncPadParams)
 
 const PadService = {
-    reloadFromLocalStorage,
+    loadSavedSamples,
     addSample,
     resetPad,
     clearPads,

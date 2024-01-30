@@ -13,7 +13,7 @@ function clearSample(parentEl: Element, className: 'wave' | 'edit') {
 
 function updateEditLayer(params: PadParam, parentEl: Element) {
 
-  if (!params.custom) { return }
+  if (!params || !params.custom) { return }
 
   const canvas = parentEl.querySelector('.edit') as HTMLCanvasElement
   canvas.width = parentEl.clientWidth - 10;

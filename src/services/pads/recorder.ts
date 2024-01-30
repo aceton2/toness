@@ -1,4 +1,5 @@
 import PadService from './pad'
+import InstrumentsService from '../instruments';
 
 // RECORDER
 let mediaRecorder: MediaRecorder | undefined;
@@ -23,7 +24,7 @@ async function setupRecorder(id: number, parentEl: Element): Promise<MediaRecord
     chunks = []
     const audioURL = window.URL.createObjectURL(blob)
     saveBlob(blob, id)
-    PadService.addSample(audioURL, id)
+    PadService.addSample(audioURL, InstrumentsService.instruments[id])
     mediaDeviceStream.getAudioTracks()[0].stop()
   }
 

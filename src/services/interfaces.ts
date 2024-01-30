@@ -1,28 +1,29 @@
 import { PitchShift, Player, Volume } from 'tone'
 
-export interface Instrument {
+export interface Instrument extends TriggerEnvelop {
   id: number
   name: string
-  player?: Player
+  source?: string
+  playHigh?: Player
+  playLow?: Player
+  channelVolume: Volume
+}
+
+interface TriggerEnvelop {
   duration?: number
   offset?: number
+  fadeIn?: number
   fadeOut?: number
-  padId?: number,
   pitchShift?: PitchShift
-  channelVolume: Volume
-  audioURL?: string
 }
 
 /** 
  * convention for slot events -
  * timeId: string (bar:quarter:sixteenth)
- * scheduledEvent: string (timeId|instrumentId)
  * transportEventId: number
+ * emphasis: boolean
+ * scheduledEvent: string (timeId|instrumentId|emphasis)
  */
-export interface Slot {
-  bar: number
-  timeId: string
-}
 
 // TRACK PARAMS
 

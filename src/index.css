@@ -31,10 +31,12 @@ body {
   --pad-snare: var(--off-color-2);
   --pad-hat: var(--off-color-2);
   --pad-1: var(--wisteria);
-  --pad-2: var(--celestial-blue);
-  --pad-3: var(--melon);
-  --pad-4: var(--maya-blue);
+  --pad-2: var(--wisteria); 
+  --pad-3: var(--wisteria);
+  --pad-4: var(--wisteria);
 }
+
+/* var(--celestial-blue); var(--melon); var(--maya-blue); */
 
 button {
   font-family: inherit;

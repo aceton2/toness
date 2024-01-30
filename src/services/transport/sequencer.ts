@@ -1,5 +1,4 @@
 import { Transport, context, start, Loop, Emitter } from 'tone'
-import NodesService from '../nodes'
 import PadService from '../pads/pad';
 import { TrackParams } from '../interfaces'
 import ToneStore from '../../store/store';
@@ -12,7 +11,7 @@ import GridService from './grid';
 function syncActiveTracks() {
   const tracks = ToneStore.getState().activeTracks
   InstrumentsService.instruments.forEach((inst, index) => {
-    if (inst.player) { inst.player.mute = index >= tracks }
+    inst.channelVolume.mute = index >= tracks
   })
 }
 
@@ -42,6 +41,7 @@ async function startTransport() {
   if (context.state !== 'running') {
     await start()
   }
+  Transport.loop = true
   Transport.start()
 }
 
@@ -73,36 +73,20 @@ function linkStepEmitter() {
 
 // INIT
 
-function linkInstruments() {
-  InstrumentsService.stocks.forEach(instrument => {
-    if (instrument.player) {
-      instrument.player.chain(instrument.channelVolume)
-      instrument.channelVolume.fan(NodesService.controlRoomRecorder, NodesService.masterVolume)
-    }
-  }
-  )
-
-  InstrumentsService.pads.forEach(instrument => {
-    PadService.reloadFromLocalStorage(instrument)
-  })
-}
-
 let unSubs: Array<() => void>;
 
 function initSequencer() {
 
   clearTransport()
-  linkInstruments()
   linkStepEmitter()
-
   addKeyboardListener()
-
-  GridService.setGridSlots()
+  InstrumentsService.connectInstruments()
+  PadService.loadSavedSamples()
+  GridService.setGridTimeIds()
   TriggersService.scheduleActiveTriggers()
+
   syncActiveTracks()
   syncBpm(ToneStore.getState().bpm)
-
-  Transport.loop = true
 
   unSubs = [
     ToneStore.subscribe((state) => state.activeTracks, syncActiveTracks),
@@ -110,8 +94,8 @@ function initSequencer() {
     ToneStore.subscribe((state) => state.trackSettings, syncTrackSettings),
     ToneStore.subscribe((state) => state.resolution, syncStepEmitter),
     // visual grid
-    ToneStore.subscribe((state) => state.activeBars, GridService.setGridSlots),
-    ToneStore.subscribe((state) => state.resolution, GridService.setGridSlots),
+    ToneStore.subscribe((state) => state.activeBars, GridService.setGridTimeIds),
+    ToneStore.subscribe((state) => state.resolution, GridService.setGridTimeIds),
     // scheduled triggers
     ToneStore.subscribe((state) => state.activeBars, TriggersService.scheduleActiveTriggers),
     ToneStore.subscribe((state) => state.resolution, TriggersService.scheduleActiveTriggers),

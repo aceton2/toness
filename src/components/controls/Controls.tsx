@@ -6,7 +6,7 @@ import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons';
 import PadService from '../../services/pads/pad';
 
 const ControlBox = styled.div`
-  margin-bottom: 0.5rem;
+  margin-bottom: 2.5rem;
   background: var(--off-color-1);
   border-radius: 5px;
   padding: 5px;

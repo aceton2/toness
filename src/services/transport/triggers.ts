@@ -36,8 +36,8 @@ function getActiveEvents() {
 }
 
 function schedule(scheduledEvent: string) {
-    const [timeId, instrumentId] = scheduledEvent.split('|')
-    const triggerFunction = InstrumentsService.getPlayInstrumentTrigger(parseInt(instrumentId))
+    const [timeId, instrumentId, emphasis] = scheduledEvent.split('|')
+    const triggerFunction = InstrumentsService.getPlayInstrumentTrigger(parseInt(instrumentId), emphasis === "1")
     triggerEventIds[scheduledEvent] = Transport.schedule(time => triggerFunction(time), timeId)
 }
 
@@ -46,8 +46,18 @@ function unschedule(scheduledEvent: string) {
     delete triggerEventIds[scheduledEvent]
 }
 
+function parseTrigger(scheduledEvent: string) {
+    const [timeId, instrumentId, emphasis] = scheduledEvent.split('|')
+    return {
+        timeId,
+        instrumentId,
+        emphasized: emphasis === "1",
+    }
+}
+
 const TriggersService = {
-    scheduleActiveTriggers
+    scheduleActiveTriggers,
+    parseTrigger,
 }
 
 export default TriggersService

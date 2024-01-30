@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import NodesService from '../../services/nodes'
 import SequencerService from '../../services/transport/sequencer'
-import { Slot } from '../../services/interfaces'
 import Toggle from './Toggle'
 import Track from './Track'
 import useToneStore, { GridResolutions } from '../../store/store'
 import InstrumentsService from '../../services/instruments'
+import GridService from '../../services/transport/grid'
 
 
 const SequencerBox = styled.div`
@@ -27,13 +26,12 @@ const resolutionToRepeat = {
 const Bar = styled.div<{ gridResolution: GridResolutions }>`
   display: grid;
   grid-template-columns: repeat(${props => resolutionToRepeat[props.gridResolution]}, 1fr);
+  border-radius: 2px
 `
-/**
- * This widget represents a instrument group
- */
+
 export default function Sequencer() {
   const [activeStep, setActiveStep] = useState('')
-  const slots = useToneStore(state => state.activeSlots)
+  const timeIds = useToneStore(state => state.activeTimeIds)
   const tracks = useToneStore(state => state.activeTracks)
   const gridResolution = useToneStore(state => state.resolution)
   const scheduledEvents = useToneStore(state => state.scheduledEvents)
@@ -49,36 +47,40 @@ export default function Sequencer() {
 
   const setStep = useCallback((step: string) => setActiveStep(step), [])
 
-  // COMPONENTS
-
+  // clean up logic for determing individual bars
   function getBars(soundId: number) {
-    const bars = Array.from(new Set(slots.map(slot => slot.bar)))
+    const bars = Array.from(new Set(timeIds.map(timeId => GridService.parseTimeId(timeId).bar)))
     return bars.map((bar: number) => (
       <Bar gridResolution={gridResolution} key={bar}>
         {getToggles(
           soundId,
-          slots.filter((slot) => slot.bar === bar)
+          timeIds.filter((timeId) => GridService.parseTimeId(timeId).bar === bar)
         )}
       </Bar>
     ))
   }
 
-  function getToggles(instrumentId: number, slots: Array<Slot>) {
-    return slots.map((slot) => {
-      const scheduledEvent = `${slot.timeId}|${instrumentId}`
+  // clean up how we handle emphasis toggle
+  function toggleStep(emphasized: boolean, scheduled: string | undefined, stub: string) {
+    scheduled ? toggleScheduledEvent(scheduled) : toggleScheduledEvent(`${stub}|${emphasized ? "1" : "0"}`)
+  }
+
+  function getToggles(instrumentId: number, timeIds: Array<string>) {
+    return timeIds.map((timeId) => {
+      const stub = `${timeId}|${instrumentId}`
+      const scheduled = scheduledEvents.find(e => e.slice(0, -2) === stub)
       return (
         <Toggle 
-          key={scheduledEvent}
-          isActive={activeStep === slot.timeId.split(".")[0]}
-          scheduledEvent={scheduledEvent}
-          scheduled={scheduledEvents.indexOf(scheduledEvent) !== -1}
-          toggle={() => toggleScheduledEvent(scheduledEvent)}
+          key={stub}
+          isActive={activeStep === timeId.split(".")[0]} // the split is because of the triplets
+          timeId={timeId}
+          instrumentId={instrumentId}
+          scheduledEvent={scheduled}
+          toggle={(emphasized: boolean) => toggleStep(emphasized, scheduled, stub)}
         />
       )
     })
   }
-
-  // RENDER
 
   return (
     <SequencerBox>

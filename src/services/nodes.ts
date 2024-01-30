@@ -11,8 +11,6 @@ function unmuteOutput() {
   masterVolume.mute = false;
 }
 
-// EXPORTS
-
 const NodesService = {
   controlRoomRecorder,
   muteOutput,

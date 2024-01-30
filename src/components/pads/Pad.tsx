@@ -89,17 +89,19 @@ const Title = styled.div<{color: string}>`
 const TopControl = styled.div`
   position: absolute;
   z-index: 2;
-  top: 2px;
+  top: -1px;
   left: 0;
   right: 0;
   text-align: center;
   font-weight: 600;
+  font-size: 1.5rem;
   cursor: default;
   & button {
     position: absolute;
     right: 5px;
-    top: 0px;
+    top: 2px;
     background: none;
+    font-weight: 600;
   }
 `
 
@@ -117,7 +119,6 @@ const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
 export default function Pad(props: {pad: Instrument}) {
     const elementRef = useRef(null)
     const audioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.pad.id), [props.pad.id]))
-    const trigger = InstrumentsService.getPlayInstrumentTrigger(props.pad.id)
     const [padParams, setPadParams] = useToneStore(state => [state.padParams[props.pad.id], state.setPadParams])
     const [recording, setRecording] = useState(false)
 
@@ -140,6 +141,7 @@ export default function Pad(props: {pad: Instrument}) {
     }, [elementRef, padParams])
 
     function recordOrPlay() {
+      const trigger = InstrumentsService.getPlayInstrumentTrigger(props.pad.id, true)
       audioUrl ?  trigger(0) : startRecording()
     }
 
@@ -165,7 +167,7 @@ export default function Pad(props: {pad: Instrument}) {
           <TopControl>
             <div>{props.pad.name}</div>
             { audioUrl &&
-              <button onClick={clearPad}>Delete</button> 
+              <button onClick={clearPad}>(x)</button> 
             }
           </TopControl>
         { !recording ? '' : (

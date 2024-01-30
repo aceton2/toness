@@ -1,5 +1,6 @@
-import { useCallback } from 'react'
 import styled from 'styled-components'
+import GridService from '../../services/transport/grid'
+import TriggersService from '../../services/transport/triggers'
 
 let colors = {
   odd: 'var(--off-color-3)',
@@ -21,6 +22,15 @@ const Step = styled.div`
   cursor: pointer;
 `
 
+const Head = styled.div<{emph: boolean}>`
+  position: relative;
+  top: ${props => props.emph ? "10%" : "80%"};
+  bottom: ${props => props.emph ? "0px" : "10px"};
+  height: 10%;
+  background: var(--panel-color-1);
+  border-radius: 2px;
+`
+
 const Guide = styled.div`
   position: absolute;
   top: -1.4rem;
@@ -30,42 +40,36 @@ const Guide = styled.div`
   width: 100%;
 `
 
+const ToggleBtn = styled.div`
+  height: 50%;
+  width: 100%;
+`
+
 interface ToggleProps {
-  isActive: boolean
-  scheduledEvent: string
-  scheduled: boolean
-  toggle: () => void
-}
-
-const subCounts = {
-  '1': 'e',
-  '2': '+',
-  '3': 'a',
-}
-
-function slotToGuideName(slot: any): string | undefined {
-  if(slot.split('|')[1] !== '0') return
-  const [_, quarter, sixteenth] = slot.split('|')[0].split(':')
-  const str16 = sixteenth.split(".")[0] as '1' | '2' | '3'
-  return sixteenth === '0' ? (parseInt(quarter) + 1).toString() : subCounts[str16]
+  isActive: boolean;
+  timeId: string;
+  instrumentId: number;
+  scheduledEvent: string | undefined;
+  toggle: (empasized: boolean) => void;
 }
 
 export default function Toggle(props: ToggleProps) {
-  let getGuideName = useCallback(() => slotToGuideName(props.scheduledEvent), [props.scheduledEvent])
-  let guideName = getGuideName();
-
-  function isOdd() {
-    return Number(props.scheduledEvent.split('|')[0].split(':')[0]) % 2 === 1
-  }
+  const {bar, quarter, sixteenth} = GridService.parseTimeId(props.timeId)
+  const guideName = props.instrumentId === 0 ? GridService.timeIdToGuideName(props.timeId) : null;
+  const parsedTrigger = props.scheduledEvent ? TriggersService.parseTrigger(props.scheduledEvent) : undefined;
 
   function getBackgroundColor() {
-    return props.scheduled ? colors.toggled : isOdd() ? colors.odd : colors.free
+    const odd = bar % 2 === 1
+    return parsedTrigger ? colors.toggled : odd ? colors.odd : colors.free
   }
 
   return (
     <StepMargin style={{ opacity: props.isActive ? '1' : '0.7' }}>
       { guideName ? <Guide>{guideName}</Guide> : '' }
-      <Step style={{ backgroundColor: getBackgroundColor() }} onClick={() => props.toggle()}>
+      <Step style={{ backgroundColor: getBackgroundColor() }} >
+        {parsedTrigger &&<Head emph={parsedTrigger?.emphasized} />}
+        <ToggleBtn onClick={() => props.toggle(true)}></ToggleBtn>
+        <ToggleBtn onClick={() => props.toggle(false)}></ToggleBtn>
       </Step>
     </StepMargin>
   )

@@ -8,6 +8,7 @@ import Mask from './components/misc/Mask';
 
 import SamplerPanel from './components/pads/Sampler';
 import SequencerService from './services/transport/sequencer';
+import useToneStore, { STORE_VERSION } from './store/store';
 
 
 const MainFrame = styled.div`
@@ -16,10 +17,12 @@ const MainFrame = styled.div`
   border-radius: 5px; 
 `;
 
-SequencerService.initSequencer();
-
 export default function App() {
   useEffect(() => {
+    if(useToneStore.getState().storeVersion != STORE_VERSION) { 
+      useToneStore.getState().resetStore() 
+    }
+    SequencerService.initSequencer();
     return SequencerService.unsubSequencerSubscriptions
   }, [])
 
