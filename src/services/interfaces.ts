@@ -1,5 +1,6 @@
 import { PitchShift, Player, Volume } from 'tone'
 
+// INSTRUMENTS
 export interface Instrument extends TriggerEnvelop {
   id: number
   name: string
@@ -17,6 +18,8 @@ interface TriggerEnvelop {
   pitchShift?: PitchShift
 }
 
+// TRIGGERS
+
 /** 
  * convention for slot events -
  * timeId: string (bar:quarter:sixteenth)
@@ -25,7 +28,7 @@ interface TriggerEnvelop {
  * scheduledEvent: string (timeId|instrumentId|emphasis)
  */
 
-// TRACK PARAMS
+// PARAMS
 
 interface TrackParam {
   mute: boolean
@@ -35,18 +38,6 @@ interface TrackParam {
 export interface TrackParams {
   [id: number]: TrackParam
 }
-
-export const defaultTrackParams = {
-  0: { mute: false, volume: 100 },
-  1: { mute: false, volume: 100 },
-  2: { mute: false, volume: 100 },
-  3: { mute: false, volume: 100 },
-  4: { mute: false, volume: 100 },
-  5: { mute: false, volume: 100 },
-  6: { mute: false, volume: 100 },
-}
-
-// PAD PARAMS
 
 export enum EnvelopeParam {
   duration,
@@ -73,6 +64,17 @@ export type PadParams = {
 };
 
 // DEFAULTS 
+
+export const defaultTrackParams = {
+  0: { mute: false, volume: 100 },
+  1: { mute: false, volume: 100 },
+  2: { mute: false, volume: 100 },
+  3: { mute: false, volume: 100 },
+  4: { mute: false, volume: 100 },
+  5: { mute: false, volume: 100 },
+  6: { mute: false, volume: 100 },
+  7: { mute: false, volume: 100 },
+}
 
 export const defaultPad: PadParam = {
   [EnvelopeParam.duration]: 99,

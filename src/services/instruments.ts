@@ -1,4 +1,4 @@
-import { PitchShift, Player, Volume } from "tone"
+import { PitchShift, Player, Volume, PolySynth } from "tone"
 import { Instrument } from "./interfaces"
 import NodesService from "./nodes"
 
@@ -6,6 +6,7 @@ import NodesService from "./nodes"
 
 const drumDefaults = { duration: 2, fadeOut: 0.2, offset: 0 }
 
+// NOTE: ID must correspond to place in array. CHANGE THIS
 let stocks: Array<Instrument> = [
     { id: 0, name: 'kick', source: '/sounds/kick70.mp3', channelVolume: new Volume(0), ...drumDefaults, duration: 0.5 },
     { id: 1, name: 'snare', source: '/sounds/snare.mp3', channelVolume: new Volume(0), ...drumDefaults },
@@ -19,7 +20,15 @@ let pads: Array<Instrument> = [
     { id: 6, name: '4', channelVolume: new Volume(0), pitchShift: new PitchShift() },
 ]
 
-const instruments = stocks.concat(pads)
+let overdub: Array<Instrument> = [
+    { id: 7, name: 'overdub', channelVolume: new Volume(0) },
+]
+
+const instruments = stocks.concat(pads).concat(overdub)
+
+// KEYS
+
+const casio = new PolySynth().fan(NodesService.controlRoomRecorder, NodesService.keyboardRecorder, NodesService.masterVolume)
 
 // TRIGGER
 
@@ -54,7 +63,9 @@ function connectInstruments() {
 const InstrumentsService = {
     stocks,
     pads,
+    overdub: overdub[0],
     instruments,
+    casio,
     connectInstruments,
     getPlayInstrumentTrigger,
 }

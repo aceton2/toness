@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Controls from './components/controls/Controls';
 import Widget from './components/sequencer/Sequencer';
@@ -9,6 +9,7 @@ import Mask from './components/misc/Mask';
 import SamplerPanel from './components/pads/Sampler';
 import SequencerService from './services/transport/sequencer';
 import useToneStore, { STORE_VERSION } from './store/store';
+import Casio from './components/overdub/Casio';
 
 
 const MainFrame = styled.div`
@@ -18,22 +19,28 @@ const MainFrame = styled.div`
 `;
 
 export default function App() {
+  const [sequencerOn, setSequencerOn] = useState(false)
   useEffect(() => {
     if(useToneStore.getState().storeVersion != STORE_VERSION) { 
       useToneStore.getState().resetStore() 
     }
     SequencerService.initSequencer();
+    setSequencerOn(true)
     return SequencerService.unsubSequencerSubscriptions
-  }, [])
+  }, [setSequencerOn])
 
   return (
     <div>
       <Header />
       <Mask/>
       <MainFrame>
-        <SamplerPanel />
-        <Controls />
-        <Widget/>
+        { sequencerOn && <>
+          <SamplerPanel />
+          <Controls />
+          <Widget/>
+          <Casio />
+        </>
+        }
       </MainFrame>
     </div>
   );

@@ -3,7 +3,7 @@ import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { PadParams, defaultStoreParams, PadParam, TrackParams, defaultTrackParams } from '../services/interfaces'
 
 export type GridResolutions = '16n' | '8n' | '8t'
-export const STORE_VERSION = 1.0
+export const STORE_VERSION = 1.1
 
 interface TonesState {
   storeVersion: number,
@@ -18,7 +18,7 @@ interface TonesState {
   changeBars: (bars: number) => void,
   changeTracks: (tracks: number) => void,
   scheduledEvents: Array<string>,
-  toggleScheduledEvent: (event: string) => void,
+  toggleScheduledEvent: (timeId: string, instrumentId: number, emphasis: boolean) => void,
   clearSchedule: () => void,
   setBpm: (bpm: string) => void,
   toggleResolution: (res: GridResolutions) => void,
@@ -64,12 +64,13 @@ const useToneStore = create<TonesState>()(
           setTrackVolume: (id: number, vol: number) => set(state => (
             { trackSettings: { ...state.trackSettings, [id]: { ...state.trackSettings[id], volume: vol } } }
           )),
-          toggleScheduledEvent: (scheduledEvent: string) => set(state => {
+          toggleScheduledEvent: (timeId: string, instrumentId: number, emphasis: boolean) => set(state => {
+            const existingTrigger = state.scheduledEvents.find(e => e.slice(0, -2) === `${timeId}|${instrumentId}`)
             return {
               scheduledEvents:
-                (state.scheduledEvents.indexOf(scheduledEvent) !== -1)
-                  ? state.scheduledEvents.filter(sEvent => sEvent !== scheduledEvent)
-                  : [...state.scheduledEvents, scheduledEvent]
+                (existingTrigger)
+                  ? state.scheduledEvents.filter(sEvent => sEvent !== existingTrigger)
+                  : [...state.scheduledEvents, `${timeId}|${instrumentId}|${emphasis ? "1" : "0"}`]
             }
           }),
         })
@@ -87,7 +88,7 @@ function getNewBars(activeBars: number, change: number): number {
 
 function getNewTracks(activeTracks: number, change: number): number {
   const newTracks = activeTracks + change;
-  return (newTracks > 0 && newTracks < 8) ? newTracks : activeTracks
+  return (newTracks > 0 && newTracks < 9) ? newTracks : activeTracks
 }
 
 export const selectPadAudioUrl = (state: TonesState, id: number) => {

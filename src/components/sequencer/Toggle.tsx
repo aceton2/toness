@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import GridService from '../../services/transport/grid'
 import TriggersService from '../../services/transport/triggers'
+import useToneStore from '../../store/store'
 
 let colors = {
   odd: 'var(--off-color-3)',
@@ -49,27 +50,32 @@ interface ToggleProps {
   isActive: boolean;
   timeId: string;
   instrumentId: number;
-  scheduledEvent: string | undefined;
-  toggle: (empasized: boolean) => void;
 }
 
 export default function Toggle(props: ToggleProps) {
   const {bar, quarter, sixteenth} = GridService.parseTimeId(props.timeId)
   const guideName = props.instrumentId === 0 ? GridService.timeIdToGuideName(props.timeId) : null;
-  const parsedTrigger = props.scheduledEvent ? TriggersService.parseTrigger(props.scheduledEvent) : undefined;
+  const toggleScheduledEvent = useToneStore(state => state.toggleScheduledEvent)
+  const scheduled = useToneStore(state => 
+    state.scheduledEvents.find(e => e.slice(0, -2) === `${props.timeId}|${props.instrumentId}`)
+  ) 
 
   function getBackgroundColor() {
     const odd = bar % 2 === 1
-    return parsedTrigger ? colors.toggled : odd ? colors.odd : colors.free
+    return scheduled ? colors.toggled : odd ? colors.odd : colors.free
+  }
+
+  function toggleStep(emphasized: boolean) {
+    toggleScheduledEvent(props.timeId, props.instrumentId, emphasized)
   }
 
   return (
     <StepMargin style={{ opacity: props.isActive ? '1' : '0.7' }}>
       { guideName ? <Guide>{guideName}</Guide> : '' }
       <Step style={{ backgroundColor: getBackgroundColor() }} >
-        {parsedTrigger &&<Head emph={parsedTrigger?.emphasized} />}
-        <ToggleBtn onClick={() => props.toggle(true)}></ToggleBtn>
-        <ToggleBtn onClick={() => props.toggle(false)}></ToggleBtn>
+        {scheduled &&<Head emph={TriggersService.parseTrigger(scheduled)?.emphasized} />}
+        <ToggleBtn onClick={() => toggleStep(true)}></ToggleBtn>
+        <ToggleBtn onClick={() => toggleStep(false)}></ToggleBtn>
       </Step>
     </StepMargin>
   )

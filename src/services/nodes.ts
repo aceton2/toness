@@ -1,6 +1,7 @@
 import { Recorder, Volume } from 'tone'
 
 const controlRoomRecorder = new Recorder()
+const keyboardRecorder = new Recorder()
 const masterVolume = new Volume(0).toDestination();
 
 function muteOutput() {
@@ -13,6 +14,7 @@ function unmuteOutput() {
 
 const NodesService = {
   controlRoomRecorder,
+  keyboardRecorder,
   muteOutput,
   unmuteOutput,
   masterVolume,

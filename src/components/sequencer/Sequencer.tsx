@@ -34,8 +34,6 @@ export default function Sequencer() {
   const timeIds = useToneStore(state => state.activeTimeIds)
   const tracks = useToneStore(state => state.activeTracks)
   const gridResolution = useToneStore(state => state.resolution)
-  const scheduledEvents = useToneStore(state => state.scheduledEvents)
-  const toggleScheduledEvent = useToneStore(state => state.toggleScheduledEvent)
   const trackSounds = InstrumentsService.instruments.slice(0, tracks)
 
   useEffect(() => {
@@ -60,23 +58,15 @@ export default function Sequencer() {
     ))
   }
 
-  // clean up how we handle emphasis toggle
-  function toggleStep(emphasized: boolean, scheduled: string | undefined, stub: string) {
-    scheduled ? toggleScheduledEvent(scheduled) : toggleScheduledEvent(`${stub}|${emphasized ? "1" : "0"}`)
-  }
-
   function getToggles(instrumentId: number, timeIds: Array<string>) {
     return timeIds.map((timeId) => {
-      const stub = `${timeId}|${instrumentId}`
-      const scheduled = scheduledEvents.find(e => e.slice(0, -2) === stub)
       return (
         <Toggle 
-          key={stub}
-          isActive={activeStep === timeId.split(".")[0]} // the split is because of the triplets
+          key={`${timeId}|${instrumentId}`}
+          // the split to remove decimal sixteenths in triplets
+          isActive={activeStep === timeId.split(".")[0]}
           timeId={timeId}
           instrumentId={instrumentId}
-          scheduledEvent={scheduled}
-          toggle={(emphasized: boolean) => toggleStep(emphasized, scheduled, stub)}
         />
       )
     })

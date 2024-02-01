@@ -21,7 +21,7 @@ const Stretch = styled.div`
 export default function Header() {
     return (
         <HeaderDiv> 
-            <Title>Toness</Title>
+            <Title>BeatSkizz</Title>
             <Stretch />
             <Tempo />
             <Stretch />
