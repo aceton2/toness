@@ -1,5 +1,6 @@
 import PadService from './pad'
 import InstrumentsService from '../instruments';
+import BlobService from './blobStore';
 
 // RECORDER
 let mediaRecorder: MediaRecorder | undefined;
@@ -21,11 +22,12 @@ async function setupRecorder(id: number, parentEl: Element): Promise<MediaRecord
 
   mediaRecorder.onstop = function (e) {
     const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" })
-    chunks = []
-    const audioURL = window.URL.createObjectURL(blob)
-    saveBlob(blob, id)
-    PadService.addSample(audioURL, InstrumentsService.instruments[id])
+    const url = BlobService.storeBlob(blob, id)
+    PadService.addSample(url, InstrumentsService.instruments[id])
     mediaDeviceStream.getAudioTracks()[0].stop()
+
+    // reset buffer
+    chunks = []
   }
 
   mediaRecorder.ondataavailable = function (e) {
@@ -33,16 +35,6 @@ async function setupRecorder(id: number, parentEl: Element): Promise<MediaRecord
   }
 
   return mediaRecorder
-}
-
-async function saveBlob(blob: Blob, id: number) {
-  const reader = new FileReader()
-  reader.addEventListener('loadend', (event: ProgressEvent) => {
-    if (typeof (reader.result) === 'string') {
-      localStorage.setItem(`audioBlob_${id}`, reader.result)
-    }
-  })
-  reader.readAsDataURL(blob)
 }
 
 // EXPORTS

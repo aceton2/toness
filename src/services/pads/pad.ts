@@ -1,19 +1,15 @@
-import { Instrument, defaultPad, PadParams, EnvelopeParam } from "../interfaces";
+import { Instrument, PadParams, EnvelopeParam } from "../interfaces";
 import useToneStore from "../../store/store";
 import InstrumentsService from "../instruments";
+import BlobService from "./blobStore";
 
 function loadSavedSamples() {
-    InstrumentsService.pads.forEach(instrument => reloadFromLocalStorage(instrument))
-}
-
-async function reloadFromLocalStorage(instrument: Instrument) {
-    const existingBlobStr = localStorage.getItem(`audioBlob_${instrument.id}`)
-    if (existingBlobStr) {
-        const res = await fetch(existingBlobStr);
-        const blob = await res.blob();
-        const audioURL = window.URL.createObjectURL(blob)
-        addSample(audioURL, instrument)
-    }
+    InstrumentsService.instruments.forEach(async instrument => {
+        const audioURL = await BlobService.loadBlob(instrument.id)
+        if (audioURL) {
+            addSample(audioURL, instrument)
+        }
+    })
 }
 
 function addSample(audioURL: string, pad: Instrument) {
@@ -22,7 +18,7 @@ function addSample(audioURL: string, pad: Instrument) {
     pad.playLow?.load(pad.source)
     if (pad.playHigh) {
         pad.playHigh.buffer.onload = () =>
-            updateStoreActivePads(pad.id, { audioUrl: audioURL })
+            useToneStore.getState().setPadParams(pad.id, { audioUrl: audioURL })
     }
 }
 
@@ -57,19 +53,11 @@ function clearPads() {
     })
 }
 
-function updateStoreActivePads(id: number, newValues: any) {
-    const padParams = useToneStore.getState().padParams
-    useToneStore.getState().setPadParams(id, {
-        ...padParams[id],
-        ...newValues,
-    })
-}
-
 function resetPad(id: number) {
     const inst = InstrumentsService.instruments[id]
-    localStorage.removeItem(`audioBlob_${inst.id}`)
-    inst.source = undefined
-    updateStoreActivePads(inst.id, defaultPad)
+    BlobService.deleteBlob(inst.id)
+    inst.source = undefined // this should be handled by resest of pad params
+    useToneStore.getState().setPadParams(inst.id)
 }
 
 useToneStore.subscribe((state) => state.padParams, syncPadParams)

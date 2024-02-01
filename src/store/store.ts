@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
-import { PadParams, defaultStoreParams, PadParam, TrackParams, defaultTrackParams } from '../services/interfaces'
+import { PadParams, PadParam, TrackParams, TrackParam, EnvelopeParam } from '../services/interfaces'
 
 export type GridResolutions = '16n' | '8n' | '8t'
-export const STORE_VERSION = 1.1
+export const STORE_VERSION = 1.4
 
 interface TonesState {
   storeVersion: number,
@@ -23,11 +23,37 @@ interface TonesState {
   setBpm: (bpm: string) => void,
   toggleResolution: (res: GridResolutions) => void,
   setActiveTimeIds: (slots: Array<string>) => void,
-  setPadParams: (id: number, params: PadParam) => void,
+  setPadParams: (id: number, params?: any) => void,
   setTrackVolume: (id: number, vol: number) => void,
   toggleTrackMute: (id: number) => void,
   resetStore: () => void,
 }
+
+// INITIAL STATE
+
+const defaultPad: PadParam = {
+  [EnvelopeParam.duration]: 99,
+  [EnvelopeParam.fadeOut]: 20,
+  [EnvelopeParam.offset]: 0,
+  [EnvelopeParam.fadeIn]: 0,
+  [EnvelopeParam.pitchShift]: 0,
+  [EnvelopeParam.amplitude]: 0,
+  custom: false,
+  audioUrl: undefined
+}
+
+const defaultTrack: TrackParam = {
+  mute: false,
+  volume: 100
+}
+
+const tracks = [0, 1, 2, 3, 4, 5, 6, 7]
+const defaultTrackParams = tracks.reduce<TrackParams>(
+  (acc: TrackParams, curr) => (acc[curr] = { ...defaultTrack }, acc), {}
+);
+const defaultPadParams = tracks.reduce<PadParams>(
+  (acc: PadParams, curr) => (acc[curr] = { ...defaultPad }, acc as PadParams), {}
+);
 
 const initialState = {
   storeVersion: STORE_VERSION,
@@ -38,7 +64,7 @@ const initialState = {
   bpm: 124, // SEQUENCER -> for setting bpm * TEMPO -> for button
   resolution: '8n' as GridResolutions,  // SEQUENCER -> for setting active slots * CONTROLS -> for button
   scheduledEvents: [], // SEQUENCER -> for transport sync * TOGGLE -> for step styling
-  padParams: defaultStoreParams, // TONER -> for setting play params * PAD -> for setting controls
+  padParams: defaultPadParams, // TONER -> for setting play params * PAD -> for setting controls
   trackSettings: defaultTrackParams, // TONER -> for setting volume mutes * TRACK -> for showing state
 }
 
@@ -49,13 +75,13 @@ const useToneStore = create<TonesState>()(
       subscribeWithSelector(
         (set) => ({
           ...initialState,
-          resetStore: () => set(initialState),
-          setPadParams: (padName, params) => set(state => ({ padParams: { ...state.padParams, [padName]: params } }), false, "setPadParams"),
+          resetStore: () => set(state => initialState, true, "resetStore"),
+          setPadParams: (padName, params) => set(state => (getNewParams(state.padParams, padName, params)), false, "setPadParams"),
           resetSequencer: () => set(state => ({ activeBars: 1, activeTracks: 1, scheduledEvents: [], bpm: 124, trackSettings: defaultTrackParams })),
           changeBars: (bars: number) => set(state => ({ activeBars: getNewBars(state.activeBars, bars) })),
           changeTracks: (tracks: number) => set(state => ({ activeTracks: getNewTracks(state.activeTracks, tracks) })),
           setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
-          setActiveTimeIds: (timeIds: Array<string>) => set(state => ({ activeTimeIds: timeIds })),
+          setActiveTimeIds: (timeIds: Array<string>) => set(state => ({ activeTimeIds: timeIds }), false, "setActiveTimeIds"),
           toggleResolution: (res: GridResolutions) => set(state => ({ resolution: res })),
           clearSchedule: () => set(state => ({ scheduledEvents: [] })),
           toggleTrackMute: (id) => set(state => (
@@ -80,6 +106,12 @@ const useToneStore = create<TonesState>()(
     { name: "toness" }
   )
 )
+
+function getNewParams(existingParams: PadParams, padName: number, params?: any) {
+  // if params is empty pad is reset
+  const newParams = { ...existingParams, [padName]: { ...existingParams[padName], ...(params || defaultPad) } }
+  return { padParams: newParams }
+}
 
 function getNewBars(activeBars: number, change: number): number {
   const newBars = activeBars + change;

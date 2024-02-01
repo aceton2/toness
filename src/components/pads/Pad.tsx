@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components"
 import SamplerService from "../../services/pads/recorder"
 import PadService from "../../services/pads/pad";
-import { EnvelopeParam, defaultPad, Instrument } from "../../services/interfaces";
+import { EnvelopeParam, Instrument } from "../../services/interfaces";
 import useToneStore, { selectPadAudioUrl } from "../../store/store";
 import DrawerService from "../../services/pads/waveRender";
 import InstrumentsService from "../../services/instruments";
@@ -127,7 +127,7 @@ export default function Pad(props: {pad: Instrument}) {
       DrawerService.clearAllCanvas(elementRef.current)
       SamplerService.startRecorder(props.pad.id, elementRef.current)
       setRecording(true)
-      setPadParams(props.pad.id, {...defaultPad})
+      setPadParams(props.pad.id)
     }, [props.pad.id, setPadParams])
 
     useEffect(() => {
