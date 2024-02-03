@@ -1,5 +1,5 @@
 import { Transport, context, start, Loop, Emitter } from 'tone'
-import PadService from '../pads/pad';
+import PadService from '../sampling/pad';
 import { TrackParams } from '../interfaces'
 import ToneStore from '../../store/store';
 import InstrumentsService from '../instruments';
@@ -21,11 +21,8 @@ function syncBpm(val: number): void {
 
 function syncTrackSettings(trackSettings: TrackParams) {
   InstrumentsService.instruments.forEach(i => {
-    if (i.channelVolume) {
-      i.channelVolume.mute = trackSettings[i.id].mute
-      const vo = -12 * (100 - trackSettings[i.id].volume) / 100
-      i.channelVolume.volume.value = vo
-    }
+    i.channelVolume.volume.value = -12 * (100 - trackSettings[i.id].volume) / 100
+    i.channelVolume.mute = trackSettings[i.id].mute
   })
 }
 
@@ -71,6 +68,8 @@ function linkStepEmitter() {
     stepEmitter.emit('step', (Transport.position as string).split('.')[0])
   }, ToneStore.getState().resolution)
   stepper.start(0)
+
+  Transport.on('stop', () => stepEmitter.emit('step', 'stop'))
 }
 
 // INIT
@@ -108,7 +107,6 @@ function initSequencer() {
 function unsubSequencerSubscriptions() {
   unSubs.forEach(unsub => unsub())
 }
-
 
 const SequencerService = {
   initSequencer,

@@ -2,8 +2,8 @@ import { Transport, context, start } from 'tone'
 import NodesService from '../nodes'
 import useToneStore from '../../store/store';
 import InstrumentsService from '../instruments';
-import PadService from '../pads/pad';
-import BlobService from '../pads/blobStore';
+import PadService from './pad';
+import BlobService from './blobStore';
 
 async function saveRecording() {
     Transport.off("stop", saveRecording);
@@ -11,7 +11,7 @@ async function saveRecording() {
     const blob = await NodesService.keyboardRecorder.stop();
     const url = BlobService.storeBlob(blob, InstrumentsService.overdub.id)
     PadService.addSample(url, InstrumentsService.overdub)
-    useToneStore.getState().toggleScheduledEvent("0:0:0", InstrumentsService.overdub.id, true)
+    useToneStore.getState().addTriggerEvent("0:0:0", InstrumentsService.overdub.id, true)
 }
 
 async function recordOverdub() {
@@ -25,7 +25,7 @@ async function recordOverdub() {
 function deleteOverdub() {
     BlobService.deleteBlob(InstrumentsService.overdub.id)
     PadService.resetPad(InstrumentsService.overdub.id) // TODO this should remove schedules?
-    useToneStore.getState().toggleScheduledEvent("0:0:0", InstrumentsService.overdub.id, true)
+    useToneStore.getState().removeTriggerEvent("0:0:0", InstrumentsService.overdub.id)
 }
 
 const OverdubService = {

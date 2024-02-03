@@ -8,6 +8,7 @@ function clearAllCanvas(parentEl: Element) {
 
 function clearSample(parentEl: Element, className: 'wave' | 'edit') {
   const canvas = parentEl.querySelector(`.${className}`) as HTMLCanvasElement
+  if (!canvas) return;
   canvas.width = 0
 }
 
@@ -16,7 +17,8 @@ function updateEditLayer(params: PadParam, parentEl: Element) {
   if (!params || !params.custom) { return }
 
   const canvas = parentEl.querySelector('.edit') as HTMLCanvasElement
-  canvas.width = parentEl.clientWidth - 10;
+  if (!canvas) return;
+  canvas.width = parentEl.clientWidth;
 
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
   const WIDTH = canvas.width
@@ -58,7 +60,8 @@ function drawAudioUrl(parentEl: Element, audioURL?: string,) {
 
 function drawSample(channelBuffer: Float32Array, parentEl: Element) {
   const waveCanvas = parentEl.querySelector('.wave') as HTMLCanvasElement
-  waveCanvas.width = parentEl.clientWidth - 10;
+  waveCanvas.width = parentEl.clientWidth;
+  waveCanvas.height = parentEl.clientHeight;
 
   const waveCtx = waveCanvas.getContext('2d') as CanvasRenderingContext2D
   const WIDTH = waveCanvas.width

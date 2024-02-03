@@ -21,7 +21,7 @@ const MainFrame = styled.div`
 export default function App() {
   const [sequencerOn, setSequencerOn] = useState(false)
   useEffect(() => {
-    if(useToneStore.getState().storeVersion != STORE_VERSION) { 
+    if(useToneStore.getState().storeVersion !== STORE_VERSION) { 
       useToneStore.getState().resetStore() 
     }
     SequencerService.initSequencer();

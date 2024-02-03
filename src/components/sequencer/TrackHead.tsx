@@ -1,15 +1,8 @@
 import { useCallback } from 'react'
 import styled from 'styled-components'
 import useToneStore, { selectPadAudioUrl, selectTrackSetting } from '../../store/store'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMicrophoneLinesSlash } from '@fortawesome/free-solid-svg-icons';
 import { Instrument } from '../../services/interfaces'
 
-const TrackDiv = styled.div`
-  display: flex;
-  height: 60px;
-  position: relative;
-`
 const Mask = styled.div`
   position: absolute;
   top:0;
@@ -22,8 +15,8 @@ const Mask = styled.div`
 
 const Label = styled.div`
   width: var(--track-label-width);
-  margin: 2px;
   padding: 5px;
+  margin-right: 5px;
   border-radius: 5px;
   background: var(--off-color-2);
   opacity: 0.9;
@@ -45,12 +38,6 @@ const LabelName = styled.div`
   background: var(${props => `--pad-${props.color}`});
 `
 
-const Grid = styled.div`
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-`
-
 const TrackIcon = styled.div<{alert: boolean, clickable: boolean}>`
   width: 38px;
   border-radius: 3px;
@@ -62,16 +49,10 @@ const TrackIcon = styled.div<{alert: boolean, clickable: boolean}>`
 `
 
 const VolInput = styled.input`
-  accent-color: var(--panel-color-1);
   width: 45px;
 `
 
-interface SoundProps {
-  instrument: Instrument
-  children: any
-}
-
-export default function Track(props: SoundProps) {
+export default function TrackHead(props: {instrument: Instrument}) {
   const instrument = props.instrument
   const hasAudioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, instrument.id), [instrument]))
   const trackSetting = useToneStore(useCallback(state => selectTrackSetting(state, instrument.id), [instrument.id]))
@@ -84,7 +65,7 @@ export default function Track(props: SoundProps) {
   }
 
   return (
-    <TrackDiv>
+    <>
       { !hasSound ? <Mask /> : '' }
       <Label>
         <LabelName color={instrument.name}>{props.instrument.name}</LabelName>
@@ -100,7 +81,6 @@ export default function Track(props: SoundProps) {
               onChange={e => setTrackVolume(instrument.id, parseInt(e.target.value))}
           />
       </Label>
-      <Grid>{props.children}</Grid>
-    </TrackDiv>
+    </>
   )
 }

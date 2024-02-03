@@ -1,9 +1,11 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { PadParams, PadParam, TrackParams, TrackParam, EnvelopeParam } from '../services/interfaces'
+import InstrumentsService from '../services/instruments'
 
 export type GridResolutions = '16n' | '8n' | '8t'
-export const STORE_VERSION = 1.4
+export const STORE_VERSION = 1.2
+const TRACKS_IDS = InstrumentsService.instruments.map(instrument => instrument.id)
 
 interface TonesState {
   storeVersion: number,
@@ -18,7 +20,8 @@ interface TonesState {
   changeBars: (bars: number) => void,
   changeTracks: (tracks: number) => void,
   scheduledEvents: Array<string>,
-  toggleScheduledEvent: (timeId: string, instrumentId: number, emphasis: boolean) => void,
+  addTriggerEvent: (timeId: string, instrumentId: number, emphasis: boolean) => void,
+  removeTriggerEvent: (timeId: string, instrumentId: number) => void,
   clearSchedule: () => void,
   setBpm: (bpm: string) => void,
   toggleResolution: (res: GridResolutions) => void,
@@ -30,6 +33,8 @@ interface TonesState {
 }
 
 // INITIAL STATE
+
+const defaultBPM = 124;
 
 const defaultPad: PadParam = {
   [EnvelopeParam.duration]: 99,
@@ -47,11 +52,10 @@ const defaultTrack: TrackParam = {
   volume: 100
 }
 
-const tracks = [0, 1, 2, 3, 4, 5, 6, 7]
-const defaultTrackParams = tracks.reduce<TrackParams>(
+const defaultTrackParams = TRACKS_IDS.reduce<TrackParams>(
   (acc: TrackParams, curr) => (acc[curr] = { ...defaultTrack }, acc), {}
 );
-const defaultPadParams = tracks.reduce<PadParams>(
+const defaultPadParams = TRACKS_IDS.reduce<PadParams>(
   (acc: PadParams, curr) => (acc[curr] = { ...defaultPad }, acc as PadParams), {}
 );
 
@@ -61,7 +65,7 @@ const initialState = {
   activeTimeIds: [], // WIDGET -> for bar generation
   activeTracks: 1, // SEQUENCER -> for setting mutes * WIDGET -> for setting track visibility
   activeBars: 2, // SEQUENCER -> for setting active slots
-  bpm: 124, // SEQUENCER -> for setting bpm * TEMPO -> for button
+  bpm: defaultBPM, // SEQUENCER -> for setting bpm * TEMPO -> for button
   resolution: '8n' as GridResolutions,  // SEQUENCER -> for setting active slots * CONTROLS -> for button
   scheduledEvents: [], // SEQUENCER -> for transport sync * TOGGLE -> for step styling
   padParams: defaultPadParams, // TONER -> for setting play params * PAD -> for setting controls
@@ -73,15 +77,21 @@ const useToneStore = create<TonesState>()(
   devtools(
     persist(
       subscribeWithSelector(
-        (set) => ({
+        (set, get) => ({
           ...initialState,
           resetStore: () => set(state => initialState, true, "resetStore"),
-          setPadParams: (padName, params) => set(state => (getNewParams(state.padParams, padName, params)), false, "setPadParams"),
-          resetSequencer: () => set(state => ({ activeBars: 1, activeTracks: 1, scheduledEvents: [], bpm: 124, trackSettings: defaultTrackParams })),
+          setPadParams: (padName, params) => set(state => (
+            getNewParams(state.padParams, padName, params)
+          ), false, "setPadParams"),
+          resetSequencer: () => set(state => (
+            { activeBars: 1, activeTracks: 1, scheduledEvents: [], bpm: defaultBPM, trackSettings: defaultTrackParams }
+          ), false, "resetSequencer"),
           changeBars: (bars: number) => set(state => ({ activeBars: getNewBars(state.activeBars, bars) })),
           changeTracks: (tracks: number) => set(state => ({ activeTracks: getNewTracks(state.activeTracks, tracks) })),
           setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
-          setActiveTimeIds: (timeIds: Array<string>) => set(state => ({ activeTimeIds: timeIds }), false, "setActiveTimeIds"),
+          setActiveTimeIds: (timeIds: Array<string>) => set(state => (
+            { activeTimeIds: timeIds }
+          ), false, "setActiveTimeIds"),
           toggleResolution: (res: GridResolutions) => set(state => ({ resolution: res })),
           clearSchedule: () => set(state => ({ scheduledEvents: [] })),
           toggleTrackMute: (id) => set(state => (
@@ -90,13 +100,16 @@ const useToneStore = create<TonesState>()(
           setTrackVolume: (id: number, vol: number) => set(state => (
             { trackSettings: { ...state.trackSettings, [id]: { ...state.trackSettings[id], volume: vol } } }
           )),
-          toggleScheduledEvent: (timeId: string, instrumentId: number, emphasis: boolean) => set(state => {
+          addTriggerEvent: (timeId: string, instrumentId: number, emphasis: boolean) => {
+            get().removeTriggerEvent(timeId, instrumentId)
+            set(state => (
+              { scheduledEvents: [...state.scheduledEvents, `${timeId}|${instrumentId}|${emphasis ? "1" : "0"}`] }
+            ), false, "addTriggerEvent")
+          },
+          removeTriggerEvent: (timeId: string, instrumentId: number) => set(state => {
             const existingTrigger = state.scheduledEvents.find(e => e.slice(0, -2) === `${timeId}|${instrumentId}`)
             return {
-              scheduledEvents:
-                (existingTrigger)
-                  ? state.scheduledEvents.filter(sEvent => sEvent !== existingTrigger)
-                  : [...state.scheduledEvents, `${timeId}|${instrumentId}|${emphasis ? "1" : "0"}`]
+              scheduledEvents: state.scheduledEvents.filter(sEvent => sEvent !== existingTrigger)
             }
           }),
         })

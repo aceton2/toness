@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import SequencerService from '../../services/transport/sequencer'
 import Toggle from './Toggle'
-import Track from './Track'
+import TrackHead from './TrackHead'
 import useToneStore, { GridResolutions } from '../../store/store'
 import InstrumentsService from '../../services/instruments'
 import GridService from '../../services/transport/grid'
+import DubTrack from './DubTrack'
 
 
 const SequencerBox = styled.div`
@@ -15,6 +16,19 @@ const SequencerBox = styled.div`
   &.hidden {
     display: none;
   }
+`
+
+const TrackDiv = styled.div`
+  display: flex;
+  height: 58px;
+  position: relative;
+  margin: 4px 0px;
+`
+
+const Grid = styled.div`
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
 `
 
 const resolutionToRepeat = {
@@ -32,23 +46,20 @@ const Bar = styled.div<{ gridResolution: GridResolutions }>`
 export default function Sequencer() {
   const [activeStep, setActiveStep] = useState('')
   const timeIds = useToneStore(state => state.activeTimeIds)
-  const tracks = useToneStore(state => state.activeTracks)
+  const activeTracks = useToneStore(state => state.activeTracks)
+  const bars = useToneStore(state => state.activeBars)
   const gridResolution = useToneStore(state => state.resolution)
-  const trackSounds = InstrumentsService.instruments.slice(0, tracks)
+  const setStep = useCallback((step: string) => setActiveStep(step), [])
 
   useEffect(() => {
     SequencerService.stepEmitter.on('step', setStep)
     return () => {
       SequencerService.stepEmitter.off('step', setStep)
     }
-  }, [])
+  }, [setStep])
 
-  const setStep = useCallback((step: string) => setActiveStep(step), [])
-
-  // clean up logic for determing individual bars
   function getBars(soundId: number) {
-    const bars = Array.from(new Set(timeIds.map(timeId => GridService.parseTimeId(timeId).bar)))
-    return bars.map((bar: number) => (
+    return Array.from(Array(bars).keys()).map((bar: number) => (
       <Bar gridResolution={gridResolution} key={bar}>
         {getToggles(
           soundId,
@@ -63,7 +74,7 @@ export default function Sequencer() {
       return (
         <Toggle 
           key={`${timeId}|${instrumentId}`}
-          // the split to remove decimal sixteenths in triplets
+          // split drops triplet sixteenth decimal
           isActive={activeStep === timeId.split(".")[0]}
           timeId={timeId}
           instrumentId={instrumentId}
@@ -74,10 +85,17 @@ export default function Sequencer() {
 
   return (
     <SequencerBox>
-      {trackSounds.map((instrument) => (
-      <Track key={instrument.id} instrument={instrument}>
-        {getBars(instrument.id)}
-      </Track>))}
+      {InstrumentsService.instruments.slice(0, activeTracks).map((instrument) => (
+        <TrackDiv key={instrument.id}>
+          <TrackHead instrument={instrument} />
+          <Grid>
+            {
+              instrument.id === InstrumentsService.overdub.id ? 
+              <DubTrack /> :
+              getBars(instrument.id)
+            }
+          </Grid>
+      </TrackDiv>))}
     </SequencerBox>
   )
 }

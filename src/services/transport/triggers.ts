@@ -23,15 +23,16 @@ function getActiveEvents() {
     const bar = useToneStore.getState().activeBars
     const allEvents = useToneStore.getState().scheduledEvents
     return allEvents.filter(event => {
-        const part = event.split('|')[0].split(':')[2];
+        const sixteenth = parseTrigger(event).timeId.split(':')[2];
         switch (resolution) {
-            case "8n": return ['0', '2'].indexOf(part) !== -1
-            case "16n": return part.indexOf(".") === -1
-            case "8t": return ['1', '2', '3'].indexOf(part) === -1
+            case "8n": return ['0', '2'].indexOf(sixteenth) !== -1 // only keep eigths
+            case "16n": return sixteenth.indexOf(".") === -1 // remove triplets
+            case "8t": return ['1', '2', '3'].indexOf(sixteenth) === -1 // remove straight 16 and 8
+            default: return true
         }
     }).filter(event => {
         const eventBar = event.split('|')[0].split(':')[0]
-        return parseInt(eventBar) < bar
+        return parseInt(eventBar) < bar // only keep active bars
     })
 }
 

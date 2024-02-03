@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components"
-import SamplerService from "../../services/pads/recorder"
-import PadService from "../../services/pads/pad";
+import SamplerService from "../../services/sampling/recorder"
+import PadService from "../../services/sampling/pad";
 import { EnvelopeParam, Instrument } from "../../services/interfaces";
 import useToneStore, { selectPadAudioUrl } from "../../store/store";
-import DrawerService from "../../services/pads/waveRender";
+import DrawerService from "../../services/sampling/waveRender";
 import InstrumentsService from "../../services/instruments";
 
 const PadBox = styled.div`
@@ -70,12 +70,14 @@ const WaveViewPort = styled.div`
   canvas {
     position: absolute;
   }
-  .control {
-    z-index: 2;
-  }
   & .edit {
     fill-opacity: 0;
   }
+`
+
+const Wave = styled.div`
+  width: 100%;
+  height: 100%;
 `
 
 const Title = styled.div<{color: string}>`
@@ -117,7 +119,7 @@ const paramConfigObj: {[key: string]: ParamCfg} = {
 const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
 
 export default function Pad(props: {pad: Instrument}) {
-    const elementRef = useRef(null)
+    const elementRef = useRef<HTMLDivElement>(null)
     const audioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.pad.id), [props.pad.id]))
     const [padParams, setPadParams] = useToneStore(state => [state.padParams[props.pad.id], state.setPadParams])
     const [recording, setRecording] = useState(false)
@@ -175,9 +177,11 @@ export default function Pad(props: {pad: Instrument}) {
         )}
         <RecordingBox onMouseDown={() => recordOrPlay()}>
           <Title color={props.pad.name}></Title>
-          <WaveViewPort ref={elementRef}>
-            <canvas className="wave" height="85px" width="100px"></canvas>
-            <canvas className="edit" height="85px" width="100px"></canvas>
+          <WaveViewPort>
+            <Wave ref={elementRef}>
+              <canvas className="wave" height="0px" width="0px"></canvas>
+              <canvas className="edit" height="0px" width="0px"></canvas>
+            </Wave>
           </WaveViewPort>
         </RecordingBox>
 

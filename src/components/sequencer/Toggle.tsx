@@ -10,8 +10,8 @@ let colors = {
 }
 
 const StepMargin = styled.div`
-  margin: 2px;
-  height: 54px;
+  margin-right: 4px;
+  height: 100%;
   position: relative;
   cursor: default;
 `
@@ -55,7 +55,8 @@ interface ToggleProps {
 export default function Toggle(props: ToggleProps) {
   const {bar, quarter, sixteenth} = GridService.parseTimeId(props.timeId)
   const guideName = props.instrumentId === 0 ? GridService.timeIdToGuideName(props.timeId) : null;
-  const toggleScheduledEvent = useToneStore(state => state.toggleScheduledEvent)
+  const addTriggerEvent = useToneStore(state => state.addTriggerEvent)
+  const removeTriggerEvent = useToneStore(state => state.removeTriggerEvent)
   const scheduled = useToneStore(state => 
     state.scheduledEvents.find(e => e.slice(0, -2) === `${props.timeId}|${props.instrumentId}`)
   ) 
@@ -66,7 +67,8 @@ export default function Toggle(props: ToggleProps) {
   }
 
   function toggleStep(emphasized: boolean) {
-    toggleScheduledEvent(props.timeId, props.instrumentId, emphasized)
+    scheduled ? removeTriggerEvent(props.timeId, props.instrumentId) 
+      : addTriggerEvent(props.timeId, props.instrumentId, emphasized)
   }
 
   return (

@@ -3,7 +3,7 @@ import SequencerService from '../../services/transport/sequencer'
 import useToneStore from '../../store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons';
-import PadService from '../../services/pads/pad';
+import PadService from '../../services/sampling/pad';
 
 const ControlBox = styled.div`
   margin-bottom: 2.5rem;
