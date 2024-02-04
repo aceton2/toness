@@ -6,6 +6,7 @@ import { EnvelopeParam, Instrument } from "../../services/core/interfaces";
 import useToneStore, { selectPadAudioUrl } from "../../store/store";
 import DrawerService from "../../services/sampling/waveRender";
 import InstrumentsService from "../../services/core/instruments";
+import useWindowResize from "../useWindowResize";
 
 const PadBox = styled.div`
   position: relative;
@@ -123,6 +124,7 @@ export default function Pad(props: {pad: Instrument}) {
     const audioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.pad.id), [props.pad.id]))
     const [padParams, setPadParams] = useToneStore(state => [state.instrumentParams[props.pad.id], state.setInstrumentParams])
     const [recording, setRecording] = useState(false)
+    const windowSize = useWindowResize()
 
     const startRecording = useCallback(() => {
       if(!elementRef.current) return
@@ -135,12 +137,12 @@ export default function Pad(props: {pad: Instrument}) {
     useEffect(() => {
       if(!elementRef.current) return
       DrawerService.drawAudioUrl(elementRef.current, audioUrl)
-    }, [elementRef, audioUrl])
+    }, [elementRef, audioUrl, windowSize])
 
     useEffect(() => {
       if(!elementRef.current) return
       DrawerService.updateEditLayer(padParams, elementRef.current)
-    }, [elementRef, padParams])
+    }, [elementRef, padParams, windowSize])
 
     function recordOrPlay() {
       const trigger = InstrumentsService.getPlayInstrumentTrigger(props.pad.id, true)

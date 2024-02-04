@@ -4,6 +4,7 @@ import useToneStore from "../../store/store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import DrawerService from "../../services/sampling/waveRender";
 import { Transport } from "tone";
+import useWindowResize from "../useWindowResize";
 
 const WaveTrack = styled.div<{activeBars: number}>`
     position: relative;
@@ -48,11 +49,12 @@ export default function DubTrack() {
     const overdubParam = useToneStore(state => state.instrumentParams[InstrumentsService.overdub.id])
     const [playing, setPlaying] = useState(false)
     const setPlayStatus = useCallback(() => setPlaying(Transport.state === "started"), [setPlaying])
+    const windowSize = useWindowResize()
 
     useEffect(() => {
         if(!elementRef.current) return
         DrawerService.drawAudioUrl(elementRef.current, overdubParam.audioUrl)
-    }, [elementRef, overdubParam])
+    }, [elementRef, overdubParam, windowSize])
 
     useEffect(() => {
         Transport.on("start", setPlayStatus)
