@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import styled from 'styled-components'
 import useToneStore, { selectPadAudioUrl, selectTrackSetting } from '../../store/store'
-import { Instrument } from '../../services/interfaces'
+import { Instrument } from '../../services/core/interfaces'
 
 const Mask = styled.div`
   position: absolute;

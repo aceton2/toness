@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components"
-import SamplerService from "../../services/sampling/recorder"
-import PadService from "../../services/sampling/pad";
-import { EnvelopeParam, Instrument } from "../../services/interfaces";
+import RecorderService from "../../services/sampling/recorder"
+import SampleService from "../../services/sampling/sample";
+import { EnvelopeParam, Instrument } from "../../services/core/interfaces";
 import useToneStore, { selectPadAudioUrl } from "../../store/store";
 import DrawerService from "../../services/sampling/waveRender";
-import InstrumentsService from "../../services/instruments";
+import InstrumentsService from "../../services/core/instruments";
 
 const PadBox = styled.div`
   position: relative;
@@ -121,13 +121,13 @@ const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
 export default function Pad(props: {pad: Instrument}) {
     const elementRef = useRef<HTMLDivElement>(null)
     const audioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.pad.id), [props.pad.id]))
-    const [padParams, setPadParams] = useToneStore(state => [state.padParams[props.pad.id], state.setPadParams])
+    const [padParams, setPadParams] = useToneStore(state => [state.instrumentParams[props.pad.id], state.setInstrumentParams])
     const [recording, setRecording] = useState(false)
 
     const startRecording = useCallback(() => {
       if(!elementRef.current) return
       DrawerService.clearAllCanvas(elementRef.current)
-      SamplerService.startRecorder(props.pad.id, elementRef.current)
+      RecorderService.startRecorder(props.pad.id, elementRef.current)
       setRecording(true)
       setPadParams(props.pad.id)
     }, [props.pad.id, setPadParams])
@@ -149,7 +149,7 @@ export default function Pad(props: {pad: Instrument}) {
 
     function stopRecording() {
       if(recording) {
-        SamplerService.stopRecorder()
+        RecorderService.stopRecorder()
         setRecording(false)
       }
     }
@@ -159,7 +159,7 @@ export default function Pad(props: {pad: Instrument}) {
     }
 
     function clearPad() {
-      PadService.resetPad(props.pad.id)
+      SampleService.removeSample(props.pad.id)
     }
 
     return (

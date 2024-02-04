@@ -4,7 +4,7 @@ import SequencerService from '../../services/transport/sequencer'
 import Toggle from './Toggle'
 import TrackHead from './TrackHead'
 import useToneStore, { GridResolutions } from '../../store/store'
-import InstrumentsService from '../../services/instruments'
+import InstrumentsService from '../../services/core/instruments'
 import GridService from '../../services/transport/grid'
 import DubTrack from './DubTrack'
 

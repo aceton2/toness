@@ -1,5 +1,5 @@
 import { ToneAudioBuffer } from 'tone'
-import { PadParam, EnvelopeParam } from '../interfaces'
+import { InstrumentParam, EnvelopeParam } from '../core/interfaces'
 
 function clearAllCanvas(parentEl: Element) {
   clearSample(parentEl, 'wave')
@@ -12,7 +12,7 @@ function clearSample(parentEl: Element, className: 'wave' | 'edit') {
   canvas.width = 0
 }
 
-function updateEditLayer(params: PadParam, parentEl: Element) {
+function updateEditLayer(params: InstrumentParam, parentEl: Element) {
 
   if (!params || !params.custom) { return }
 

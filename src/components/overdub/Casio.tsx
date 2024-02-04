@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import InstrumentsService from "../../services/instruments";
+import InstrumentsService from "../../services/core/instruments";
 import OverdubService from '../../services/sampling/overdub';
 
 const chord = ["C3", "E3", "G3", "B3"]

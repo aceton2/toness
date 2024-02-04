@@ -1,5 +1,5 @@
-import PadService from './pad'
-import InstrumentsService from '../instruments';
+import PadService from './sample';
+import InstrumentsService from '../core/instruments';
 import BlobService from './blobStore';
 
 // RECORDER

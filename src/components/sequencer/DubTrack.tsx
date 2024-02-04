@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import InstrumentsService from "../../services/instruments";
+import InstrumentsService from "../../services/core/instruments";
 import useToneStore from "../../store/store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import DrawerService from "../../services/sampling/waveRender";
@@ -45,7 +45,7 @@ export default function DubTrack() {
     const elementRef = useRef<HTMLDivElement>(null)
     const activeBars = useToneStore(state => state.activeBars)
     const bpm = useToneStore(state => state.bpm)
-    const overdubParam = useToneStore(state => state.padParams[InstrumentsService.overdub.id])
+    const overdubParam = useToneStore(state => state.instrumentParams[InstrumentsService.overdub.id])
     const [playing, setPlaying] = useState(false)
     const setPlayStatus = useCallback(() => setPlaying(Transport.state === "started"), [setPlaying])
 

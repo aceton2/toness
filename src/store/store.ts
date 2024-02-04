@@ -1,10 +1,10 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
-import { PadParams, PadParam, TrackParams, TrackParam, EnvelopeParam } from '../services/interfaces'
-import InstrumentsService from '../services/instruments'
+import { InstrumentParams, InstrumentParam, TrackParams, TrackParam, EnvelopeParam } from '../services/core/interfaces'
+import InstrumentsService from '../services/core/instruments'
 
 export type GridResolutions = '16n' | '8n' | '8t'
-export const STORE_VERSION = 1.2
+export const STORE_VERSION = 1.4
 const TRACKS_IDS = InstrumentsService.instruments.map(instrument => instrument.id)
 
 interface TonesState {
@@ -14,7 +14,7 @@ interface TonesState {
   activeBars: number,
   bpm: number,
   resolution: GridResolutions,
-  padParams: PadParams,
+  instrumentParams: InstrumentParams,
   trackSettings: TrackParams,
   resetSequencer: () => void,
   changeBars: (bars: number) => void,
@@ -26,7 +26,7 @@ interface TonesState {
   setBpm: (bpm: string) => void,
   toggleResolution: (res: GridResolutions) => void,
   setActiveTimeIds: (slots: Array<string>) => void,
-  setPadParams: (id: number, params?: any) => void,
+  setInstrumentParams: (id: number, params?: any) => void,
   setTrackVolume: (id: number, vol: number) => void,
   toggleTrackMute: (id: number) => void,
   resetStore: () => void,
@@ -36,7 +36,7 @@ interface TonesState {
 
 const defaultBPM = 124;
 
-const defaultPad: PadParam = {
+const defaultInstrument: InstrumentParam = {
   [EnvelopeParam.duration]: 99,
   [EnvelopeParam.fadeOut]: 20,
   [EnvelopeParam.offset]: 0,
@@ -44,7 +44,7 @@ const defaultPad: PadParam = {
   [EnvelopeParam.pitchShift]: 0,
   [EnvelopeParam.amplitude]: 0,
   custom: false,
-  audioUrl: undefined
+  audioUrl: undefined // this means the audio is loaded into the player. change this to audio loaded
 }
 
 const defaultTrack: TrackParam = {
@@ -55,21 +55,25 @@ const defaultTrack: TrackParam = {
 const defaultTrackParams = TRACKS_IDS.reduce<TrackParams>(
   (acc: TrackParams, curr) => (acc[curr] = { ...defaultTrack }, acc), {}
 );
-const defaultPadParams = TRACKS_IDS.reduce<PadParams>(
-  (acc: PadParams, curr) => (acc[curr] = { ...defaultPad }, acc as PadParams), {}
+const defaultInstrumentParams = TRACKS_IDS.reduce<InstrumentParams>(
+  (acc: InstrumentParams, curr) => (acc[curr] = { ...defaultInstrument }, acc as InstrumentParams), {}
 );
+
+const cleanSequencer = {
+  activeTracks: 1, // SEQUENCER -> for setting mutes * WIDGET -> for setting track visibility
+  activeBars: 1, // SEQUENCER -> for setting active slots
+  resolution: '8n' as GridResolutions,  // SEQUENCER -> for setting active slots * CONTROLS -> for button
+  scheduledEvents: [], // SEQUENCER -> for transport sync * TOGGLE -> for step styling
+  trackSettings: defaultTrackParams, // TONER -> for setting volume mutes * TRACK -> for showing state
+}
 
 const initialState = {
   storeVersion: STORE_VERSION,
   // listeners listed in comment
   activeTimeIds: [], // WIDGET -> for bar generation
-  activeTracks: 1, // SEQUENCER -> for setting mutes * WIDGET -> for setting track visibility
-  activeBars: 2, // SEQUENCER -> for setting active slots
   bpm: defaultBPM, // SEQUENCER -> for setting bpm * TEMPO -> for button
-  resolution: '8n' as GridResolutions,  // SEQUENCER -> for setting active slots * CONTROLS -> for button
-  scheduledEvents: [], // SEQUENCER -> for transport sync * TOGGLE -> for step styling
-  padParams: defaultPadParams, // TONER -> for setting play params * PAD -> for setting controls
-  trackSettings: defaultTrackParams, // TONER -> for setting volume mutes * TRACK -> for showing state
+  instrumentParams: defaultInstrumentParams, // TONER -> for setting play params * PAD -> for setting controls
+  ...cleanSequencer
 }
 
 
@@ -80,12 +84,10 @@ const useToneStore = create<TonesState>()(
         (set, get) => ({
           ...initialState,
           resetStore: () => set(state => initialState, true, "resetStore"),
-          setPadParams: (padName, params) => set(state => (
-            getNewParams(state.padParams, padName, params)
-          ), false, "setPadParams"),
-          resetSequencer: () => set(state => (
-            { activeBars: 1, activeTracks: 1, scheduledEvents: [], bpm: defaultBPM, trackSettings: defaultTrackParams }
-          ), false, "resetSequencer"),
+          resetSequencer: () => set(state => ({ ...cleanSequencer }), false, "resetSequencer"),
+          setInstrumentParams: (padName, params) => set(state => (
+            getNewParams(state.instrumentParams, padName, params)
+          ), false, "setInstrumentParams"),
           changeBars: (bars: number) => set(state => ({ activeBars: getNewBars(state.activeBars, bars) })),
           changeTracks: (tracks: number) => set(state => ({ activeTracks: getNewTracks(state.activeTracks, tracks) })),
           setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
@@ -120,10 +122,11 @@ const useToneStore = create<TonesState>()(
   )
 )
 
-function getNewParams(existingParams: PadParams, padName: number, params?: any) {
-  // if params is empty pad is reset
-  const newParams = { ...existingParams, [padName]: { ...existingParams[padName], ...(params || defaultPad) } }
-  return { padParams: newParams }
+function getNewParams(existingParams: InstrumentParams, id: number, params?: any) {
+  // TODO should this remove schedules if params are reset?
+  // if params is empty defaultInstrument params are set
+  const newParam = { [id]: { ...existingParams[id], ...(params || defaultInstrument) } }
+  return { instrumentParams: { ...existingParams, ...newParam } }
 }
 
 function getNewBars(activeBars: number, change: number): number {
@@ -137,7 +140,7 @@ function getNewTracks(activeTracks: number, change: number): number {
 }
 
 export const selectPadAudioUrl = (state: TonesState, id: number) => {
-  const param = state.padParams[id]
+  const param = state.instrumentParams[id]
   return param?.audioUrl
 }
 

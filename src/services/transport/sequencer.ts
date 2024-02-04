@@ -1,10 +1,9 @@
 import { Transport, context, start, Loop, Emitter } from 'tone'
-import PadService from '../sampling/pad';
-import { TrackParams } from '../interfaces'
 import ToneStore from '../../store/store';
-import InstrumentsService from '../instruments';
+import InstrumentsService from '../core/instruments';
 import TriggersService from './triggers';
 import GridService from './grid';
+import PadService from '../sampling/sample';
 
 // SETTING SYNCS
 
@@ -19,7 +18,8 @@ function syncBpm(val: number): void {
   Transport.bpm.value = val
 }
 
-function syncTrackSettings(trackSettings: TrackParams) {
+function syncTrackSettings() {
+  const trackSettings = ToneStore.getState().trackSettings
   InstrumentsService.instruments.forEach(i => {
     i.channelVolume.volume.value = -12 * (100 - trackSettings[i.id].volume) / 100
     i.channelVolume.mute = trackSettings[i.id].mute
@@ -87,6 +87,7 @@ function initSequencer() {
   TriggersService.scheduleActiveTriggers()
 
   syncActiveTracks()
+  syncTrackSettings()
   syncBpm(ToneStore.getState().bpm)
 
   unSubs = [

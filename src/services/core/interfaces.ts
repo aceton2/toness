@@ -11,21 +11,33 @@ import { PitchShift, Player, Volume } from 'tone'
  */
 
 // INSTRUMENTS
-export interface Instrument extends TriggerEnvelop {
-  id: number
-  name: string
-  source?: string
-  playHigh?: Player
-  playLow?: Player
-  channelVolume: Volume
+
+export enum InstrumentType {
+  stock, // always playable, source is never removed
+  pad, // playable only when a source is added
+  overdub, // plays over full loop. always triggered on 0:0:0 (plays only when source added)
 }
 
-interface TriggerEnvelop {
+export interface InstrumentDefn {
+  name: string
+  type: InstrumentType
+  source?: string
+}
+
+export interface Instrument extends TriggerEnvelop, InstrumentDefn {
+  id: number
+  channelVolume: Volume
+  sampleVolume: Volume
+  playHigh?: Player
+  playLow?: Player
+}
+
+export interface TriggerEnvelop {
+  pitchShift: PitchShift
   duration?: number
   offset?: number
   fadeIn?: number
   fadeOut?: number
-  pitchShift?: PitchShift
 }
 
 // PARAMS
@@ -44,7 +56,7 @@ export enum EnvelopeParam {
   amplitude
 }
 
-export interface PadParam {
+export interface InstrumentParam {
   [EnvelopeParam.duration]: number,
   [EnvelopeParam.fadeOut]: number,
   [EnvelopeParam.offset]: number,
@@ -57,8 +69,8 @@ export interface PadParam {
 
 // STORE INTERFACES
 
-export interface PadParams {
-  [id: number]: PadParam
+export interface InstrumentParams {
+  [id: number]: InstrumentParam
 };
 
 export interface TrackParams {

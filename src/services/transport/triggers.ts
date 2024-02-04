@@ -1,6 +1,6 @@
 import { Transport } from "tone";
 import useToneStore from "../../store/store";
-import InstrumentsService from "../instruments";
+import InstrumentsService from "../core/instruments";
 
 const triggerEventIds: { [key: string]: number } = {} // the key is a scheduledEvent
 

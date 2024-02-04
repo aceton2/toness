@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import Pad from './Pad'
-import InstrumentsService from '../../services/instruments'
+import InstrumentsService from '../../services/core/instruments'
 
 const Sampler = styled.div`
     display: grid;

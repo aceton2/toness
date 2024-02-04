@@ -3,7 +3,8 @@ import SequencerService from '../../services/transport/sequencer'
 import useToneStore from '../../store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons';
-import PadService from '../../services/sampling/pad';
+import InstrumentsService from '../../services/core/instruments';
+import SampleService from '../../services/sampling/sample';
 
 const ControlBox = styled.div`
   margin-bottom: 2.5rem;
@@ -76,7 +77,9 @@ export default function Controls() {
 
   function clearAll() {
     resetSequencer()
-    PadService.clearPads()
+    InstrumentsService.pads.forEach(i => {
+      SampleService.removeSample(i.id)
+  })
   }
 
   return (
@@ -85,7 +88,7 @@ export default function Controls() {
 
       <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> <span></span><FontAwesomeIcon icon={faStop}/></button>
       <button onClick={clearSchedule}>X STEPS</button>
-      <button onClick={clearAll}>RESET</button>
+      <button onClick={resetSequencer}>RESET</button>
 
       <Stretch />
 
