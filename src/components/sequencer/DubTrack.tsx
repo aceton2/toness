@@ -71,7 +71,9 @@ export default function DubTrack() {
                 <canvas className="wave" height="0px" width="0px"></canvas>
                 <canvas className="edit" height="0px" width="0px"></canvas>
             </Wave>
-            { playing && <TransportPosition duration={getAnimationDuration(activeBars, bpm)} /> }
+            { playing && overdubParam.audioUrl && 
+                <TransportPosition duration={getAnimationDuration(activeBars, bpm)} /> 
+            }
         </WaveTrack>
     )
 }

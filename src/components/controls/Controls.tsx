@@ -6,6 +6,8 @@ import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons';
 import InstrumentsService from '../../services/core/instruments';
 import SampleService from '../../services/sampling/sample';
 
+import { shallow } from 'zustand/shallow'
+
 const ControlBox = styled.div`
   margin-bottom: 2.5rem;
   background: var(--off-color-1);
@@ -59,6 +61,21 @@ const Floater = styled.div`
     padding: 1px;
 `
 
+const PlaybackSelect = styled.label`
+  color: black;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 2px 0px;
+  select {
+    margin-left: 5px;
+    background: var(--off-color-1);
+    border: 2px solid var(--off-color-2);
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+`
+
 export default function Controls() {
   const changeBars = useToneStore(state => state.changeBars)
   const toggleResolution = useToneStore(state => state.toggleResolution)
@@ -66,6 +83,7 @@ export default function Controls() {
   const changeTracks = useToneStore(state => state.changeTracks)
   const resetSequencer = useToneStore(state => state.resetSequencer)
   const clearSchedule = useToneStore(state => state.clearSchedule)
+  const [playback, setPlayback] = useToneStore(state => [state.playbackSample, state.setPlaybackSample], shallow)
 
   function toggleTransporter() {
     SequencerService.toggleTransport()
@@ -79,7 +97,7 @@ export default function Controls() {
     resetSequencer()
     InstrumentsService.pads.forEach(i => {
       SampleService.removeSample(i.id)
-  })
+    })
   }
 
   return (
@@ -88,7 +106,7 @@ export default function Controls() {
 
       <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> <span></span><FontAwesomeIcon icon={faStop}/></button>
       <button onClick={clearSchedule}>X STEPS</button>
-      <button onClick={resetSequencer}>RESET</button>
+      <button onClick={clearAll}>RESET</button>
 
       <Stretch />
 
@@ -97,8 +115,19 @@ export default function Controls() {
       <button onClick={() => changeBars(1)}>+ BAR</button>
       <button onClick={() => changeBars(-1)}>- BAR</button>
       <Stretch />
+
+      <PlaybackSelect>
+        Playback:
+        <select onChange={e => setPlayback(parseInt(e.target.value))} defaultValue={playback}>
+          <option value={-1}>Free</option>
+          {InstrumentsService.playbacks.map((pb, index) => 
+            <option value={index}>{pb.name}</option>
+          )}
+        </select>
+      </PlaybackSelect>
+      <Stretch />
      
-      <SelectLabel>Select Grid:</SelectLabel>
+      
       <MultiSelect>
         <div className={gridResolution === '8n' ? 'active' : ''} onClick={e => toggleResolution('8n')}>8ths</div>
         <div className={gridResolution === '8t' ? 'active' : ''} onClick={e => toggleResolution('8t')}>Triplets</div>

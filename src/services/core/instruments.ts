@@ -43,6 +43,10 @@ const instruments: Array<Instrument> = instDef.map((defn, index) => {
 // PLAYABLE INST
 
 const casio = new PolySynth().fan(keyboardRecorder, masterVolume)
+const playbacks = [
+    { name: "C minor", player: new Player('sounds/playCm_70.mp3').fan(masterVolume), bpm: 70, offset: -100 },
+    // { name: "F major", player: new Player('sounds/playF_90.mp3').fan(masterVolume), bpm: 90 }
+]
 
 // TRIGGER 
 
@@ -109,6 +113,7 @@ const InstrumentsService = {
     overdub: instruments.filter(i => i.type === InstrumentType.overdub)[0],
     instruments,
     casio,
+    playbacks,
     connectInstruments,
     getPlayInstrumentTrigger,
     // nodes

@@ -4,7 +4,7 @@ import { InstrumentParams, InstrumentParam, TrackParams, TrackParam, EnvelopePar
 import InstrumentsService from '../services/core/instruments'
 
 export type GridResolutions = '16n' | '8n' | '8t'
-export const STORE_VERSION = 1.4
+export const STORE_VERSION = 1.5
 const TRACKS_IDS = InstrumentsService.instruments.map(instrument => instrument.id)
 
 interface TonesState {
@@ -16,6 +16,8 @@ interface TonesState {
   resolution: GridResolutions,
   instrumentParams: InstrumentParams,
   trackSettings: TrackParams,
+  playbackSample: number,
+  setPlaybackSample: (s: number) => void,
   resetSequencer: () => void,
   changeBars: (bars: number) => void,
   changeTracks: (tracks: number) => void,
@@ -73,6 +75,7 @@ const initialState = {
   activeTimeIds: [], // WIDGET -> for bar generation
   bpm: defaultBPM, // SEQUENCER -> for setting bpm * TEMPO -> for button
   instrumentParams: defaultInstrumentParams, // TONER -> for setting play params * PAD -> for setting controls
+  playbackSample: -1, // which playback should play
   ...cleanSequencer
 }
 
@@ -114,6 +117,12 @@ const useToneStore = create<TonesState>()(
               scheduledEvents: state.scheduledEvents.filter(sEvent => sEvent !== existingTrigger)
             }
           }),
+          setPlaybackSample: (s: number) => {
+            if (s > -1) {
+              get().setBpm(InstrumentsService.playbacks[s].bpm.toString())
+            }
+            set(state => ({ playbackSample: s }), false, "setPlaybackSample");
+          }
         })
       ),
       { name: 'toness' }
@@ -136,7 +145,7 @@ function getNewBars(activeBars: number, change: number): number {
 
 function getNewTracks(activeTracks: number, change: number): number {
   const newTracks = activeTracks + change;
-  return (newTracks > 0 && newTracks < 9) ? newTracks : activeTracks
+  return (newTracks > 0 && newTracks <= InstrumentsService.instruments.length) ? newTracks : activeTracks
 }
 
 export const selectPadAudioUrl = (state: TonesState, id: number) => {

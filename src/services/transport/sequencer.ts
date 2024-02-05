@@ -4,6 +4,7 @@ import InstrumentsService from '../core/instruments';
 import TriggersService from './triggers';
 import GridService from './grid';
 import PadService from '../sampling/sample';
+import useToneStore from '../../store/store';
 
 // SETTING SYNCS
 
@@ -33,12 +34,22 @@ function clearTransport() {
 }
 
 function toggleTransport(): void {
-  Transport.state === 'stopped' ? startTransport() : Transport.stop()
+  Transport.state === 'stopped' ? startTransport() : stopTransport()
+}
+
+function stopTransport() {
+  InstrumentsService.playbacks.forEach(pb => pb.player.stop())
+  Transport.stop()
 }
 
 async function startTransport() {
   if (context.state !== 'running') {
     await start()
+  }
+  const playback = useToneStore.getState().playbackSample
+  if (playback !== -1) {
+    const i = InstrumentsService.playbacks[playback]
+    i.player.start(undefined, i.offset)
   }
   Transport.loop = true
   Transport.start()

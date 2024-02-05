@@ -15,7 +15,7 @@ const PadBox = styled.div`
 `
 
 const RecordingBox = styled.div`
-  height: 120px;
+  height: 90px;
   background: var(--off-color-2);
   border-radius: 5px 5px 0px 0px;
 

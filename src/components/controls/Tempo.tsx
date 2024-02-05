@@ -20,6 +20,7 @@ const TempoDisplay = styled.div`
 
 export default function Tempo() {
     const [bpm, setBpm] = useToneStore(state => [state.bpm, state.setBpm])
+    const playback = useToneStore(state => state.playbackSample)
 
     return (
         <TempoBox>
@@ -33,6 +34,7 @@ export default function Tempo() {
                     max="241"
                     step="1"
                     value={bpm}
+                    disabled={playback > -1}
                     onChange={e => setBpm(e.target.value)}
                 />
             </div>
