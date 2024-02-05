@@ -42,28 +42,45 @@ function getAnimationDuration(bars: number, bpm: number) {
     return msInBeat * 4 * bars
 } 
 
+interface CursorProps {
+    showCursor: Boolean, 
+    activeBars: number
+}
+
+function PlayCursor({showCursor, activeBars}: CursorProps ) {
+    const bpm = useToneStore(state => state.bpm)
+    const [playing, setPlaying] = useState(false)
+    const startCursor = useCallback(() => setPlaying(true), [setPlaying])
+    const stopCursor = useCallback(() => setPlaying(false), [setPlaying])
+
+    useEffect(() => {
+        stopCursor()
+    }, [activeBars])
+
+    useEffect(() => {
+        const start = Transport.schedule(startCursor, "0:0:0")
+        Transport.on("stop", stopCursor)
+        return () => {
+            Transport.clear(start)
+            Transport.off("stop", stopCursor)
+        }
+    }, [])
+
+    return (playing && showCursor) ?
+        <TransportPosition duration={getAnimationDuration(activeBars, bpm)} /> :
+        <></>
+}
+
 export default function DubTrack() {
     const elementRef = useRef<HTMLDivElement>(null)
-    const activeBars = useToneStore(state => state.activeBars)
-    const bpm = useToneStore(state => state.bpm)
     const overdubParam = useToneStore(state => state.instrumentParams[InstrumentsService.overdub.id])
-    const [playing, setPlaying] = useState(false)
-    const setPlayStatus = useCallback(() => setPlaying(Transport.state === "started"), [setPlaying])
+    const activeBars = useToneStore(state => state.activeBars)
     const windowSize = useWindowResize()
 
     useEffect(() => {
         if(!elementRef.current) return
         DrawerService.drawAudioUrl(elementRef.current, overdubParam.audioUrl)
     }, [elementRef, overdubParam, windowSize])
-
-    useEffect(() => {
-        Transport.on("start", setPlayStatus)
-        Transport.on("stop", setPlayStatus)
-        return () => {
-            Transport.off("start", setPlayStatus)
-            Transport.off("stop", setPlayStatus)
-        }
-    })
       
     return (
         <WaveTrack activeBars={activeBars}>
@@ -71,9 +88,7 @@ export default function DubTrack() {
                 <canvas className="wave" height="0px" width="0px"></canvas>
                 <canvas className="edit" height="0px" width="0px"></canvas>
             </Wave>
-            { playing && overdubParam.audioUrl && 
-                <TransportPosition duration={getAnimationDuration(activeBars, bpm)} /> 
-            }
+            <PlayCursor showCursor={!!overdubParam.audioUrl} activeBars={activeBars}/>
         </WaveTrack>
     )
 }
