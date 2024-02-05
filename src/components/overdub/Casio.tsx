@@ -16,10 +16,19 @@ function chordRelease(chord: "CM7" | "Db7") {
 }
 
 const CasioBox = styled.div`
-    margin-top: 10px;
     display: flex;
     justify-content: end;
+    background-color: var(--wisteria);
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
 `
+
+const Play = styled.button`
+    background: var(--off-color-2);
+    &:hover {
+        background: var(--panel-color-1)
+    }`
 
 const ControlsBox = styled.div`
     button {
@@ -34,8 +43,8 @@ export default function Casio() {
     const overdubActive = InstrumentsService.instruments.slice(0, activeTracks).find(i => i.name === "overdub")
     return <>
     { overdubActive && <CasioBox>
-            <button onMouseDown={() => chordPress("CM7")} onMouseUp={() => chordRelease("CM7")}>CM7</button>
-            <button onMouseDown={() => chordPress("Db7")} onMouseUp={() => chordRelease("Db7")}>Db7</button>
+            <Play onMouseDown={() => chordPress("CM7")} onMouseUp={() => chordRelease("CM7")}>CM7</Play>
+            <Play onMouseDown={() => chordPress("Db7")} onMouseUp={() => chordRelease("Db7")}>Db7</Play>
             <ControlsBox>
                 <button onClick={OverdubService.recordOverdub}>Record</button>
                 <button onClick={OverdubService.deleteOverdub}>Delete</button>

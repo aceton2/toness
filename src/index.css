@@ -10,7 +10,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  background-size: 500px;
+  height: 100vh;
+  max-height: 700px;
   background: radial-gradient(var(--background-inner), var(--background-mid), var(--background-outer));
 
   /* original pad colors */
