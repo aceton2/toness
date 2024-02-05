@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import Pad from './Pad'
 import InstrumentsService from '../../services/core/instruments'
+import Casio from '../overdub/Casio'
 
 const Sampler = styled.div`
     display: grid;
@@ -25,6 +26,7 @@ export default function SamplerPanel() {
     <Sampler>
         <Floater>SAMPLER</Floater>
         { InstrumentsService.pads.map(pad => (<Pad key={pad.name} pad={pad}/>)) }
+        <Casio />
     </Sampler>
     )
 }

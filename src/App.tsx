@@ -38,7 +38,6 @@ export default function App() {
           <SamplerPanel />
           <Controls />
           <Widget/>
-          <Casio />
         </>
         }
       </MainFrame>
