@@ -18,6 +18,7 @@ function updateEditLayer(params: InstrumentParam, parentEl: Element) {
 
   const canvas = parentEl.querySelector('.edit') as HTMLCanvasElement
   if (!canvas) return;
+  canvas.height = parentEl.clientHeight;
   canvas.width = parentEl.clientWidth;
 
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
