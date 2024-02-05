@@ -38,6 +38,15 @@ function syncSwing() {
   Transport.swing = useToneStore.getState().swing / 100
 }
 
+function syncPlaybackSample() {
+  const playback = useToneStore.getState().playbackSample
+  InstrumentsService.playbacks.forEach(pb => pb.player.stop())
+  if (playback !== -1) {
+    const i = InstrumentsService.playbacks[playback]
+    Transport.scheduleOnce((time) => i.player.start(time, i.offset), "0:0:0")
+  }
+}
+
 function toggleTransport(): void {
   Transport.state === 'stopped' ? startTransport() : stopTransport()
 }
@@ -51,11 +60,7 @@ async function startTransport() {
   if (context.state !== 'running') {
     await start()
   }
-  const playback = useToneStore.getState().playbackSample
-  if (playback !== -1) {
-    const i = InstrumentsService.playbacks[playback]
-    i.player.start(undefined, i.offset)
-  }
+  syncPlaybackSample()
   Transport.loop = true
   Transport.start()
 }
@@ -112,6 +117,7 @@ function initSequencer() {
     ToneStore.subscribe((state) => state.trackSettings, syncTrackSettings),
     ToneStore.subscribe((state) => state.resolution, syncStepEmitter),
     ToneStore.subscribe((state) => state.swing, syncSwing),
+    ToneStore.subscribe((state) => state.playbackSample, syncPlaybackSample),
     // visual grid
     ToneStore.subscribe((state) => state.activeBars, GridService.setGridTimeIds),
     ToneStore.subscribe((state) => state.resolution, GridService.setGridTimeIds),
