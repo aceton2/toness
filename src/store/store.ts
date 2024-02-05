@@ -17,6 +17,8 @@ interface TonesState {
   instrumentParams: InstrumentParams,
   trackSettings: TrackParams,
   playbackSample: number,
+  swing: number,
+  setSwing: (swing: number) => void,
   setPlaybackSample: (s: number) => void,
   resetSequencer: () => void,
   changeBars: (bars: number) => void,
@@ -74,6 +76,7 @@ const initialState = {
   // listeners listed in comment
   activeTimeIds: [], // WIDGET -> for bar generation
   bpm: defaultBPM, // SEQUENCER -> for setting bpm * TEMPO -> for button
+  swing: 0,
   instrumentParams: defaultInstrumentParams, // TONER -> for setting play params * PAD -> for setting controls
   playbackSample: -1, // which playback should play
   ...cleanSequencer
@@ -94,6 +97,7 @@ const useToneStore = create<TonesState>()(
           changeBars: (bars: number) => set(state => ({ activeBars: getNewBars(state.activeBars, bars) })),
           changeTracks: (tracks: number) => set(state => ({ activeTracks: getNewTracks(state.activeTracks, tracks) })),
           setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
+          setSwing: (swing: number) => set(state => ({ swing }), false, "setSwing"),
           setActiveTimeIds: (timeIds: Array<string>) => set(state => (
             { activeTimeIds: timeIds }
           ), false, "setActiveTimeIds"),

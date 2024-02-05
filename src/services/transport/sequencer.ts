@@ -31,6 +31,11 @@ function syncTrackSettings() {
 
 function clearTransport() {
   Transport.cancel()
+  syncSwing()
+}
+
+function syncSwing() {
+  Transport.swing = useToneStore.getState().swing / 100
 }
 
 function toggleTransport(): void {
@@ -106,6 +111,7 @@ function initSequencer() {
     ToneStore.subscribe((state) => state.bpm, syncBpm),
     ToneStore.subscribe((state) => state.trackSettings, syncTrackSettings),
     ToneStore.subscribe((state) => state.resolution, syncStepEmitter),
+    ToneStore.subscribe((state) => state.swing, syncSwing),
     // visual grid
     ToneStore.subscribe((state) => state.activeBars, GridService.setGridTimeIds),
     ToneStore.subscribe((state) => state.resolution, GridService.setGridTimeIds),

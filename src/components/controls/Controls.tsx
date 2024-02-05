@@ -121,7 +121,7 @@ export default function Controls() {
         <select onChange={e => setPlayback(parseInt(e.target.value))} defaultValue={playback}>
           <option value={-1}>Free</option>
           {InstrumentsService.playbacks.map((pb, index) => 
-            <option value={index}>{pb.name}</option>
+            <option key={pb.name} value={index}>{pb.name}</option>
           )}
         </select>
       </PlaybackSelect>
