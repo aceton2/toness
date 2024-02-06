@@ -1,6 +1,7 @@
 import { Transport } from "tone";
 import useToneStore from "../../store/store";
 import InstrumentsService from "../core/instruments";
+import GridService from "./grid";
 
 const triggerEventIds: { [key: string]: number } = {} // the key is a scheduledEvent
 
@@ -8,19 +9,15 @@ function scheduleActiveTriggers() {
     // from the scheduled events set in the store we take the subset available
     // based on resolution and bars in grid and schedule/unschedule them to the Transport 
     const activeScheduledEvents = Object.keys(triggerEventIds);
-    const desiredScheduledEvents = getActiveEvents()
-    desiredScheduledEvents.forEach(scheduledEvent => {
-        if (activeScheduledEvents.indexOf(scheduledEvent) === -1) { schedule(scheduledEvent) }
-    })
-    activeScheduledEvents.forEach(scheduledEvent => {
-        if (desiredScheduledEvents.indexOf(scheduledEvent) === -1) { unschedule(scheduledEvent) }
-    })
+    activeScheduledEvents.forEach(event => unschedule(event))
+    getActiveEvents().forEach(event => schedule(event))
     Transport.setLoopPoints('0:0:0', `${useToneStore.getState().activeBars}:0:0`)
 }
 
 function getActiveEvents() {
     const resolution = useToneStore.getState().resolution
-    const bar = useToneStore.getState().activeBars
+    const activeBars = useToneStore.getState().activeBars
+    const signature = useToneStore.getState().signature
     const allEvents = useToneStore.getState().scheduledEvents
     return allEvents.filter(event => {
         const sixteenth = parseTrigger(event).timeId.split(':')[2];
@@ -31,8 +28,9 @@ function getActiveEvents() {
             default: return true
         }
     }).filter(event => {
-        const eventBar = event.split('|')[0].split(':')[0]
-        return parseInt(eventBar) < bar // only keep active bars
+        const timeId = parseTrigger(event).timeId
+        const { bar, quarter, sixteenth } = GridService.parseTimeId(timeId)
+        return bar < activeBars && quarter < parseInt(signature)
     })
 }
 

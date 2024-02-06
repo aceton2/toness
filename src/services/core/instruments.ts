@@ -1,4 +1,4 @@
-import { PitchShift, Player, Volume, Buffer, Recorder, Sampler, PolySynth } from "tone"
+import { PitchShift, Player, Volume, Recorder, PolySynth } from "tone"
 import { EnvelopeParam, Instrument, InstrumentDefn, InstrumentType } from "./interfaces"
 import useToneStore from "../../store/store"
 

@@ -23,21 +23,16 @@ const ControlBox = styled.div`
     }
   }
 `
-const SelectLabel = styled.div`
-  line-height: 2rem;
-  font-weight: bold;
-  color: var(--off-color-2);
-  padding-right: 5px;
-  padding-top: 1px;
-`
 
-const MultiSelect = styled.div`
+const MultiSelect = styled.div<{disabled?: boolean}>`
   display: flex;
   border-radius: 5px;
-  cursor: pointer;
+  cursor: ${props => props.disabled ? "cursor" : "pointer"};
   overflow: hidden;
   padding: 0px;
-  width: 180px;
+  margin-left: 5px;
+  position: relative;
+  
   & div {
     flex: 1;
     padding: 5px;
@@ -76,10 +71,20 @@ const PlaybackSelect = styled.label`
   }
 `
 
+const DisableMask = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0.4;
+  background: var(--off-color-1);
+`
+
 export default function Controls() {
   const changeBars = useToneStore(state => state.changeBars)
-  const toggleResolution = useToneStore(state => state.toggleResolution)
-  const gridResolution = useToneStore(state => state.resolution)
+  const [res, toggleRes] = useToneStore(state => [state.resolution, state.toggleResolution], shallow)
+  const [sig, toggleSig] = useToneStore(state => [state.signature, state.setGridSignature], shallow)
   const changeTracks = useToneStore(state => state.changeTracks)
   const resetSequencer = useToneStore(state => state.resetSequencer)
   const clearSchedule = useToneStore(state => state.clearSchedule)
@@ -127,11 +132,16 @@ export default function Controls() {
       </PlaybackSelect>
       <Stretch />
      
-      
+      <MultiSelect disabled={playback !== -1}>
+        {playback !== -1 && <DisableMask />}
+        <div className={sig === '4' ? 'active' : ''} onClick={e => toggleSig('4')}>4/4</div>
+        <div className={sig === '3' ? 'active' : ''} onClick={e => toggleSig('3')}>3/4</div>
+      </MultiSelect>
+
       <MultiSelect>
-        <div className={gridResolution === '8n' ? 'active' : ''} onClick={e => toggleResolution('8n')}>8ths</div>
-        <div className={gridResolution === '8t' ? 'active' : ''} onClick={e => toggleResolution('8t')}>Triplets</div>
-        <div className={gridResolution === '16n' ? 'active' : ''} onClick={e => toggleResolution('16n')}>16ths</div>
+        <div className={res === '8n' ? 'active' : ''} onClick={e => toggleRes('8n')}>8ths</div>
+        <div className={res === '8t' ? 'active' : ''} onClick={e => toggleRes('8t')}>Triplets</div>
+        <div className={res === '16n' ? 'active' : ''} onClick={e => toggleRes('16n')}>16ths</div>
       </MultiSelect>
 
     </ControlBox>

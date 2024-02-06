@@ -4,6 +4,7 @@ import { InstrumentParams, InstrumentParam, TrackParams, TrackParam, EnvelopePar
 import InstrumentsService from '../services/core/instruments'
 
 export type GridResolutions = '16n' | '8n' | '8t'
+export type GridSignature = '4' | '3'
 export const STORE_VERSION = 1.5
 const TRACKS_IDS = InstrumentsService.instruments.map(instrument => instrument.id)
 
@@ -12,12 +13,14 @@ interface TonesState {
   activeTimeIds: Array<string>,
   activeTracks: number,
   activeBars: number,
+  signature: GridSignature,
   bpm: number,
   resolution: GridResolutions,
   instrumentParams: InstrumentParams,
   trackSettings: TrackParams,
   playbackSample: number,
   swing: number,
+  setGridSignature: (sig: GridSignature) => void,
   setSwing: (swing: number) => void,
   setPlaybackSample: (s: number) => void,
   resetSequencer: () => void,
@@ -66,6 +69,7 @@ const defaultInstrumentParams = TRACKS_IDS.reduce<InstrumentParams>(
 const cleanSequencer = {
   activeTracks: 1, // SEQUENCER -> for setting mutes * WIDGET -> for setting track visibility
   activeBars: 1, // SEQUENCER -> for setting active slots
+  signature: '4' as GridSignature,
   resolution: '8n' as GridResolutions,  // SEQUENCER -> for setting active slots * CONTROLS -> for button
   scheduledEvents: [], // SEQUENCER -> for transport sync * TOGGLE -> for step styling
   trackSettings: defaultTrackParams, // TONER -> for setting volume mutes * TRACK -> for showing state
@@ -98,6 +102,7 @@ const useToneStore = create<TonesState>()(
           changeTracks: (tracks: number) => set(state => ({ activeTracks: getNewTracks(state.activeTracks, tracks) })),
           setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
           setSwing: (swing: number) => set(state => ({ swing }), false, "setSwing"),
+          setGridSignature: (signature: GridSignature) => set(state => ({ signature }), false, "setSignature"),
           setActiveTimeIds: (timeIds: Array<string>) => set(state => (
             { activeTimeIds: timeIds }
           ), false, "setActiveTimeIds"),
@@ -124,6 +129,7 @@ const useToneStore = create<TonesState>()(
           setPlaybackSample: (s: number) => {
             if (s > -1) {
               get().setBpm(InstrumentsService.playbacks[s].bpm.toString())
+              get().setGridSignature('4')
             }
             set(state => ({ playbackSample: s }), false, "setPlaybackSample");
           }

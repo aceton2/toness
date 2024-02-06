@@ -38,6 +38,10 @@ function syncSwing() {
   Transport.swing = useToneStore.getState().swing / 100
 }
 
+function syncSignature() {
+  Transport.timeSignature = parseInt(useToneStore.getState().signature)
+}
+
 function syncPlaybackSample() {
   const playback = useToneStore.getState().playbackSample
   InstrumentsService.playbacks.forEach(pb => pb.player.stop())
@@ -109,6 +113,7 @@ function initSequencer() {
 
   syncActiveTracks()
   syncTrackSettings()
+  syncSignature()
   syncBpm(ToneStore.getState().bpm)
 
   unSubs = [
@@ -116,14 +121,17 @@ function initSequencer() {
     ToneStore.subscribe((state) => state.bpm, syncBpm),
     ToneStore.subscribe((state) => state.trackSettings, syncTrackSettings),
     ToneStore.subscribe((state) => state.resolution, syncStepEmitter),
+    ToneStore.subscribe((state) => state.signature, syncSignature),
     ToneStore.subscribe((state) => state.swing, syncSwing),
     ToneStore.subscribe((state) => state.playbackSample, syncPlaybackSample),
     // visual grid
     ToneStore.subscribe((state) => state.activeBars, GridService.setGridTimeIds),
     ToneStore.subscribe((state) => state.resolution, GridService.setGridTimeIds),
+    ToneStore.subscribe((state) => state.signature, GridService.setGridTimeIds),
     // scheduled triggers
     ToneStore.subscribe((state) => state.activeBars, TriggersService.scheduleActiveTriggers),
     ToneStore.subscribe((state) => state.resolution, TriggersService.scheduleActiveTriggers),
+    ToneStore.subscribe((state) => state.signature, TriggersService.scheduleActiveTriggers),
     ToneStore.subscribe((state) => state.scheduledEvents, TriggersService.scheduleActiveTriggers),
   ];
 }

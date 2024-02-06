@@ -1,4 +1,4 @@
-import useToneStore, { GridResolutions } from "../../store/store";
+import useToneStore, { GridResolutions, GridSignature } from "../../store/store";
 
 // TimeIds set the ActiveSlots in the store are used
 // to generate the UI Grid displayed in the Sequencer component
@@ -13,10 +13,10 @@ const sixteenthNoteGuides = {
     '3': 'a',
 }
 
-function generateTimeIds(res: GridResolutions, bars: number): Array<string> {
+function generateTimeIds(res: GridResolutions, bars: number, beats: GridSignature): Array<string> {
     const timeIds: Array<string> = [];
-    [0, 1, 2, 3].slice(0, bars).forEach(barNum => {
-        ['0', '1', '2', '3'].forEach((quarterNum) => {
+    Array.from(Array(bars).keys()).forEach(barNum => {
+        Array.from(Array(parseInt(beats)).keys()).forEach(quarterNum => {
             quarterNoteDivisions[res].forEach((sixNum) =>
                 timeIds.push(`${barNum}:${quarterNum}:${sixNum}`)
             )
@@ -28,8 +28,9 @@ function generateTimeIds(res: GridResolutions, bars: number): Array<string> {
 function setGridTimeIds() {
     const bars = useToneStore.getState().activeBars
     const res = useToneStore.getState().resolution
+    const sig = useToneStore.getState().signature
 
-    const activeTimeIds = generateTimeIds(res, bars)
+    const activeTimeIds = generateTimeIds(res, bars, sig)
     useToneStore.getState().setActiveTimeIds(activeTimeIds)
 }
 

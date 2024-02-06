@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import SequencerService from '../../services/transport/sequencer'
 import Toggle from './Toggle'
 import TrackHead from './TrackHead'
-import useToneStore, { GridResolutions } from '../../store/store'
+import useToneStore, { GridSignature } from '../../store/store'
 import InstrumentsService from '../../services/core/instruments'
 import GridService from '../../services/transport/grid'
 import DubTrack from './DubTrack'
@@ -25,21 +25,26 @@ const TrackDiv = styled.div`
   margin: 4px 0px;
 `
 
-const Grid = styled.div`
+const barsForSignature = {
+  4: 4,
+  3: 5
+}
+
+const Grid = styled.div<{ signature: GridSignature }>`
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(${props => barsForSignature[props.signature]}, 1fr);
 `
 
-const resolutionToRepeat = {
-'16n': 16,
-'8n': 8,
-'8t': 12,
+const resolutionPerBeat = {
+'16n': 4,
+'8n': 2,
+'8t': 3,
 } 
 
-const Bar = styled.div<{ gridResolution: GridResolutions }>`
+const Bar = styled.div<{ togglesPerBeat: number }>`
   display: grid;
-  grid-template-columns: repeat(${props => resolutionToRepeat[props.gridResolution]}, 1fr);
+  grid-template-columns: repeat(${props => props.togglesPerBeat}, 1fr);
   border-radius: 2px
 `
 
@@ -49,7 +54,9 @@ export default function Sequencer() {
   const activeTracks = useToneStore(state => state.activeTracks)
   const bars = useToneStore(state => state.activeBars)
   const gridResolution = useToneStore(state => state.resolution)
+  const gridSignature = useToneStore(state => state.signature)
   const setStep = useCallback((step: string) => setActiveStep(step), [])
+  const togglesPerBeat = resolutionPerBeat[gridResolution] * parseInt(gridSignature)
 
   useEffect(() => {
     SequencerService.stepEmitter.on('step', setStep)
@@ -60,7 +67,7 @@ export default function Sequencer() {
 
   function getBars(soundId: number) {
     return Array.from(Array(bars).keys()).map((bar: number) => (
-      <Bar gridResolution={gridResolution} key={bar}>
+      <Bar togglesPerBeat={togglesPerBeat} key={bar}>
         {getToggles(
           soundId,
           timeIds.filter((timeId) => GridService.parseTimeId(timeId).bar === bar)
@@ -88,7 +95,7 @@ export default function Sequencer() {
       {InstrumentsService.instruments.slice(0, activeTracks).map((instrument) => (
         <TrackDiv key={instrument.id}>
           <TrackHead instrument={instrument} />
-          <Grid>
+          <Grid signature={gridSignature}>
             {
               instrument.id === InstrumentsService.overdub.id ? 
               <DubTrack /> :
