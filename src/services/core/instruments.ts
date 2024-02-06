@@ -10,8 +10,6 @@ const masterVolume = new Volume(0).toDestination();
 
 // SEQUENCED INST
 
-const drumDefaults = { duration: 2, fadeOut: 0.2, offset: 0 }
-
 let instDef: Array<InstrumentDefn> = [
     { type: InstrumentType.stock, name: 'kick', source: '/sounds/kick70.mp3' },
     { type: InstrumentType.stock, name: 'snare', source: '/sounds/snare.mp3' },
@@ -32,6 +30,7 @@ const instruments: Array<Instrument> = instDef.map((defn, index) => {
         sampleVolume: new Volume(0), // only used for pads atm
     }
     if (inst.type === InstrumentType.stock) {
+        const drumDefaults = { duration: 2, fadeOut: 0.2, offset: 0 }
         inst = { ...inst, ...drumDefaults, }
         if (inst.name === "kick") {
             inst.duration = 0.5
@@ -43,12 +42,11 @@ const instruments: Array<Instrument> = instDef.map((defn, index) => {
 // PLAYABLE INST
 
 const casio = new PolySynth().fan(keyboardRecorder, masterVolume)
-// const casio = new Sampler({
-//     "A2": 'sounds/playCm_70.mp3'
-// }).fan(keyboardRecorder, masterVolume)
+// const casio = new Sampler({"A2": 'sounds/playCm_70.mp3'}).fan(keyboardRecorder, masterVolume)
 
 const playbacks = [
     { name: "C minor", player: new Player('sounds/playCm_70.mp3').fan(masterVolume), bpm: 140, offset: -100 },
+    { name: "Tanzbär", player: new Player('sounds/playTanzbaer85.mp3').fan(masterVolume), bpm: 85 },
     // { name: "F major", player: new Player('sounds/playF_90.mp3').fan(masterVolume), bpm: 90 }
 ]
 
@@ -82,9 +80,8 @@ async function syncInstrumentParam(id: number) {
     const param = useToneStore.getState().instrumentParams[id]
     const i = InstrumentsService.instruments[id]
 
-    // if we want to allow changes on stock sounds,
-    // add await to loading of instruments at init
-    if (i.type === InstrumentType.stock) {
+    // allowing changes on all types requires async loading
+    if (i.type !== InstrumentType.pad) {
         return
     }
 
