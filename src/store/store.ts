@@ -5,7 +5,7 @@ import InstrumentsService from '../services/core/instruments'
 
 export type GridResolutions = '16n' | '8n' | '8t'
 export type GridSignature = '4' | '3'
-export const STORE_VERSION = 1.5
+export const STORE_VERSION = 1.6
 const TRACKS_IDS = InstrumentsService.instruments.map(instrument => instrument.id)
 
 interface TonesState {

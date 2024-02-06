@@ -18,9 +18,8 @@ const CasioBox = styled.div`
 const KeysBox = styled.div`
     display: flex;
     justify-content: center;
-    margin: 5px;
     padding: 5px;
-    height: 110px;
+    height: 113px;
 `
 
 const Play = styled.button`
@@ -41,11 +40,14 @@ const ControlsBox = styled.div`
         }
     }
 `
+const PadGridDiv = styled.div`
+    margin: 5px;
+`
 
 export default function Casio() {
     const activeTracks = useToneStore(state => state.activeTracks)
     const overdubActive = InstrumentsService.instruments.slice(0, activeTracks).find(i => i.name === "overdub")
-    return <div>
+    return <PadGridDiv>
     { overdubActive && 
         <CasioBox>
             <KeysBox>
@@ -64,5 +66,5 @@ export default function Casio() {
             </ControlsBox>
         </CasioBox>
     }
-    </div>
+    </PadGridDiv>
 }

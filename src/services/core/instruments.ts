@@ -16,7 +16,7 @@ let instDef: Array<InstrumentDefn> = [
     { type: InstrumentType.stock, name: 'hat', source: '/sounds/highhat.mp3' },
     { type: InstrumentType.pad, name: '1' },
     { type: InstrumentType.pad, name: '2' },
-    // { type: InstrumentType.pad, name: '3' },
+    { type: InstrumentType.pad, name: '3' },
     // { type: InstrumentType.pad, name: '4' },
     { type: InstrumentType.overdub, name: 'overdub' },
 ]
