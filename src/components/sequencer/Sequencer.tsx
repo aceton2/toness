@@ -97,7 +97,7 @@ export default function Sequencer() {
           <TrackHead instrument={instrument} />
           <Grid signature={gridSignature}>
             {
-              instrument.id === InstrumentsService.overdub.id ? 
+              instrument.id === 10 ? // InstrumentsService.overdub.id ? 
               <DubTrack /> :
               getBars(instrument.id)
             }

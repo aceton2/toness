@@ -26,7 +26,6 @@ export default function SamplerPanel() {
     <Sampler>
         <Floater>SAMPLER</Floater>
         { InstrumentsService.pads.map(pad => (<Pad key={pad.name} pad={pad}/>)) }
-        <Casio />
     </Sampler>
     )
 }

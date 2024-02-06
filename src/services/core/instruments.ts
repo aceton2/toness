@@ -11,14 +11,14 @@ const masterVolume = new Volume(0).toDestination();
 // SEQUENCED INST
 
 let instDef: Array<InstrumentDefn> = [
-    { type: InstrumentType.stock, name: 'kick', source: '/sounds/kick70.mp3' },
-    { type: InstrumentType.stock, name: 'snare', source: '/sounds/snare.mp3' },
-    { type: InstrumentType.stock, name: 'hat', source: '/sounds/highhat.mp3' },
+    { type: InstrumentType.stock, name: 'kick', source: '/sounds/kick70.mp3', offset: 0.053 },
+    { type: InstrumentType.stock, name: 'snare', source: '/sounds/snare.mp3', offset: 0.05 },
+    { type: InstrumentType.stock, name: 'hat', source: '/sounds/highhat.mp3', offset: 0.06 },
     { type: InstrumentType.pad, name: '1' },
     { type: InstrumentType.pad, name: '2' },
     { type: InstrumentType.pad, name: '3' },
-    // { type: InstrumentType.pad, name: '4' },
-    { type: InstrumentType.overdub, name: 'overdub' },
+    { type: InstrumentType.pad, name: '4' },
+    // { type: InstrumentType.overdub, name: 'overdub' },
 ]
 
 const instruments: Array<Instrument> = instDef.map((defn, index) => {
@@ -30,7 +30,7 @@ const instruments: Array<Instrument> = instDef.map((defn, index) => {
         sampleVolume: new Volume(0), // only used for pads atm
     }
     if (inst.type === InstrumentType.stock) {
-        const drumDefaults = { duration: 2, fadeOut: 0.2, offset: 0 }
+        const drumDefaults = { duration: 2, fadeOut: 0.2 }
         inst = { ...inst, ...drumDefaults, }
         if (inst.name === "kick") {
             inst.duration = 0.5
@@ -45,9 +45,10 @@ const casio = new PolySynth().fan(keyboardRecorder, masterVolume)
 // const casio = new Sampler({"A2": 'sounds/playCm_70.mp3'}).fan(keyboardRecorder, masterVolume)
 
 const playbacks = [
-    { name: "C minor", player: new Player('sounds/playCm_70.mp3').fan(masterVolume), bpm: 140, offset: -100 },
+    { name: "C minor", player: new Player('sounds/playCm_70.mp3').fan(masterVolume), bpm: 70 },
     { name: "Tanzbär", player: new Player('sounds/playTanzbaer85.mp3').fan(masterVolume), bpm: 85 },
-    // { name: "F major", player: new Player('sounds/playF_90.mp3').fan(masterVolume), bpm: 90 }
+    { name: "BlackKeys", player: new Player('sounds/playBlackKeys98.mp3').fan(masterVolume), bpm: 98 },
+    { name: "GuitarBass", player: new Player('sounds/playGuitarBass90.mp3').fan(masterVolume), bpm: 90 }
 ]
 
 // TRIGGER 

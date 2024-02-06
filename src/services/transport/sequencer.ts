@@ -47,7 +47,7 @@ function syncPlaybackSample() {
   InstrumentsService.playbacks.forEach(pb => pb.player.stop())
   if (playback !== -1) {
     const i = InstrumentsService.playbacks[playback]
-    Transport.scheduleOnce((time) => i.player.start(time, i.offset), "0:0:0")
+    Transport.scheduleOnce((time) => i.player.start(time), "0:0:0")
   }
 }
 

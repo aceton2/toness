@@ -22,6 +22,7 @@ export interface InstrumentDefn {
   name: string
   type: InstrumentType
   source?: string
+  offset?: number
 }
 
 export interface Instrument extends TriggerEnvelop, InstrumentDefn {
@@ -35,7 +36,6 @@ export interface Instrument extends TriggerEnvelop, InstrumentDefn {
 export interface TriggerEnvelop {
   pitchShift: PitchShift
   duration?: number
-  offset?: number
   fadeIn?: number
   fadeOut?: number
 }

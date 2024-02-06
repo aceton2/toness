@@ -41,7 +41,8 @@ const ControlsBox = styled.div`
     }
 `
 const PadGridDiv = styled.div`
-    margin: 5px;
+    margin: 10px auto;
+    width: 200px;
 `
 
 export default function Casio() {
