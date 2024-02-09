@@ -45,7 +45,7 @@ const TrackIcon = styled.div<{alert: boolean, clickable: boolean}>`
   margin-top: 6px;
   text-align: center;
   cursor: ${props => props.clickable ? 'pointer' : 'default'};
-  color: var(${props => props.alert ? '--panel-color-1' : props.clickable ? '--off-color-1' : '--inactive-color'});
+  color: var(${props => props.alert ? '--panel-color-1' : props.clickable ? '--control-bar' : '--inactive-color'});
 `
 
 const VolInput = styled.input`

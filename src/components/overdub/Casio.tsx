@@ -13,17 +13,32 @@ function chordRelease(note: string) {
 const CasioBox = styled.div`
     background-color: var(--wisteria);
     border-radius: 5px;
+    margin: 5px;
 `
 
 const KeysBox = styled.div`
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     padding: 5px;
     height: 113px;
 `
 
-const Play = styled.button`
+const Key = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex-grow: 1;
+    border-radius: 5px;
+    padding: 5px;
+    overflow: hidden;
+    text-align: center;
+    
+`
+
+const Play = styled.div`
+    flex-grow: 1;
     background: var(--off-color-2);
+    cursor: pointer;
     &:hover {
         background: var(--panel-color-1)
     }`
@@ -40,10 +55,23 @@ const ControlsBox = styled.div`
         }
     }
 `
-const PadGridDiv = styled.div`
-    margin: 10px auto;
-    width: 200px;
+
+const Label = styled.div`
+    background: var(--background-mid);
 `
+
+const PadGridDiv = styled.div`
+    // margin: 10px auto;
+    // width: 200px;
+`
+
+const notes = [
+    {label: "1", low: "C2", high: "C3"},
+    {label: "3b", low: "Eb2", high: "Eb3"},
+    {label: "4", low: "F2", high: "F3"},
+    {label: "5", low: "G2", high: "G3"},
+    {label: "7", low: "Bb2", high: "Bb3"},
+]
 
 export default function Casio() {
     const activeTracks = useToneStore(state => state.activeTracks)
@@ -52,13 +80,22 @@ export default function Casio() {
     { overdubActive && 
         <CasioBox>
             <KeysBox>
-            {["G2", "Bb2", "C3", "Eb3", "F3"].map(note => (
-                <Play key={note} 
-                    onMouseLeave={() => chordRelease(note)}
-                    onMouseDown={() => chordPress(note)} 
-                    onMouseUp={() => chordRelease(note)}>
-                    {note}
-                </Play>
+            {notes.map(notes => (
+                <Key key={notes.low} >
+                    <Play 
+                    onMouseLeave={() => chordRelease(notes.low)}
+                    onMouseDown={() => chordPress(notes.low)} 
+                    onMouseUp={() => chordRelease(notes.low)}>
+                    {notes.low}
+                    </Play>
+                    <Play
+                        onMouseLeave={() => chordRelease(notes.high)}
+                        onMouseDown={() => chordPress(notes.high)} 
+                        onMouseUp={() => chordRelease(notes.high)}>
+                        {notes.high}
+                    </Play>
+                    <Label>{notes.label}</Label>
+                </Key>
             ))}
             </KeysBox>
             <ControlsBox>

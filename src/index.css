@@ -38,6 +38,7 @@ body {
   --background-inner: #e66465;
   --background-mid: #cc5577;
   --background-outer: #9198e5;
+  --control-bar: var(--off-color-1)
 }
 
 button {

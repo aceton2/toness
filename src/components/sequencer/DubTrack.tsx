@@ -28,7 +28,7 @@ const TransportPosition = styled.div<{duration: number}>`
     height: 100%;
     position: absolute;
     bottom: 0;
-    border-left: 1px solid var(--off-color-1);
+    border-left: 1px solid var(--control-bar);
     animation-direction: normal;
     animation-duration: ${props => `${props.duration}ms`};
     animation-name: tracker;

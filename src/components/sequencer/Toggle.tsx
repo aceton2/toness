@@ -5,7 +5,7 @@ import useToneStore from '../../store/store'
 
 let colors = {
   odd: 'var(--off-color-3)',
-  free: 'var(--off-color-1)',
+  free: 'var(--control-bar)',
   toggled: 'var(--off-color-2)',
 }
 
