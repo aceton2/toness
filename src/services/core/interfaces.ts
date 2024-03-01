@@ -45,6 +45,7 @@ export interface TriggerEnvelop {
 export interface TrackParam {
   mute: boolean
   volume: number
+  solo: boolean
 }
 
 export enum EnvelopeParam {

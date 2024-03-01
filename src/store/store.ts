@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { InstrumentParams, InstrumentParam, TrackParams, TrackParam, EnvelopeParam } from '../services/core/interfaces'
 import InstrumentsService from '../services/core/instruments'
+import TriggersService from '../services/transport/triggers'
 
 export type GridResolutions = '16n' | '8n' | '8t'
 export type GridSignature = '4' | '3'
@@ -29,6 +30,7 @@ interface TonesState {
   scheduledEvents: Array<string>,
   addTriggerEvent: (timeId: string, instrumentId: number, emphasis: boolean) => void,
   removeTriggerEvent: (timeId: string, instrumentId: number) => void,
+  removeTriggersForTrack: (instrumentId: number) => void,
   clearSchedule: () => void,
   setBpm: (bpm: string) => void,
   toggleResolution: (res: GridResolutions) => void,
@@ -36,6 +38,8 @@ interface TonesState {
   setInstrumentParams: (id: number, params?: any) => void,
   setTrackVolume: (id: number, vol: number) => void,
   toggleTrackMute: (id: number) => void,
+  toggleTrackSolo: (id: number) => void,
+  resetTrackSetting: (id: number) => void,
   resetStore: () => void,
 }
 
@@ -56,7 +60,8 @@ const defaultInstrument: InstrumentParam = {
 
 const defaultTrack: TrackParam = {
   mute: false,
-  volume: 100
+  volume: 100,
+  solo: false,
 }
 
 const defaultTrackParams = TRACKS_IDS.reduce<TrackParams>(
@@ -95,25 +100,55 @@ const useToneStore = create<TonesState>()(
           ...initialState,
           resetStore: () => set(state => initialState, true, "resetStore"),
           resetSequencer: () => set(state => ({ ...cleanSequencer }), false, "resetSequencer"),
-          setInstrumentParams: (padName, params) => set(state => (
-            getNewParams(state.instrumentParams, padName, params)
-          ), false, "setInstrumentParams"),
+          setInstrumentParams: (id, params) => {
+            // when instrument params are reverted we reset scheduling and track params
+            if (!params) {
+              get().resetTrackSetting(id)
+              get().removeTriggersForTrack(id)
+            }
+            set(state => (
+              getNewParams(state.instrumentParams, id, params)
+            ), false, "setInstrumentParams")
+          },
           changeBars: (bars: number) => set(state => ({ activeBars: getNewBars(state.activeBars, bars) })),
           changeTracks: (tracks: number) => set(state => ({ activeTracks: getNewTracks(state.activeTracks, tracks) })),
           setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
           setSwing: (swing: number) => set(state => ({ swing }), false, "setSwing"),
           setGridSignature: (signature: GridSignature) => set(state => ({ signature }), false, "setSignature"),
+          toggleResolution: (res: GridResolutions) => set(state => ({ resolution: res }), false, "toggleResolution"),
           setActiveTimeIds: (timeIds: Array<string>) => set(state => (
             { activeTimeIds: timeIds }
           ), false, "setActiveTimeIds"),
-          toggleResolution: (res: GridResolutions) => set(state => ({ resolution: res })),
           clearSchedule: () => set(state => ({ scheduledEvents: [] })),
+          // TRACK SETTINGS
           toggleTrackMute: (id) => set(state => (
-            { trackSettings: { ...state.trackSettings, [id]: { ...state.trackSettings[id], mute: !state.trackSettings[id].mute } } }
-          )),
+            { trackSettings: { ...state.trackSettings, [id]: { ...state.trackSettings[id], mute: !state.trackSettings[id].mute, solo: false } } }
+          ), false, "toggleTrackMute"),
+          toggleTrackSolo: (id) => set(state => {
+            if (state.trackSettings[id].solo) {
+              return {
+                trackSettings:
+                  { ...state.trackSettings, [id]: { ...state.trackSettings[id], solo: false } }
+              }
+            }
+            // when turning on turn all other solos off
+            const newSettings: TrackParams = {}
+            Object.keys(state.trackSettings).forEach((keyS: string) => {
+              const key = parseInt(keyS)
+              newSettings[key] = { ...state.trackSettings[key], solo: id === key }
+              if (key === id) {
+                newSettings[key].mute = false
+              }
+            })
+            return { trackSettings: newSettings }
+          }, false, "toggleTrackSolo"),
           setTrackVolume: (id: number, vol: number) => set(state => (
             { trackSettings: { ...state.trackSettings, [id]: { ...state.trackSettings[id], volume: vol } } }
-          )),
+          ), false, "toggleTrackVolume"),
+          resetTrackSetting: (id: number) => set(state => (
+            { trackSettings: { ...state.trackSettings, [id]: defaultTrack } }
+          ), false, "toggleTrackSetting"),
+          // TRIGGER EVENTS
           addTriggerEvent: (timeId: string, instrumentId: number, emphasis: boolean) => {
             get().removeTriggerEvent(timeId, instrumentId)
             set(state => (
@@ -123,9 +158,17 @@ const useToneStore = create<TonesState>()(
           removeTriggerEvent: (timeId: string, instrumentId: number) => set(state => {
             const existingTrigger = state.scheduledEvents.find(e => e.slice(0, -2) === `${timeId}|${instrumentId}`)
             return {
-              scheduledEvents: state.scheduledEvents.filter(sEvent => sEvent !== existingTrigger)
+              scheduledEvents: state.scheduledEvents.filter(trigger => trigger !== existingTrigger)
             }
           }),
+          removeTriggersForTrack: (instrumentId: number) => set(state => {
+            return {
+              scheduledEvents: state.scheduledEvents.filter(trigger =>
+                TriggersService.parseTrigger(trigger).instrumentId !== instrumentId.toString())
+            }
+          }),
+          //   )
+          // PLAYBACK
           setPlaybackSample: (s: number) => {
             if (s > -1) {
               get().setBpm(InstrumentsService.playbacks[s].bpm.toString())
@@ -142,8 +185,6 @@ const useToneStore = create<TonesState>()(
 )
 
 function getNewParams(existingParams: InstrumentParams, id: number, params?: any) {
-  // TODO should this remove schedules if params are reset?
-  // if params is empty defaultInstrument params are set
   const newParam = { [id]: { ...existingParams[id], ...(params || defaultInstrument) } }
   return { instrumentParams: { ...existingParams, ...newParam } }
 }
@@ -161,10 +202,6 @@ function getNewTracks(activeTracks: number, change: number): number {
 export const selectPadAudioUrl = (state: TonesState, id: number) => {
   const param = state.instrumentParams[id]
   return param?.audioUrl
-}
-
-export const selectTrackSetting = (state: TonesState, id: number) => {
-  return state.trackSettings[id]
 }
 
 export default useToneStore

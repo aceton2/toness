@@ -45,11 +45,23 @@ function parseTimeId(timeId: string): { bar: number, quarter: number, sixteenth:
     return { bar: parseInt(bar), quarter: parseInt(quarter), sixteenth }
 }
 
+function timeIdsByBar(timeIds: Array<string>) {
+    const tis: Array<{ bar: number, timeIds: Array<string> }> = []
+    timeIds.forEach(ti => {
+        const parsed = parseTimeId(ti);
+        const bar = tis.find(tis => tis.bar === parsed.bar) || { bar: parsed.bar, timeIds: [] }
+        if (bar.timeIds.length === 0) { tis.push(bar) }
+        bar.timeIds.push(ti)
+    })
+    return tis
+}
+
 
 const GridService = {
     setGridTimeIds,
     timeIdToGuideName,
-    parseTimeId
+    parseTimeId,
+    timeIdsByBar,
 }
 
 export default GridService

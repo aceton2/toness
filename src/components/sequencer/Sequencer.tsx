@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import SequencerService from '../../services/transport/sequencer'
 import Toggle from './Toggle'
 import TrackHead from './TrackHead'
 import useToneStore, { GridSignature } from '../../store/store'
 import InstrumentsService from '../../services/core/instruments'
 import GridService from '../../services/transport/grid'
 import DubTrack from './DubTrack'
+import { Instrument } from '../../services/core/interfaces'
+import { useCallback } from 'react'
 
 
 const SequencerBox = styled.div`
-  --track-label-width: 50px;
+  --track-label-width: 60px;
   margin-top: 1.5rem;
 
   &.hidden {
@@ -49,60 +49,60 @@ const Bar = styled.div<{ togglesPerBeat: number }>`
 `
 
 export default function Sequencer() {
-  const [activeStep, setActiveStep] = useState('')
-  const timeIds = useToneStore(state => state.activeTimeIds)
   const activeTracks = useToneStore(state => state.activeTracks)
-  const bars = useToneStore(state => state.activeBars)
+  const timeIds = useToneStore(state => state.activeTimeIds)
   const gridResolution = useToneStore(state => state.resolution)
   const gridSignature = useToneStore(state => state.signature)
-  const setStep = useCallback((step: string) => setActiveStep(step), [])
-  const togglesPerBeat = resolutionPerBeat[gridResolution] * parseInt(gridSignature)
-
-  useEffect(() => {
-    SequencerService.stepEmitter.on('step', setStep)
-    return () => {
-      SequencerService.stepEmitter.off('step', setStep)
-    }
-  }, [setStep])
-
-  function getBars(soundId: number) {
-    return Array.from(Array(bars).keys()).map((bar: number) => (
-      <Bar togglesPerBeat={togglesPerBeat} key={bar}>
-        {getToggles(
-          soundId,
-          timeIds.filter((timeId) => GridService.parseTimeId(timeId).bar === bar)
-        )}
-      </Bar>
-    ))
-  }
-
-  function getToggles(instrumentId: number, timeIds: Array<string>) {
-    return timeIds.map((timeId) => {
-      return (
-        <Toggle 
-          key={`${timeId}|${instrumentId}`}
-          // split drops triplet sixteenth decimal
-          isActive={activeStep === timeId.split(".")[0]}
-          timeId={timeId}
-          instrumentId={instrumentId}
-        />
-      )
-    })
-  }
-
   return (
     <SequencerBox>
       {InstrumentsService.instruments.slice(0, activeTracks).map((instrument) => (
-        <TrackDiv key={instrument.id}>
-          <TrackHead instrument={instrument} />
-          <Grid signature={gridSignature}>
-            {
-              instrument.id === InstrumentsService.overdub.id ? 
-              <DubTrack /> :
-              getBars(instrument.id)
-            }
-          </Grid>
-      </TrackDiv>))}
+        <Track 
+          instrument={instrument} 
+          key={instrument.id} 
+          togglesPerBeat={resolutionPerBeat[gridResolution] * parseInt(gridSignature)}
+          gridSignature={gridSignature}
+          timeIds={timeIds}
+        />
+      ))}
     </SequencerBox>
+  )
+}
+
+interface TrackProps {
+  instrument: Instrument; 
+  togglesPerBeat: number;
+  timeIds: Array<string>;
+  gridSignature: GridSignature
+}
+
+function Track({
+  instrument, 
+  togglesPerBeat, 
+  timeIds, 
+  gridSignature,
+}: TrackProps) {
+  // we trigger rerenders on all trackSetting due to solo settings
+  const trackSettings = useToneStore(state => state.trackSettings) 
+  const instrumentParam = useToneStore(useCallback(state => state.instrumentParams[instrument.id], [instrument]))
+  const trackParam = useToneStore(useCallback(state => state.trackSettings[instrument.id], [instrument.id]))
+  return (
+    <TrackDiv key={instrument.id}>
+      <TrackHead instrument={instrument} trackParam={trackParam} instrumentParam={instrumentParam}/>
+      <Grid signature={gridSignature}>
+        {
+          GridService.timeIdsByBar(timeIds).map(barInfo =>
+            <Bar key={barInfo.bar} togglesPerBeat={togglesPerBeat}>
+              { barInfo.timeIds.map((timeId) =>  (
+              <Toggle 
+                key={`${timeId}|${instrument.id}`}
+                timeId={timeId}
+                instrumentId={instrument.id}
+                muted={instrument.channelVolume.mute || (instrument.id > 2 && !instrumentParam.audioUrl)}
+              /> ))
+              }
+            </Bar>)
+        }
+      </Grid>
+    </TrackDiv>
   )
 }

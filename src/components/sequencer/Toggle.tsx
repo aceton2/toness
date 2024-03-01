@@ -2,6 +2,8 @@ import styled from 'styled-components'
 import GridService from '../../services/transport/grid'
 import TriggersService from '../../services/transport/triggers'
 import useToneStore from '../../store/store'
+import { useCallback, useEffect, useState } from 'react'
+import SequencerService from '../../services/transport/sequencer'
 
 let colors = {
   odd: 'var(--off-color-3)',
@@ -47,9 +49,9 @@ const ToggleBtn = styled.div`
 `
 
 interface ToggleProps {
-  isActive: boolean;
   timeId: string;
   instrumentId: number;
+  muted: boolean;
 }
 
 export default function Toggle(props: ToggleProps) {
@@ -60,6 +62,19 @@ export default function Toggle(props: ToggleProps) {
   const scheduled = useToneStore(state => 
     state.scheduledEvents.find(e => e.slice(0, -2) === `${props.timeId}|${props.instrumentId}`)
   ) 
+
+  const [isActive, setIsActive] = useState(false)
+  const setStep = useCallback((step: string) => {
+    // split drops triplet sixteenth decimal
+    setIsActive(!props.muted && step === props.timeId.split(".")[0])
+  }, [props.muted])
+
+  useEffect(() => {
+    SequencerService.stepEmitter.on('step', setStep)
+    return () => {
+      SequencerService.stepEmitter.off('step', setStep)
+    }
+  }, [setStep])
 
   function getBackgroundColor() {
     const odd = bar % 2 === 1
@@ -72,7 +87,7 @@ export default function Toggle(props: ToggleProps) {
   }
 
   return (
-    <StepMargin style={{ opacity: props.isActive ? '1' : '0.7' }}>
+    <StepMargin style={{ opacity: isActive ? '1' : '0.7' }}>
       { guideName ? <Guide>{guideName}</Guide> : '' }
       <Step style={{ backgroundColor: getBackgroundColor() }} >
         {scheduled &&<Head emph={TriggersService.parseTrigger(scheduled)?.emphasized} />}

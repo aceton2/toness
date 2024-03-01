@@ -1,7 +1,6 @@
-import { useCallback } from 'react'
 import styled from 'styled-components'
-import useToneStore, { selectPadAudioUrl, selectTrackSetting } from '../../store/store'
-import { Instrument } from '../../services/core/interfaces'
+import useToneStore from '../../store/store'
+import { Instrument, InstrumentParam, TrackParam } from '../../services/core/interfaces'
 
 const Mask = styled.div`
   position: absolute;
@@ -21,6 +20,9 @@ const Label = styled.div`
   background: var(--off-color-2);
   opacity: 0.9;
   cursor: default;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 
   & svg {
     width: 50%;
@@ -38,46 +40,64 @@ const LabelName = styled.div`
   background: var(${props => `--pad-${props.color}`});
 `
 
-const TrackIcon = styled.div<{alert: boolean, clickable: boolean}>`
-  width: 38px;
-  border-radius: 3px;
-  margin: auto;
+
+const ToggleBtns = styled.div`
+  display: flex;
+  justify-content: center;
   margin-top: 6px;
+  flex: 1;
+`
+
+const TrackIcon = styled.div<{active: string | null, clickable: boolean}>`
+  border-radius: 3px;
+  width: 15px;
   text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: ${props => props.clickable ? 'pointer' : 'default'};
-  color: var(${props => props.alert ? '--panel-color-1' : props.clickable ? '--control-bar' : '--inactive-color'});
+  background: var(${props => props.active});
+  color: var(${props => !props.clickable ? '--inactive-color' : props.active ? '--off-color-2' : '--control-bar'});
 `
 
 const VolInput = styled.input`
   width: 45px;
 `
 
-export default function TrackHead(props: {instrument: Instrument}) {
-  const instrument = props.instrument
-  const hasAudioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, instrument.id), [instrument]))
-  const trackSetting = useToneStore(useCallback(state => selectTrackSetting(state, instrument.id), [instrument.id]))
-  const toggleTrackMute = useToneStore(state => state.toggleTrackMute)
-  const setTrackVolume =  useToneStore(state => state.setTrackVolume)
-  const hasSound = instrument.id < 3 || hasAudioUrl
+interface TrackHeadProps {
+  instrument: Instrument, 
+  instrumentParam: InstrumentParam,
+  trackParam: TrackParam,
+}
 
-  function toggleMute() {
-    toggleTrackMute(instrument.id)
-  }
+export default function TrackHead({instrument, instrumentParam, trackParam}: TrackHeadProps) {
+  const toggleTrackMute = useToneStore(state => state.toggleTrackMute)
+  const toggleTrackSolo = useToneStore(state => state.toggleTrackSolo)
+  const setTrackVolume =  useToneStore(state => state.setTrackVolume)
+  // this should be in instrumentParam
+  const hasSound = instrumentParam.audioUrl || instrument.id < 3
 
   return (
     <>
       { !hasSound ? <Mask /> : '' }
       <Label>
-        <LabelName color={instrument.name}>{props.instrument.name}</LabelName>
+        <LabelName color={instrument.name}>{instrument.name}</LabelName>
+        <ToggleBtns>
         { hasSound ?
-          <TrackIcon alert={trackSetting?.mute} clickable={true} onClick={toggleMute}>
-            M
-          </TrackIcon>
-          : <TrackIcon alert={false} clickable={false}> - </TrackIcon> }
+          <>
+            <TrackIcon active={trackParam?.mute ? '--control-bar': null} clickable={true} onClick={() => toggleTrackMute(instrument.id)}>
+              M
+            </TrackIcon>
+            <TrackIcon active={trackParam?.solo ? '--control-bar': null} clickable={true} onClick={() => toggleTrackSolo(instrument.id)}>
+              S
+            </TrackIcon>
+          </>
+          : <TrackIcon active={null} clickable={false}> - </TrackIcon> 
+          }
+        </ToggleBtns>
           <VolInput type="range" 
               max={100}
               min={0}
-              value={trackSetting.volume} 
+              value={trackParam.volume} 
               onChange={e => setTrackVolume(instrument.id, parseInt(e.target.value))}
           />
       </Label>

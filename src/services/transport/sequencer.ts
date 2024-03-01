@@ -21,9 +21,14 @@ function syncBpm(val: number): void {
 
 function syncTrackSettings() {
   const trackSettings = ToneStore.getState().trackSettings
-  InstrumentsService.instruments.forEach(i => {
+  const activeTracks = ToneStore.getState().activeTracks
+  const activeSoloIds = Object.entries(trackSettings).filter(([id, setting]) => setting.solo).map(s => s[0])
+  InstrumentsService.instruments.forEach((i, index) => {
     i.channelVolume.volume.value = -12 * (100 - trackSettings[i.id].volume) / 100
-    i.channelVolume.mute = trackSettings[i.id].mute
+    i.channelVolume.mute =
+      index >= activeTracks ||
+      (activeSoloIds.length > 0 && activeSoloIds.indexOf(i.id.toString()) == -1)
+      || trackSettings[i.id].mute
   })
 }
 

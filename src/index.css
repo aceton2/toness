@@ -27,9 +27,9 @@ body {
   --off-color-2: #36454f;
   --off-color-3: whitesmoke;
   --inactive-color: grey;
-  --pad-kick: var(--off-color-2);
-  --pad-snare: var(--off-color-2);
-  --pad-hat: var(--off-color-2);
+  --pad-kick: var(--panel-color-1);
+  --pad-snare: var(--panel-color-1);
+  --pad-hat: var(--panel-color-1);
   --pad-1: var(--wisteria);
   --pad-2: var(--wisteria); 
   --pad-3: var(--wisteria);
@@ -38,7 +38,9 @@ body {
   --background-inner: #e66465;
   --background-mid: #cc5577;
   --background-outer: #9198e5;
-  --control-bar: var(--off-color-1)
+  /* aliases */
+  --control-bar: var(--off-color-1);
+  --btn-red: var(--panel-color-1);
 }
 
 button {
