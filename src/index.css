@@ -27,18 +27,18 @@ body {
   --off-color-2: #36454f;
   --off-color-3: whitesmoke;
   --inactive-color: grey;
-  --pad-kick: var(--panel-color-1);
-  --pad-snare: var(--panel-color-1);
-  --pad-hat: var(--panel-color-1);
+  --pad-kick: var(--sampler-bottom);
+  --pad-snare: var(--sampler-bottom);
+  --pad-hat: var(--sampler-bottom);
   --pad-1: var(--wisteria);
   --pad-2: var(--wisteria); 
   --pad-3: var(--wisteria);
   --pad-4: var(--wisteria);
-  --sampler-bottom: #556d7c;
   --background-inner: #e66465;
   --background-mid: #cc5577;
   --background-outer: #9198e5;
   /* aliases */
+  --sampler-bottom: #556d7c;
   --control-bar: var(--off-color-1);
   --btn-red: var(--panel-color-1);
 }
