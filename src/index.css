@@ -41,6 +41,8 @@ body {
   --sampler-bottom: #556d7c;
   --control-bar: var(--off-color-1);
   --btn-red: var(--panel-color-1);
+  /* layout */
+  --track-label-width: 60px;
 }
 
 button {

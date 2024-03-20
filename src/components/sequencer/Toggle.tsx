@@ -62,12 +62,16 @@ export default function Toggle(props: ToggleProps) {
   const scheduled = useToneStore(state => 
     state.scheduledEvents.find(e => e.slice(0, -2) === `${props.timeId}|${props.instrumentId}`)
   ) 
+  const activeBars = useToneStore(state => state.activeBars)
 
   const [isActive, setIsActive] = useState(false)
   const setStep = useCallback((step: string) => {
+    const cycleBar = parseInt(step[0]) % activeBars
+    const stepNormal = `${cycleBar}${step.substring(1)}`
+    console.log(step, cycleBar, activeBars, stepNormal)
     // split drops triplet sixteenth decimal
-    setIsActive(!props.muted && step === props.timeId.split(".")[0])
-  }, [props.muted])
+    setIsActive(!props.muted && stepNormal === props.timeId.split(".")[0])
+  }, [props.muted, activeBars])
 
   useEffect(() => {
     SequencerService.stepEmitter.on('step', setStep)

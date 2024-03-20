@@ -77,3 +77,6 @@ export interface InstrumentParams {
 export interface TrackParams {
   [id: number]: TrackParam
 }
+
+// cycle / bar / chords
+export type SongArrangement = Array<Array<Array<string>>>

@@ -10,7 +10,6 @@ import { useCallback } from 'react'
 
 
 const SequencerBox = styled.div`
-  --track-label-width: 60px;
   margin-top: 1.5rem;
 
   &.hidden {

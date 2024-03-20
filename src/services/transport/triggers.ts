@@ -2,16 +2,31 @@ import { Transport } from "tone";
 import useToneStore from "../../store/store";
 import InstrumentsService from "../core/instruments";
 import GridService from "./grid";
+import { Voicing, VoicingDictionary, VoiceLeading } from "tonal";
 
 const triggerEventIds: { [key: string]: number } = {} // the key is a scheduledEvent
+const prevChords: Array<number> = []
 
 function scheduleActiveTriggers() {
     // from the scheduled events set in the store we take the subset available
     // based on resolution and bars in grid and schedule/unschedule them to the Transport 
+
+    const arrangement = useToneStore.getState().songArrangement;
+    const cycles = arrangement.length
+    const barsPercussion = useToneStore.getState().activeBars;
+    Transport.setLoopPoints(0, `${barsPercussion * cycles}m`)
+
+    setArrangement()
+
     const activeScheduledEvents = Object.keys(triggerEventIds);
     activeScheduledEvents.forEach(event => unschedule(event))
-    getActiveEvents().forEach(event => schedule(event))
-    Transport.setLoopPoints('0:0:0', `${useToneStore.getState().activeBars}:0:0`)
+
+    for (let i = 0; i < cycles; i++) {
+        getActiveEvents().map(event => {
+            const cycleBar = parseInt(event[0]) + (i * barsPercussion)
+            schedule(`${cycleBar}${event.substring(1)}`)
+        })
+    }
 }
 
 function getActiveEvents() {
@@ -35,6 +50,7 @@ function getActiveEvents() {
 }
 
 function schedule(scheduledEvent: string) {
+    console.log("sched", scheduledEvent)
     const [timeId, instrumentId, emphasis] = scheduledEvent.split('|')
     const triggerFunction = InstrumentsService.getPlayInstrumentTrigger(parseInt(instrumentId), emphasis === "1")
     triggerEventIds[scheduledEvent] = Transport.schedule(time => triggerFunction(time), timeId)
@@ -54,9 +70,30 @@ function parseTrigger(scheduledEvent: string) {
     }
 }
 
+
+// cycle through arranged bars and print chords to console
+function setArrangement() {
+    const barsPercussion = useToneStore.getState().activeBars;
+    prevChords.forEach(id => Transport.clear(id))
+    useToneStore.getState().songArrangement.forEach((cycle, cycleIndex) => {
+        cycle.forEach((bar, barIndex) => {
+            (bar || []).forEach((chord, chordIndex) => {
+                const toPlay = Voicing.search(chord, ["B3", "C5"], VoicingDictionary.defaultDictionary)
+                const triggerBar = barIndex + (cycleIndex * barsPercussion)
+                const triggerEights = chordIndex === 1 ? 2 : 0;
+                const scheduled = Transport.schedule((time) => {
+                    InstrumentsService.casio.triggerAttackRelease(toPlay[0], 0.25);
+                }, `${triggerBar}:${triggerEights}:0`);
+                prevChords.push(scheduled)
+            })
+        })
+    })
+}
+
 const TriggersService = {
     scheduleActiveTriggers,
     parseTrigger,
+    setArrangement
 }
 
 export default TriggersService

@@ -41,7 +41,8 @@ const instruments: Array<Instrument> = instDef.map((defn, index) => {
 
 // PLAYABLE INST
 
-const casio = new PolySynth().fan(keyboardRecorder, masterVolume)
+const casio = new PolySynth().chain(new Volume(-12), masterVolume)
+// const casio = new PolySynth().fan(keyboardRecorder, masterVolume) // OVERDUB
 // const casio = new Sampler({"A2": 'sounds/playCm_70.mp3'}).fan(keyboardRecorder, masterVolume)
 
 const playbacks = [

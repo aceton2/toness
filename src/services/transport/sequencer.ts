@@ -138,6 +138,8 @@ function initSequencer() {
     ToneStore.subscribe((state) => state.resolution, TriggersService.scheduleActiveTriggers),
     ToneStore.subscribe((state) => state.signature, TriggersService.scheduleActiveTriggers),
     ToneStore.subscribe((state) => state.scheduledEvents, TriggersService.scheduleActiveTriggers),
+
+    ToneStore.subscribe((state) => state.songArrangement, TriggersService.scheduleActiveTriggers),
   ];
 }
 

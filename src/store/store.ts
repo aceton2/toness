@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
-import { InstrumentParams, InstrumentParam, TrackParams, TrackParam, EnvelopeParam } from '../services/core/interfaces'
+import { InstrumentParams, InstrumentParam, TrackParams, TrackParam, EnvelopeParam, SongArrangement } from '../services/core/interfaces'
 import InstrumentsService from '../services/core/instruments'
 import TriggersService from '../services/transport/triggers'
 
 export type GridResolutions = '16n' | '8n' | '8t'
 export type GridSignature = '4' | '3'
-export const STORE_VERSION = 1.8
+export const STORE_VERSION = 1.9
 const TRACKS_IDS = InstrumentsService.instruments.map(instrument => instrument.id)
 
 interface TonesState {
@@ -21,6 +21,8 @@ interface TonesState {
   trackSettings: TrackParams,
   playbackSample: number,
   swing: number,
+  songArrangement: SongArrangement,
+  updateArrangement: (arrangement: SongArrangement) => void
   setGridSignature: (sig: GridSignature) => void,
   setSwing: (swing: number) => void,
   setPlaybackSample: (s: number) => void,
@@ -88,6 +90,7 @@ const initialState = {
   swing: 0,
   instrumentParams: defaultInstrumentParams, // TONER -> for setting play params * PAD -> for setting controls
   playbackSample: -1, // which playback should play
+  songArrangement: [],
   ...cleanSequencer
 }
 
@@ -175,6 +178,9 @@ const useToneStore = create<TonesState>()(
               get().setGridSignature('4')
             }
             set(state => ({ playbackSample: s }), false, "setPlaybackSample");
+          },
+          updateArrangement: (arr: SongArrangement) => {
+            set(state => ({ songArrangement: arr }), false, "updateArrangement")
           }
         })
       ),
