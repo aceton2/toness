@@ -65,7 +65,6 @@ export default function Chords() {
 
     function onCycleChange(add: boolean) {
         if(add) {
-            console.log(songArrangement.concat([[]]))
             setArrangement(songArrangement.concat([[]]))
         } else {
             setArrangement(songArrangement.slice(0, -1))
@@ -75,8 +74,6 @@ export default function Chords() {
     function onover(e: any) {
         e.preventDefault()
     }
-
-    console.log(songArrangement)
 
     return <ChordPlay>
         <ChordPallete>

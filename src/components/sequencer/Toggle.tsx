@@ -68,7 +68,6 @@ export default function Toggle(props: ToggleProps) {
   const setStep = useCallback((step: string) => {
     const cycleBar = parseInt(step[0]) % activeBars
     const stepNormal = `${cycleBar}${step.substring(1)}`
-    console.log(step, cycleBar, activeBars, stepNormal)
     // split drops triplet sixteenth decimal
     setIsActive(!props.muted && stepNormal === props.timeId.split(".")[0])
   }, [props.muted, activeBars])

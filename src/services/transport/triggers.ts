@@ -12,7 +12,7 @@ function scheduleActiveTriggers() {
     // based on resolution and bars in grid and schedule/unschedule them to the Transport 
 
     const arrangement = useToneStore.getState().songArrangement;
-    const cycles = arrangement.length
+    const cycles = arrangement.length || 1;
     const barsPercussion = useToneStore.getState().activeBars;
     Transport.setLoopPoints(0, `${barsPercussion * cycles}m`)
 
@@ -50,7 +50,6 @@ function getActiveEvents() {
 }
 
 function schedule(scheduledEvent: string) {
-    console.log("sched", scheduledEvent)
     const [timeId, instrumentId, emphasis] = scheduledEvent.split('|')
     const triggerFunction = InstrumentsService.getPlayInstrumentTrigger(parseInt(instrumentId), emphasis === "1")
     triggerEventIds[scheduledEvent] = Transport.schedule(time => triggerFunction(time), timeId)
@@ -70,8 +69,6 @@ function parseTrigger(scheduledEvent: string) {
     }
 }
 
-
-// cycle through arranged bars and print chords to console
 function setArrangement() {
     const barsPercussion = useToneStore.getState().activeBars;
     prevChords.forEach(id => Transport.clear(id))
@@ -93,7 +90,6 @@ function setArrangement() {
 const TriggersService = {
     scheduleActiveTriggers,
     parseTrigger,
-    setArrangement
 }
 
 export default TriggersService
