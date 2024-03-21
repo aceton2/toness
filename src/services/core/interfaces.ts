@@ -1,4 +1,4 @@
-import { PitchShift, Player, Volume } from 'tone'
+import { PitchShift, Player, Sampler, Volume } from 'tone'
 
 // TRIGGERS
 
@@ -16,6 +16,7 @@ export enum InstrumentType {
   stock, // always playable, source is never removed
   pad, // playable only when a source is added
   overdub, // plays over full loop. always triggered on 0:0:0 (plays only when source added)
+  chords, // plays chords over bars
 }
 
 export interface InstrumentDefn {
@@ -31,6 +32,7 @@ export interface Instrument extends TriggerEnvelop, InstrumentDefn {
   sampleVolume: Volume
   playHigh?: Player
   playLow?: Player
+  playSampler?: Sampler
 }
 
 export interface TriggerEnvelop {

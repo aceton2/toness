@@ -1,4 +1,4 @@
-import { PitchShift, Player, Volume, Recorder, PolySynth } from "tone"
+import { PitchShift, Player, Volume, Recorder, PolySynth, Sampler } from "tone"
 import { EnvelopeParam, Instrument, InstrumentDefn, InstrumentType } from "./interfaces"
 import useToneStore from "../../store/store"
 
@@ -17,7 +17,8 @@ let instDef: Array<InstrumentDefn> = [
     { type: InstrumentType.pad, name: '1' },
     { type: InstrumentType.pad, name: '2' },
     { type: InstrumentType.pad, name: '3' },
-    { type: InstrumentType.pad, name: '4' },
+    // { type: InstrumentType.pad, name: '4' },
+    { type: InstrumentType.chords, name: 'C' },
     // { type: InstrumentType.overdub, name: 'overdub' },
 ]
 
@@ -40,10 +41,6 @@ const instruments: Array<Instrument> = instDef.map((defn, index) => {
 })
 
 // PLAYABLE INST
-
-const casio = new PolySynth().chain(new Volume(-12), masterVolume)
-// const casio = new PolySynth().fan(keyboardRecorder, masterVolume) // OVERDUB
-// const casio = new Sampler({"A2": 'sounds/playCm_70.mp3'}).fan(keyboardRecorder, masterVolume)
 
 const playbacks = [
     { name: "C minor", player: new Player('sounds/playCm_70.mp3').fan(masterVolume), bpm: 70 },
@@ -74,8 +71,17 @@ function wireSignalChain(instrument: Instrument) {
     instrument.channelVolume.fan(controlRoomRecorder, masterVolume)
     const fxAndVol = instrument.pitchShift.chain(instrument.sampleVolume, instrument.channelVolume)
 
-    instrument.playHigh = new Player(instrument.source).chain(new Volume(0), fxAndVol)
-    instrument.playLow = new Player(instrument.source).chain(new Volume(-8), fxAndVol)
+    if (instrument.type == InstrumentType.chords) {
+        instrument.playSampler = new Sampler({
+            urls: {
+                C2: "sounds/piano_C2.wav",
+                D4: "sounds/piano_D4.wav",
+            }
+        }).chain(new Volume(-8), fxAndVol)
+    } else {
+        instrument.playHigh = new Player(instrument.source).chain(new Volume(0), fxAndVol)
+        instrument.playLow = new Player(instrument.source).chain(new Volume(-8), fxAndVol)
+    }
 }
 
 async function syncInstrumentParam(id: number) {
@@ -114,8 +120,8 @@ const InstrumentsService = {
     stocks: instruments.filter(i => i.type === InstrumentType.stock),
     pads: instruments.filter(i => i.type === InstrumentType.pad),
     overdub: instruments.filter(i => i.type === InstrumentType.overdub)[0],
+    chords: instruments.filter(i => i.type === InstrumentType.chords)[0],
     instruments,
-    casio,
     playbacks,
     connectInstruments,
     getPlayInstrumentTrigger,

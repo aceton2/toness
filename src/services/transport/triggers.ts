@@ -75,11 +75,11 @@ function setArrangement() {
     useToneStore.getState().songArrangement.forEach((cycle, cycleIndex) => {
         cycle.forEach((bar, barIndex) => {
             (bar || []).forEach((chord, chordIndex) => {
-                const toPlay = Voicing.search(chord, ["B3", "C5"], VoicingDictionary.defaultDictionary)
+                const toPlay = Voicing.search(chord, ["B3", "D5"], VoicingDictionary.defaultDictionary)
                 const triggerBar = barIndex + (cycleIndex * barsPercussion)
                 const triggerEights = chordIndex === 1 ? 2 : 0;
                 const scheduled = Transport.schedule((time) => {
-                    InstrumentsService.casio.triggerAttackRelease(toPlay[0], 0.25);
+                    InstrumentsService.chords.playSampler?.triggerAttackRelease(toPlay[0], 0.60);
                 }, `${triggerBar}:${triggerEights}:0`);
                 prevChords.push(scheduled)
             })

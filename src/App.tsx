@@ -9,8 +9,6 @@ import Mask from './components/misc/Mask';
 import SamplerPanel from './components/pads/Sampler';
 import SequencerService from './services/transport/sequencer';
 import useToneStore, { STORE_VERSION } from './store/store';
-import Casio from './components/overdub/Casio';
-import Chords from './components/chords/Chords';
 
 
 const MainFrame = styled.div`
@@ -39,7 +37,6 @@ export default function App() {
           <SamplerPanel />
           <Controls />
           <Widget/>
-          <Chords />
         </>
         }
       </MainFrame>

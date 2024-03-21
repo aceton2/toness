@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import useToneStore from '../../store/store'
-import { Instrument, InstrumentParam, TrackParam } from '../../services/core/interfaces'
+import { Instrument, InstrumentParam, InstrumentType, TrackParam } from '../../services/core/interfaces'
 
 const Mask = styled.div`
   position: absolute;
@@ -74,7 +74,7 @@ export default function TrackHead({instrument, instrumentParam, trackParam}: Tra
   const toggleTrackSolo = useToneStore(state => state.toggleTrackSolo)
   const setTrackVolume =  useToneStore(state => state.setTrackVolume)
   // this should be in instrumentParam
-  const hasSound = instrumentParam.audioUrl || instrument.id < 3
+  const hasSound = instrumentParam.audioUrl || instrument.id < 3 || instrument.type === InstrumentType.chords
 
   return (
     <>

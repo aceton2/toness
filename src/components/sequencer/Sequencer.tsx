@@ -4,9 +4,9 @@ import TrackHead from './TrackHead'
 import useToneStore, { GridSignature } from '../../store/store'
 import InstrumentsService from '../../services/core/instruments'
 import GridService from '../../services/transport/grid'
-import DubTrack from './DubTrack'
-import { Instrument } from '../../services/core/interfaces'
+import { Instrument, InstrumentType } from '../../services/core/interfaces'
 import { useCallback } from 'react'
+import Chords from '../chords/Chords'
 
 
 const SequencerBox = styled.div`
@@ -55,7 +55,7 @@ export default function Sequencer() {
   return (
     <SequencerBox>
       {InstrumentsService.instruments.slice(0, activeTracks).map((instrument) => (
-        <Track 
+          <Track 
           instrument={instrument} 
           key={instrument.id} 
           togglesPerBeat={resolutionPerBeat[gridResolution] * parseInt(gridSignature)}
@@ -87,21 +87,24 @@ function Track({
   return (
     <TrackDiv key={instrument.id}>
       <TrackHead instrument={instrument} trackParam={trackParam} instrumentParam={instrumentParam}/>
-      <Grid signature={gridSignature}>
-        {
-          GridService.timeIdsByBar(timeIds).map(barInfo =>
-            <Bar key={barInfo.bar} togglesPerBeat={togglesPerBeat}>
-              { barInfo.timeIds.map((timeId) =>  (
-              <Toggle 
-                key={`${timeId}|${instrument.id}`}
-                timeId={timeId}
-                instrumentId={instrument.id}
-                muted={instrument.channelVolume.mute || (instrument.id > 2 && !instrumentParam.audioUrl)}
-              /> ))
-              }
-            </Bar>)
-        }
-      </Grid>
+      { instrument.type === InstrumentType.chords ? 
+        <Chords /> :
+        <Grid signature={gridSignature}>
+          {
+            GridService.timeIdsByBar(timeIds).map(barInfo =>
+              <Bar key={barInfo.bar} togglesPerBeat={togglesPerBeat}>
+                { barInfo.timeIds.map((timeId) =>  (
+                <Toggle 
+                  key={`${timeId}|${instrument.id}`}
+                  timeId={timeId}
+                  instrumentId={instrument.id}
+                  muted={instrument.channelVolume.mute || (instrument.id > 2 && !instrumentParam.audioUrl)}
+                /> ))
+                }
+              </Bar>)
+          }
+        </Grid>
+      }
     </TrackDiv>
   )
 }

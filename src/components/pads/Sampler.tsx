@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 import Pad from './Pad'
 import InstrumentsService from '../../services/core/instruments'
-import Casio from '../overdub/Casio'
 
 const Sampler = styled.div`
     display: grid;

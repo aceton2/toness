@@ -4,12 +4,13 @@ import { useRef } from "react";
 import useToneStore from "../../store/store";
 
 const ChordPlay = styled.div`
-    margin-top: 15px;
-    margin-left: var(--track-label-width);
+    margin-top: 2px;
+    flex: 1;
 `
 
 const ChordPallete = styled.div`
     display: flex;
+    margin-bottom: 5px;
 `;
 const ChordChip = styled.div`
     background: var(--off-color-2);
@@ -21,7 +22,7 @@ const ChordChip = styled.div`
 `
 
 const Arrangment = styled.div`
-    margin-top: 5px;
+    margin-bottom: 5px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     height: 21px;
@@ -56,7 +57,7 @@ export default function Chords() {
         e.preventDefault()
         if(currentDrag.current) {
             const barArr = songArrangement[cycleIndex][bar] || []
-            const prunedBarArr = barArr.filter(c => c != currentDrag.current).filter((c, i) => i < 1)
+            const prunedBarArr = barArr.filter((c, i) => i < 1)
             const newArragement = [...songArrangement]
             newArragement[cycleIndex][bar] = [currentDrag.current].concat(prunedBarArr)
             setArrangement(newArragement)
@@ -76,6 +77,16 @@ export default function Chords() {
     }
 
     return <ChordPlay>
+        { songArrangement.map((cycle, index) => 
+            <Arrangment>
+            {  Array.from(Array(activeBars).keys()).map(bar => (
+                <Bar onDrop={e=> ondrop(e, bar, index)} onDragOver={onover}>
+                    { (cycle[bar] || []).map(chord => (<ChordArr>{ chord || "_"}</ChordArr>)) }
+                </Bar>
+                ))
+            }
+            </Arrangment>
+        )}
         <ChordPallete>
             <button onClick={() => onCycleChange(true)}>Add</button>
             <button onClick={() => onCycleChange(false)}>Sub</button>
@@ -83,15 +94,5 @@ export default function Chords() {
                 <ChordChip draggable={true} onDrag={() => currentDrag.current = name}>{name}</ChordChip>
             ))}
         </ChordPallete>
-            { songArrangement.map((cycle, index) => 
-                <Arrangment>
-                {  Array.from(Array(activeBars).keys()).map(bar => (
-                    <Bar onDrop={e=> ondrop(e, bar, index)} onDragOver={onover}>
-                        { (cycle[bar] || []).map(chord => (<ChordArr>{ chord || "_"}</ChordArr>)) }
-                    </Bar>
-                    ))
-                }
-                </Arrangment>
-            )}
     </ChordPlay>
 }
