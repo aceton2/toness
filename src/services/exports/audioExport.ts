@@ -21,5 +21,5 @@ export async function recordAudio() {
     if (InstrumentsService.controlRoomRecorder.state !== "started") { InstrumentsService.controlRoomRecorder.start(); }
     if (context.state !== 'running') { await start() }
     Transport.on("stop", saveRecording)
-    Transport.start().stop(`+${bars}:0:0`)
+    Transport.start().stop(`+${bars * 4}:0:0`)
 }
