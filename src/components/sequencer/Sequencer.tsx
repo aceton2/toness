@@ -10,7 +10,8 @@ import Chords from '../chords/Chords'
 
 
 const SequencerBox = styled.div`
-  margin-top: 1.5rem;
+  margin-top: 30px;
+  margin-bottom: 10px;
 
   &.hidden {
     display: none;
@@ -19,9 +20,7 @@ const SequencerBox = styled.div`
 
 const TrackDiv = styled.div`
   display: flex;
-  height: 58px;
   position: relative;
-  margin: 4px 0px;
 `
 
 const barsForSignature = {

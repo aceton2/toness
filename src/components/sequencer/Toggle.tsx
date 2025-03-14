@@ -6,32 +6,28 @@ import { useCallback, useEffect, useState } from 'react'
 import SequencerService from '../../services/transport/sequencer'
 
 let colors = {
-  odd: 'var(--off-color-3)',
-  free: 'var(--control-bar)',
-  toggled: 'var(--off-color-2)',
+  odd: 'var(--main-faded)',
+  free: 'rgba(0,0,0,0)',
+  toggled: 'var(--kick)',
 }
 
 const StepMargin = styled.div`
-  margin-right: 4px;
   height: 100%;
   position: relative;
   cursor: default;
+  border: 1px solid var(--main);
 `
 
 const Step = styled.div`
   height: 100%;
-  border-radius: 2px;
-  margin:auto;
   cursor: pointer;
 `
 
 const Head = styled.div<{emph: boolean}>`
   position: relative;
-  top: ${props => props.emph ? "10%" : "80%"};
-  bottom: ${props => props.emph ? "0px" : "10px"};
-  height: 10%;
-  background: var(--panel-color-1);
-  border-radius: 2px;
+  top: ${props => props.emph ? "20%" : "80%"};
+  height: 5%;
+  background: var(--main);
 `
 
 const Guide = styled.div`
@@ -90,7 +86,7 @@ export default function Toggle(props: ToggleProps) {
   }
 
   return (
-    <StepMargin style={{ opacity: isActive ? '1' : '0.7' }}>
+    <StepMargin style={{ opacity: isActive ? '0.6' : '1' }}>
       { guideName ? <Guide>{guideName}</Guide> : '' }
       <Step style={{ backgroundColor: getBackgroundColor() }} >
         {scheduled &&<Head emph={TriggersService.parseTrigger(scheduled)?.emphasized} />}

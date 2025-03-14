@@ -5,9 +5,9 @@ import { shallow } from 'zustand/shallow';
 const TempoBox = styled.div`
   display: flex;
   & input {
-    width: 120px;
+    width: 116px;
     cursor: pointer;
-    margin-top: 9px;
+    margin-top: 5px;
   }
   & button {
     margin: 0px 0.1rem;
@@ -15,10 +15,11 @@ const TempoBox = styled.div`
 `
 
 const TempoDisplay = styled.div`
-    padding: 4px 4px;
-    width: 53px;
+    padding: 0px 5px;
+    width: 73px;
+    line-height: 26px;
     &.swing {
-      width: 64px;
+      width: 105px;
     }
 `
 
@@ -30,7 +31,7 @@ export default function Tempo() {
     return (
         <TempoBox>
             <TempoDisplay>
-                BPM {bpm}
+                Bpm {bpm}
             </TempoDisplay>
             <div>
                 <input

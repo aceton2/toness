@@ -68,11 +68,11 @@ function drawSample(channelBuffer: Float32Array, parentEl: Element) {
   const WIDTH = waveCanvas.width
   const HEIGHT = waveCanvas.height
 
-  waveCtx.fillStyle = '#36454f' //off-color-2
+  waveCtx.fillStyle = 'rgba(0,0,0,0)' // '#36454f' //off-color-2
   waveCtx.fillRect(0, 0, WIDTH, HEIGHT)
 
   waveCtx.lineWidth = 2
-  waveCtx.strokeStyle = 'rgb(245,245,245)'
+  waveCtx.strokeStyle = 'rgb(255, 255, 255)' //white
 
   const stepSize = WIDTH / channelBuffer.length
   let currentX = 0

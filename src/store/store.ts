@@ -74,8 +74,8 @@ const defaultInstrumentParams = TRACKS_IDS.reduce<InstrumentParams>(
 );
 
 const cleanSequencer = {
-  activeTracks: 1, // SEQUENCER -> for setting mutes * WIDGET -> for setting track visibility
-  activeBars: 1, // SEQUENCER -> for setting active slots
+  activeTracks: 6, // SEQUENCER -> for setting mutes * WIDGET -> for setting track visibility
+  activeBars: 4, // SEQUENCER -> for setting active slots
   signature: '4' as GridSignature,
   resolution: '8n' as GridResolutions,  // SEQUENCER -> for setting active slots * CONTROLS -> for button
   scheduledEvents: [], // SEQUENCER -> for transport sync * TOGGLE -> for step styling

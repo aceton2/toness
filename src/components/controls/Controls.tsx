@@ -7,53 +7,57 @@ import InstrumentsService from '../../services/core/instruments';
 import SampleService from '../../services/sampling/sample';
 
 import { shallow } from 'zustand/shallow'
+import NoteIcon from './NoteIcon';
 
 const ControlBox = styled.div`
-  margin-bottom: 2.5rem;
-  background: var(--off-color-1);
+  margin: 10px 0;
+  height: 75px;
+  border: solid black 2px;
   border-radius: 5px;
-  padding: 5px;
-  padding-left: 60px;
   display: flex;
   position: relative;
+  display: flex;
+  flex-direction: horizontal;
+  font-size: 24px;
   button {
-    background: var(--off-color-2);
+    height: 100%;
+    font-size: 24px;
+    border: 2px solid black;
     &:hover {
-      background: var(--panel-color-1)
+      background: var(--main-light)
     }
   }
 `
 
-const MultiSelect = styled.div<{disabled?: boolean}>`
-  display: flex;
-  border-radius: 5px;
-  cursor: ${props => props.disabled ? "cursor" : "pointer"};
-  overflow: hidden;
-  padding: 0px;
+const ControlSection = styled.div<{disabled?: boolean}>`
+  border-right: solid black 2px;
+  padding: 15px;
+  &.playback {
+    flex: 1;
+  }
+  &:last-child {
+    border-right: 0px;
+  } 
+`
+
+const MultiSelectBtn = styled.button`
+  padding: 0px 10px;
   margin-left: 5px;
   position: relative;
+  height: 100%;
+  min-width: 80px;
   
   & div {
     flex: 1;
-    padding: 5px;
-    background: var(--off-color-2);
+    padding: 0px 5px;
+    border-right: 1px solid black;
+    background: var(--white);
     text-align: center;
   }
-  & .active {background: var(--panel-color-1) }
-`
-
-const Stretch = styled.div`
-  flex: 1;
-`
-
-const Floater = styled.div`
-    position: absolute;
-    left: -31px;
-    top: -11px;
-    background: var(--off-color-2);
-    z-index: 1;
-    border-radius: 2px;
-    padding: 1px;
+  &.active {
+    background: var(--main); 
+    color: var(--white);
+  }
 `
 
 const PlaybackSelect = styled.label`
@@ -61,14 +65,27 @@ const PlaybackSelect = styled.label`
   font-size: 1rem;
   font-weight: bold;
   margin: 2px 0px;
+  position: relative;
   select {
-    margin-left: 5px;
-    background: var(--off-color-1);
+    margin: 0px 5px;
+    width: calc(100% - 10px);
+    height: 100%;
+    background: none;
     border: 2px solid var(--off-color-2);
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 24px;
     cursor: pointer;
+    color: var(--main);
+    padding-left: 33px;
+    font-family: "RoobertMono"; 
   }
+`
+
+const IconBox = styled.div`
+  position: absolute;
+  z-index: 2;
+  left: 15px;
+  top: -2px;
 `
 
 const DisableMask = styled.div`
@@ -107,42 +124,52 @@ export default function Controls() {
 
   return (
     <ControlBox>
-      <Floater>SEQUENCER</Floater>
 
-      <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> <span></span><FontAwesomeIcon icon={faStop}/></button>
-      <button onClick={clearSchedule}>X STEPS</button>
-      <button onClick={clearAll}>RESET</button>
+      <ControlSection>
+        <button onClick={toggleTransporter}><FontAwesomeIcon icon={faPlay}/> <span></span><FontAwesomeIcon icon={faStop}/></button>
+        <button onClick={clearSchedule}>X STEPS</button>
+        <button onClick={clearAll}>RESET</button>
+      </ControlSection>
 
-      <Stretch />
+      {/* <Stretch /> */}
 
-      <button onClick={() => changeTracks(1)}>+ TRACK</button>
-      <button onClick={() => changeTracks(-1)}>- TRACK</button>
-      <button onClick={() => changeBars(1)}>+ BAR</button>
-      <button onClick={() => changeBars(-1)}>- BAR</button>
-      <Stretch />
+      <ControlSection className={"playback"}>
+        <PlaybackSelect>
+          
+          <IconBox><NoteIcon /></IconBox>
 
-      <PlaybackSelect>
-        Playback:
-        <select onChange={e => setPlayback(parseInt(e.target.value))} defaultValue={playback}>
-          <option value={-1}>Free</option>
-          {InstrumentsService.playbacks.map((pb, index) => 
-            <option key={pb.name} value={index}>{pb.name}</option>
-          )}
-        </select>
-      </PlaybackSelect>
-      <Stretch />
+          <select onChange={e => setPlayback(parseInt(e.target.value))} defaultValue={playback}>
+            
+            <option value={-1}>KEIN PLAYBACK</option>
+            {InstrumentsService.playbacks.map((pb, index) => 
+              <option key={pb.name} value={index}>{pb.name}</option>
+            )}
+          </select>
+        </PlaybackSelect>
+      </ControlSection>
+
+      {/* <ControlSection>
+        <button onClick={() => changeTracks(1)}>+ TRACK</button>
+        <button onClick={() => changeTracks(-1)}>- TRACK</button>
+        <button onClick={() => changeBars(1)}>+ BAR</button>
+        <button onClick={() => changeBars(-1)}>- BAR</button>
+      </ControlSection> */}
      
-      <MultiSelect disabled={playback !== -1}>
-        {playback !== -1 && <DisableMask />}
-        <div className={sig === '4' ? 'active' : ''} onClick={e => toggleSig('4')}>4/4</div>
-        <div className={sig === '3' ? 'active' : ''} onClick={e => toggleSig('3')}>3/4</div>
-      </MultiSelect>
+      <ControlSection disabled={playback !== -1}> 
+        {/* {playback !== -1 && <DisableMask />} */}
+        <MultiSelectBtn className={sig === '4' ? 'active' : ''} onClick={e => toggleSig('4')}>
+          4/4
+        </MultiSelectBtn>
+        <MultiSelectBtn className={sig === '3' ? 'active' : ''} onClick={e => toggleSig('3')}>
+          3/4
+        </MultiSelectBtn>
+      </ControlSection>
 
-      <MultiSelect>
-        <div className={res === '8n' ? 'active' : ''} onClick={e => toggleRes('8n')}>8ths</div>
-        <div className={res === '8t' ? 'active' : ''} onClick={e => toggleRes('8t')}>Triplets</div>
-        <div className={res === '16n' ? 'active' : ''} onClick={e => toggleRes('16n')}>16ths</div>
-      </MultiSelect>
+      <ControlSection>
+          <MultiSelectBtn className={res === '8n' ? 'active' : ''} onClick={e => toggleRes('8n')}>8ths</MultiSelectBtn>
+          <MultiSelectBtn className={res === '8t' ? 'active' : ''} onClick={e => toggleRes('8t')}>Triplets</MultiSelectBtn>
+          <MultiSelectBtn className={res === '16n' ? 'active' : ''} onClick={e => toggleRes('16n')}>16ths</MultiSelectBtn>
+      </ControlSection>
 
     </ControlBox>
   )

@@ -2,51 +2,32 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components"
 import RecorderService from "../../services/sampling/recorder"
 import SampleService from "../../services/sampling/sample";
-import { EnvelopeParam, Instrument } from "../../services/core/interfaces";
+import { Instrument } from "../../services/core/interfaces";
 import useToneStore, { selectPadAudioUrl } from "../../store/store";
 import DrawerService from "../../services/sampling/waveRender";
 import InstrumentsService from "../../services/core/instruments";
 import useWindowResize from "../useWindowResize";
+import TrashIcon from './trashIcon';
+import WavesIcon from "./wavesIcon";
+import PadControl from "./PadControl";
+import SliderIcon from "./sliderlcon";
 
 const PadBox = styled.div`
   position: relative;
   border-radius: 5px;
-  margin: 5px; 
+  display: flex
+  flex-direction: column;
+  height: 165px;
+  border: 1.5px solid var(--black);
+  background: var(--main);
+  border-radius: 5px;
 `
 
 const RecordingBox = styled.div`
-  height: 120px;
-  background: var(--off-color-2);
-  border-radius: 5px 5px 0px 0px;
-
-  display: flex;
-  flex-direction: column;   
+  flex: 1;
   cursor: pointer;
 `
 
-const PadControl = styled.div`
-  height: 30px;
-  background: #556d7c;
-  border-radius: 0px 0px 5px 5px;
-  
-  text-align: center;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-
-  font-size: 0.8rem;
-
-  & > div {
-    margin: 0 0.1rem;
-  }
-  & input {
-    width: 80%;
-    font-size: 0.8rem;
-    border: 1px solid whitesmoke;
-    color: white;
-    background: #556d7c;
-    border-radius: 2px;
-  }
-`
 
 const Blur = styled.div `
   position: absolute;
@@ -81,18 +62,10 @@ const Wave = styled.div`
   height: 100%;
 `
 
-const Title = styled.div<{color: string}>`
-  margin: 0px;
-  height: 20px;
-  text-align: center;
-  border-radius: 5px 5px 0px 0px;
-  background: var(${props => `--pad-${props.color}`});
-`
-
-const TopControl = styled.div`
+const TopBar = styled.div`
   position: absolute;
   z-index: 2;
-  top: -1px;
+  top: 10px;
   left: 0;
   right: 0;
   text-align: center;
@@ -101,23 +74,46 @@ const TopControl = styled.div`
   cursor: default;
   & button {
     position: absolute;
-    right: 5px;
-    top: 2px;
+    right: 0px;
     background: none;
     font-weight: 600;
+    border: 0px;
   }
 `
 
-interface ParamCfg {displayName: string, name: EnvelopeParam, min: number, max: number, step: number}
-const paramConfigObj: {[key: string]: ParamCfg} = {
-  offset: {displayName: 'start', name: EnvelopeParam.offset, min: 0, max: 99, step: 1},
-  // fadeIn: {displayName: 'f-in', name: EnvelopeParam.fadeIn, min: 0, max: 99, step: 1},
-  duration: {displayName: 'duration', name: EnvelopeParam.duration, min: 0, max: 99, step: 1},
-  // fadeOut: {displayName: 'f-out', name: EnvelopeParam.fadeOut, min: 0, max: 99, step: 1},
-  volume: {displayName: 'amplitude', name: EnvelopeParam.amplitude, min: -24, max: 24, step: 1},
-  pitchShift: {displayName: 'pitch', name: EnvelopeParam.pitchShift, min: -48, max: 48, step: 1},
-}
-const paramConfigs: Array<ParamCfg> = Array.from(Object.values(paramConfigObj))
+const BottomBar = styled.div`
+  position: absolute;
+  z-index: 2;
+  bottom: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--contrast);
+  padding-left: 10px;
+  display: flex;
+  & button {
+    background: var(--main-light);
+    display: flex;
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3.846px;
+    background: var(--Mittel-Grau, #B9ABEB);
+  }
+`
+
+const ButtonBox = styled.div`
+  margin: 5px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+`
+
+const PadTitle = styled.div`
+  margin-left: 8px;
+`
 
 export default function Pad(props: {pad: Instrument}) {
     const elementRef = useRef<HTMLDivElement>(null)
@@ -156,10 +152,6 @@ export default function Pad(props: {pad: Instrument}) {
       }
     }
 
-    function updateParams(value: string, paramName: EnvelopeParam) {
-      setPadParams(props.pad.id, {...padParams, [paramName]: parseInt(value), custom: true})
-    }
-
     function clearPad() {
       SampleService.removeSample(props.pad.id)
     }
@@ -168,17 +160,18 @@ export default function Pad(props: {pad: Instrument}) {
     <PadBox 
       onMouseLeave={() => stopRecording()} 
       onMouseUp={() => stopRecording()}>
-          <TopControl>
-            <div>{props.pad.name}</div>
-            { audioUrl &&
-              <button onClick={clearPad}>(x)</button> 
-            }
-          </TopControl>
+
+        <TopBar>
+          { audioUrl &&
+            <button onClick={clearPad}><TrashIcon/></button> 
+          }
+        </TopBar>
+
         { !recording ? '' : (
             <Blur> <div> recording...</div> </Blur>
         )}
+
         <RecordingBox onMouseDown={() => recordOrPlay()}>
-          <Title color={props.pad.name}></Title>
           <WaveViewPort>
             <Wave ref={elementRef}>
               <canvas className="wave" height="0px" width="0px"></canvas>
@@ -187,23 +180,13 @@ export default function Pad(props: {pad: Instrument}) {
           </WaveViewPort>
         </RecordingBox>
 
-        <PadControl>
-            { audioUrl ? (
-              paramConfigs.map((cfg) => (
-                <div key={cfg.name}>
-                  <div>{cfg.displayName}</div>
-                  <input type="number" 
-                    value={padParams[cfg.name]} 
-                    onChange={(e) => updateParams(e.target.value, cfg.name)} 
-                    min={cfg.min}
-                    max={cfg.max}
-                    step={cfg.step}
-                  />
-                </div>
-              ))
-              ) : ''
-            }
-        </PadControl>
+        <BottomBar>
+          <div><WavesIcon /></div>
+          <PadTitle> {props.pad.name} </PadTitle>
+          <ButtonBox> <button><SliderIcon/></button> </ButtonBox>
+        </BottomBar>
+
+        { audioUrl && <PadControl padId={props.pad.id}/> }
     </PadBox>
     )
 }

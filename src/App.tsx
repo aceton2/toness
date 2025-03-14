@@ -12,10 +12,19 @@ import useToneStore, { STORE_VERSION } from './store/store';
 
 
 const MainFrame = styled.div`
-  margin: 0rem 1rem 1rem;
-  padding: 1.5rem 2rem;
-  border-radius: 5px; 
+  margin: 0 10px;
 `;
+
+const HeaderFrame = styled.div`
+  background: rgba(255, 255, 255, 0.01);
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(25px);
+  position: relative;
+`
+
+const HeaderPadding = styled.div`
+  padding-bottom: 36px;
+`
 
 export default function App() {
   const [sequencerOn, setSequencerOn] = useState(false)
@@ -30,8 +39,12 @@ export default function App() {
 
   return (
     <div>
-      <Header />
       <Mask/>
+
+      <HeaderFrame>
+        <Header />
+        <HeaderPadding />
+      </HeaderFrame>
       <MainFrame>
         { sequencerOn && <>
           <SamplerPanel />

@@ -1,22 +1,50 @@
 html {
-  font-size: 12px;
+  font-size: 16px;
+}
+
+@font-face {
+  font-family: 'RoobertMono';
+  src: local('RoobertMono'), url(../public/fonts/RoobertMonoTRIAL-SemiBold.woff) format('woff');
 }
 
 @font-face {
   font-family: 'Roobert';
-  src: local('Roobert'), url(../public/fonts/RoobertMonoTRIAL-SemiBold.woff) format('woff');
+  src: local('Roobert'), url(../public/fonts/RoobertTRIAL-SemiBold.woff) format('woff');
 }
 
 body {
   margin: 0;
 
-  font-family: 'Roobert';
+  font-family: 'RoobertMono';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
   height: 100vh;
   max-height: 700px;
-  background: radial-gradient(var(--background-inner), var(--background-mid), var(--background-outer));
+  width: 90%;
+  margin: auto;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.80) 18.84%, rgba(255, 255, 255, 0.47) 49.45%, rgba(255, 255, 255, 0.00) 94.2%), linear-gradient(87deg, #FFCDCD 2.61%, #FFEDD8 48.87%, #FBEEC3 95.12%);
+
+  color: black;
+
+
+  /* VARIABLES */
+
+  --black: #000000;
+  --white: #FFF;
+  --main: #795CEF;
+  --main-light: #B9ABEB;
+  --main-faded: rgba(121, 92, 239, 0.3);
+  --contrast: #FF6B6B;
+
+  --kick: #77F57C;
+  --snare: #F9FB92;
+  --hat: #FB92F7;
+  --hat2: #92D5FB;
+  --1: #FF5F5F;
+  --2: #FF5F5F;
+  --3: #FF5F5F;
+
 
   /* original pad colors */
   --wisteria: #B59ECDff;
@@ -24,7 +52,6 @@ body {
   --melon: #FAB8B5ff;
   --maya-blue: #8AC5F4ff;
 
-  color: ghostwhite;
   --panel-color-1: #d46174;
   --panel-color-2: #e38471;
   --off-color-1: #ecdda6;
@@ -46,15 +73,15 @@ body {
   --control-bar: var(--off-color-1);
   --btn-red: var(--panel-color-1);
   /* layout */
-  --track-label-width: 60px;
+  --track-label-width: 65px;
 }
 
 button {
   font-family: inherit;
   /* For all browsers */
-  font-size: 100%;
+  font-size: 16px;
   /* For all browsers */
-  line-height: 1.15;
+  line-height: normal;
   /* For all browsers */
   margin: 0;
   /* Firefox and Safari have margin */
@@ -66,17 +93,16 @@ button {
   /* Safari otherwise prevents some styles */
 
   /* styling */
-  border: 0;
-  border-radius: 0.25rem;
-  background: var(--panel-color-2);
-  color: white;
+  border: 1px solid var(--black);
+  border-radius: 20px;
+  background: none;
+  color: var(--black);
   font-size: 1rem;
-  line-height: 1.2;
   white-space: nowrap;
   text-decoration: none;
-  padding: 2px 5px 0px;
   margin: 0px 0.2rem;
   cursor: pointer;
+  padding: 0px 10px;
 }
 
 button::-moz-focus-inner {
@@ -100,8 +126,8 @@ button:hover{background-color: var(--panel-color-1);}
 input[type="range"] {
   -webkit-appearance: none;
   margin-right: 15px;
-  height: 7px;
-  background: var(--sampler-bottom);
+  height: 1px;
+  background: var(--black);
   border-radius: 5px;
   cursor: pointer;
 }
@@ -109,10 +135,10 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track,
 input[type="range"]::-moz-range-thumb {
   -webkit-appearance: none;
-  height: 4px;
-  width: 4px;
+  height: 8px;
+  width: 8px;
   border-radius: 50%;
-  background: black;
+  background: var(--black);
   border: 1px solid black
 }
 

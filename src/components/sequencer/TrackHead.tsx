@@ -8,17 +8,18 @@ const Mask = styled.div`
   bottom:0;
   left:0;
   right:0;
-  background: none;
+  background: rgba(0,0,0, 0.1);
   z-index: 2;
 `
 
-const Label = styled.div`
-  width: var(--track-label-width);
+const TrackHeadBox = styled.div<{trackName: string}>`
+  width: 65px;
+  height: 75px;
   padding: 5px;
-  margin-right: 5px;
-  border-radius: 5px;
-  background: var(--off-color-2);
-  opacity: 0.9;
+  border: 2px solid var(--black);
+  border-bottom: 0px;
+  background: ${props => `var(--${props.trackName});`}
+  color: var(--black);
   cursor: default;
   box-sizing: border-box;
   display: flex;
@@ -27,36 +28,39 @@ const Label = styled.div`
   & svg {
     width: 50%;
     height: 50%;
-    padding-top:1px;
+    padding-top: 1px;
+  }
+
+  &:last-child {
+    border-bottom: 2px solid var(--black);
   }
 `
 
 const LabelName = styled.div`
   width: 100%;
-  border-radius: 2px;
   text-align: center;
-  height: 15px;
-  font-weight: 600;
-  background: var(${props => `--pad-${props.color}`});
 `
 
 
 const ToggleBtns = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 6px;
-  flex: 1;
+  flex: 1px;
 `
 
 const TrackIcon = styled.div<{active: string | null, clickable: boolean}>`
   border-radius: 3px;
+  border: 1px solid var(--black);
   width: 15px;
+  margin: 7.5px 2.5px 5px;
+  padding: 0px 4px;
+  height: 20px;
   text-align: center;
-  font-weight: 600;
-  font-size: 1rem;
   cursor: ${props => props.clickable ? 'pointer' : 'default'};
   background: var(${props => props.active});
-  color: var(${props => !props.clickable ? '--inactive-color' : props.active ? '--off-color-2' : '--control-bar'});
+  color: var(${props => props.active ? "--white" : "--black"});
+  font-famiy: RoobertMono;
+  font-size: 16px;
 `
 
 const VolInput = styled.input`
@@ -78,21 +82,16 @@ export default function TrackHead({instrument, instrumentParam, trackParam}: Tra
 
   return (
     <>
-      { !hasSound ? <Mask /> : '' }
-      <Label>
+      {/* { !hasSound ? <Mask /> : '' } */}
+      <TrackHeadBox trackName={instrument.name}>
         <LabelName color={instrument.name}>{instrument.name}</LabelName>
         <ToggleBtns>
-        { hasSound ?
-          <>
-            <TrackIcon active={trackParam?.mute ? '--control-bar': null} clickable={true} onClick={() => toggleTrackMute(instrument.id)}>
+            <TrackIcon active={trackParam?.mute ? '--black': null} clickable={true} onClick={() => toggleTrackMute(instrument.id)}>
               M
             </TrackIcon>
-            <TrackIcon active={trackParam?.solo ? '--control-bar': null} clickable={true} onClick={() => toggleTrackSolo(instrument.id)}>
+            <TrackIcon active={trackParam?.solo ? '--black': null} clickable={true} onClick={() => toggleTrackSolo(instrument.id)}>
               S
             </TrackIcon>
-          </>
-          : <TrackIcon active={null} clickable={false}> - </TrackIcon> 
-          }
         </ToggleBtns>
           <VolInput type="range" 
               max={100}
@@ -100,7 +99,7 @@ export default function TrackHead({instrument, instrumentParam, trackParam}: Tra
               value={trackParam.volume} 
               onChange={e => setTrackVolume(instrument.id, parseInt(e.target.value))}
           />
-      </Label>
+      </TrackHeadBox>
     </>
   )
 }
