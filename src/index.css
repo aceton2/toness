@@ -20,7 +20,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   height: 100vh;
-  max-height: 700px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.80) 18.84%, rgba(255, 255, 255, 0.47) 49.45%, rgba(255, 255, 255, 0.00) 94.2%), linear-gradient(87deg, #FFCDCD 2.61%, #FFEDD8 48.87%, #FBEEC3 95.12%);
 
   color: black;
@@ -88,7 +87,7 @@ button {
 
   /* styling */
   border: 1px solid var(--black);
-  border-radius: 20px;
+  border-radius: 6px;
   background: none;
   color: var(--black);
   font-size: 0.8rem;

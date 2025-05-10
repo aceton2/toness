@@ -15,7 +15,7 @@ const StepMargin = styled.div`
   height: 100%;
   position: relative;
   cursor: default;
-  border: 1px solid var(--main);
+  border: 0.5px solid var(--main);
   box-sizing: border-box;
 `
 
@@ -33,11 +33,12 @@ const Head = styled.div<{ emph: boolean }>`
 
 const Guide = styled.div`
   position: absolute;
-  top: -1.4rem;
-  font-size: 1rem;
+  top: -1rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-align: center;
   width: 100%;
+  z-index: 10;
 `
 
 const ToggleBtn = styled.div`

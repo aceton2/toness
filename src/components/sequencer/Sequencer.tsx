@@ -4,8 +4,7 @@ import InstrumentsService from '../../services/core/instruments'
 import { Track } from './Track'
 
 const SequencerBox = styled.div`
-  margin-top: 30px;
-  margin-bottom: 10px;
+  margin-top: 24px;
   display: flex;
   flex-direction: column;
 

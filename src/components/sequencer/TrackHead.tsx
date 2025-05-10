@@ -68,20 +68,10 @@ interface TrackHeadProps {
   trackParam: TrackParam
 }
 
-export default function TrackHead({
-  instrument,
-  instrumentParam,
-  trackParam,
-}: TrackHeadProps) {
+export default function TrackHead({ instrument, trackParam }: TrackHeadProps) {
   const toggleTrackMute = useToneStore((state) => state.toggleTrackMute)
   const toggleTrackSolo = useToneStore((state) => state.toggleTrackSolo)
   const setTrackVolume = useToneStore((state) => state.setTrackVolume)
-  // this should be in instrumentParam
-  const hasSound =
-    instrumentParam.audioUrl ||
-    instrument.id < 3 ||
-    instrument.type === InstrumentType.chords
-
   return (
     <TrackHeadBox trackName={instrument.name}>
       <LabelName color={instrument.name}>{instrument.name}</LabelName>

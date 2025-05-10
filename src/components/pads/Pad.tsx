@@ -1,16 +1,16 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import styled from "styled-components"
-import RecorderService from "../../services/sampling/recorder"
-import SampleService from "../../services/sampling/sample";
-import { Instrument } from "../../services/core/interfaces";
-import useToneStore, { selectPadAudioUrl } from "../../store/store";
-import DrawerService from "../../services/sampling/waveRender";
-import InstrumentsService from "../../services/core/instruments";
-import useWindowResize from "../useWindowResize";
-import TrashIcon from './trashIcon';
-import WavesIcon from "./wavesIcon";
-import PadControl from "./PadControl";
-import SliderIcon from "./sliderlcon";
+import { useState, useRef, useEffect, useCallback } from 'react'
+import styled from 'styled-components'
+import RecorderService from '../../services/sampling/recorder'
+import SampleService from '../../services/sampling/sample'
+import { Instrument } from '../../services/core/interfaces'
+import useToneStore, { selectPadAudioUrl } from '../../store/store'
+import DrawerService from '../../services/sampling/waveRender'
+import InstrumentsService from '../../services/core/instruments'
+import useWindowResize from '../useWindowResize'
+import TrashIcon from './trashIcon'
+import WavesIcon from './wavesIcon'
+import PadControl from './PadControl'
+import SliderIcon from './sliderlcon'
 
 const PadBox = styled.div`
   position: relative;
@@ -20,7 +20,7 @@ const PadBox = styled.div`
   height: 165px;
   border: 1.5px solid var(--black);
   background: var(--main);
-  border-radius: 5px;
+  border-radius: 3px;
 `
 
 const RecordingBox = styled.div`
@@ -28,8 +28,7 @@ const RecordingBox = styled.div`
   cursor: pointer;
 `
 
-
-const Blur = styled.div `
+const Blur = styled.div`
   position: absolute;
   border-radius: 5px;
   backdrop-filter: blur(4px);
@@ -39,9 +38,9 @@ const Blur = styled.div `
   right: 0;
   z-index: 2;
   & div {
-      text-align: center;
-      font-style: italic;
-      margin-top: 1rem;
+    text-align: center;
+    font-style: italic;
+    margin-top: 1rem;
   }
 `
 
@@ -100,7 +99,7 @@ const BottomBar = styled.div`
     justify-content: center;
     align-items: center;
     border-radius: 3.846px;
-    background: var(--Mittel-Grau, #B9ABEB);
+    background: var(--Mittel-Grau, #b9abeb);
   }
 `
 
@@ -115,78 +114,96 @@ const PadTitle = styled.div`
   margin-left: 8px;
 `
 
-export default function Pad(props: {pad: Instrument}) {
-    const elementRef = useRef<HTMLDivElement>(null)
-    const audioUrl = useToneStore(useCallback(state => selectPadAudioUrl(state, props.pad.id), [props.pad.id]))
-    const [padParams, setPadParams] = useToneStore(state => [state.instrumentParams[props.pad.id], state.setInstrumentParams])
-    const [recording, setRecording] = useState(false)
-    const windowSize = useWindowResize()
+export default function Pad(props: { pad: Instrument }) {
+  const elementRef = useRef<HTMLDivElement>(null)
+  const audioUrl = useToneStore(
+    useCallback((state) => selectPadAudioUrl(state, props.pad.id), [props.pad.id])
+  )
+  const [padParams, setPadParams] = useToneStore((state) => [
+    state.instrumentParams[props.pad.id],
+    state.setInstrumentParams,
+  ])
+  const [recording, setRecording] = useState(false)
+  const [showPadCtrl, setShowPadCtrl] = useState(false)
+  const windowSize = useWindowResize()
 
-    const startRecording = useCallback(() => {
-      if(!elementRef.current) return
-      DrawerService.clearAllCanvas(elementRef.current)
-      RecorderService.startRecorder(props.pad.id, elementRef.current)
-      setRecording(true)
-      setPadParams(props.pad.id)
-    }, [props.pad.id, setPadParams])
+  const startRecording = useCallback(() => {
+    if (!elementRef.current) return
+    DrawerService.clearAllCanvas(elementRef.current)
+    RecorderService.startRecorder(props.pad.id, elementRef.current)
+    setRecording(true)
+    setPadParams(props.pad.id)
+  }, [props.pad.id, setPadParams])
 
-    useEffect(() => {
-      if(!elementRef.current) return
-      DrawerService.drawAudioUrl(elementRef.current, audioUrl)
-    }, [elementRef, audioUrl, windowSize])
+  useEffect(() => {
+    if (!elementRef.current) return
+    DrawerService.drawAudioUrl(elementRef.current, audioUrl)
+  }, [elementRef, audioUrl, windowSize])
 
-    useEffect(() => {
-      if(!elementRef.current) return
-      DrawerService.updateEditLayer(padParams, elementRef.current)
-    }, [elementRef, padParams, windowSize])
+  useEffect(() => {
+    if (!elementRef.current) return
+    DrawerService.updateEditLayer(padParams, elementRef.current)
+  }, [elementRef, padParams, windowSize])
 
-    function recordOrPlay() {
-      const trigger = InstrumentsService.getPlayInstrumentTrigger(props.pad.id, true)
-      audioUrl ?  trigger(0) : startRecording()
+  function recordOrPlay() {
+    const trigger = InstrumentsService.getPlayInstrumentTrigger(props.pad.id, true)
+    audioUrl ? trigger(0) : startRecording()
+  }
+
+  function stopRecording() {
+    if (recording) {
+      RecorderService.stopRecorder()
+      setRecording(false)
     }
+  }
 
-    function stopRecording() {
-      if(recording) {
-        RecorderService.stopRecorder()
-        setRecording(false)
-      }
-    }
+  function clearPad() {
+    SampleService.removeSample(props.pad.id)
+  }
 
-    function clearPad() {
-      SampleService.removeSample(props.pad.id)
-    }
-
-    return (
-    <PadBox 
-      onMouseLeave={() => stopRecording()} 
-      onMouseUp={() => stopRecording()}>
-
-        <TopBar>
-          { audioUrl &&
-            <button onClick={clearPad}><TrashIcon/></button> 
-          }
-        </TopBar>
-
-        { !recording ? '' : (
-            <Blur> <div> recording...</div> </Blur>
+  return (
+    <PadBox onMouseLeave={() => stopRecording()} onMouseUp={() => stopRecording()}>
+      <TopBar>
+        {audioUrl && (
+          <button onClick={clearPad}>
+            <TrashIcon />
+          </button>
         )}
+      </TopBar>
 
-        <RecordingBox onMouseDown={() => recordOrPlay()}>
-          <WaveViewPort>
-            <Wave ref={elementRef}>
-              <canvas className="wave" height="0px" width="0px"></canvas>
-              <canvas className="edit" height="0px" width="0px"></canvas>
-            </Wave>
-          </WaveViewPort>
-        </RecordingBox>
+      {!recording ? (
+        ''
+      ) : (
+        <Blur>
+          {' '}
+          <div> recording...</div>{' '}
+        </Blur>
+      )}
 
-        <BottomBar>
-          <div><WavesIcon /></div>
-          <PadTitle> {props.pad.name} </PadTitle>
-          <ButtonBox> <button><SliderIcon/></button> </ButtonBox>
-        </BottomBar>
+      <RecordingBox onMouseDown={() => recordOrPlay()}>
+        <WaveViewPort>
+          <Wave ref={elementRef}>
+            <canvas className="wave" height="0px" width="0px"></canvas>
+            <canvas className="edit" height="0px" width="0px"></canvas>
+          </Wave>
+        </WaveViewPort>
+      </RecordingBox>
 
-        { audioUrl && <PadControl padId={props.pad.id}/> }
+      <BottomBar>
+        <div>
+          <WavesIcon />
+        </div>
+        <PadTitle> {props.pad.name} </PadTitle>
+        <ButtonBox>
+          {audioUrl && (
+            <button onClick={() => setShowPadCtrl(!showPadCtrl)}>
+              <SliderIcon />
+            </button>
+          )}
+        </ButtonBox>
+      </BottomBar>
+
+      {showPadCtrl && audioUrl && <PadControl padId={props.pad.id} />}
     </PadBox>
-    )
+  )
 }

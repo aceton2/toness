@@ -10,9 +10,8 @@ import { shallow } from 'zustand/shallow'
 import NoteIcon from './NoteIcon'
 
 const ControlBox = styled.div`
-  margin: 10px 0;
   border: solid black 2px;
-  border-radius: 5px;
+  border-radius: 3px;
   display: flex;
   position: relative;
   display: flex;
@@ -159,26 +158,19 @@ export default function Controls() {
         </PlaybackSelect>
       </ControlSection>
 
-      {/* <ControlSection>
-        <button onClick={() => changeTracks(1)}>+ TRACK</button>
-        <button onClick={() => changeTracks(-1)}>- TRACK</button>
-        <button onClick={() => changeBars(1)}>+ BAR</button>
-        <button onClick={() => changeBars(-1)}>- BAR</button>
-      </ControlSection> */}
-
       <ControlSection disabled={playback !== -1}>
-        {/* {playback !== -1 && <DisableMask />} */}
-        <MultiSelectBtn
-          className={sig === '4' ? 'active' : ''}
-          onClick={(e) => toggleSig('4')}
-        >
-          4/4
-        </MultiSelectBtn>
+        {playback !== -1 && <DisableMask />}
         <MultiSelectBtn
           className={sig === '3' ? 'active' : ''}
           onClick={(e) => toggleSig('3')}
         >
           3/4
+        </MultiSelectBtn>
+        <MultiSelectBtn
+          className={sig === '4' ? 'active' : ''}
+          onClick={(e) => toggleSig('4')}
+        >
+          4/4
         </MultiSelectBtn>
       </ControlSection>
 
@@ -187,19 +179,19 @@ export default function Controls() {
           className={res === '8n' ? 'active' : ''}
           onClick={(e) => toggleRes('8n')}
         >
-          8ths
+          8THS
         </MultiSelectBtn>
         <MultiSelectBtn
           className={res === '8t' ? 'active' : ''}
           onClick={(e) => toggleRes('8t')}
         >
-          Triplets
+          TRIPLETS
         </MultiSelectBtn>
         <MultiSelectBtn
           className={res === '16n' ? 'active' : ''}
           onClick={(e) => toggleRes('16n')}
         >
-          16ths
+          16THS
         </MultiSelectBtn>
       </ControlSection>
     </ControlBox>

@@ -30,6 +30,15 @@ const Grid = styled.div<{ signature: GridSignature }>`
   grid-template-columns: repeat(${(props) => barsForSignature[props.signature]}, 1fr);
 `
 
+const Mask = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+  background: grey;
+  z-index: 10;
+`
+
 interface TrackProps {
   instrument: Instrument
   togglesPerBeat: number
@@ -56,8 +65,13 @@ export function Track({
   const trackParam = useToneStore(
     useCallback((state) => state.trackSettings[instrument.id], [instrument.id])
   )
+  const hasSound =
+    instrumentParam.audioUrl ||
+    instrument.id < 3 ||
+    instrument.type === InstrumentType.chords
   return (
     <TrackDiv key={instrument.id}>
+      {!hasSound && <Mask />}
       <Head>
         <TrackHead
           instrument={instrument}
