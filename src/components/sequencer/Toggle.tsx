@@ -8,7 +8,7 @@ import SequencerService from '../../services/transport/sequencer'
 let colors = {
   odd: 'var(--main-faded)',
   free: 'rgba(0,0,0,0)',
-  toggled: 'var(--kick)',
+  toggled: 'black',
 }
 
 const StepMargin = styled.div`
@@ -16,6 +16,7 @@ const StepMargin = styled.div`
   position: relative;
   cursor: default;
   border: 1px solid var(--main);
+  box-sizing: border-box;
 `
 
 const Step = styled.div`
@@ -23,9 +24,9 @@ const Step = styled.div`
   cursor: pointer;
 `
 
-const Head = styled.div<{emph: boolean}>`
+const Head = styled.div<{ emph: boolean }>`
   position: relative;
-  top: ${props => props.emph ? "20%" : "80%"};
+  top: ${(props) => (props.emph ? '20%' : '80%')};
   height: 5%;
   background: var(--main);
 `
@@ -45,28 +46,34 @@ const ToggleBtn = styled.div`
 `
 
 interface ToggleProps {
-  timeId: string;
-  instrumentId: number;
-  muted: boolean;
+  timeId: string
+  instrumentId: number
+  muted: boolean
 }
 
 export default function Toggle(props: ToggleProps) {
-  const {bar, quarter, sixteenth} = GridService.parseTimeId(props.timeId)
-  const guideName = props.instrumentId === 0 ? GridService.timeIdToGuideName(props.timeId) : null;
-  const addTriggerEvent = useToneStore(state => state.addTriggerEvent)
-  const removeTriggerEvent = useToneStore(state => state.removeTriggerEvent)
-  const scheduled = useToneStore(state => 
-    state.scheduledEvents.find(e => e.slice(0, -2) === `${props.timeId}|${props.instrumentId}`)
-  ) 
-  const activeBars = useToneStore(state => state.activeBars)
+  const { bar, quarter, sixteenth } = GridService.parseTimeId(props.timeId)
+  const guideName =
+    props.instrumentId === 0 ? GridService.timeIdToGuideName(props.timeId) : null
+  const addTriggerEvent = useToneStore((state) => state.addTriggerEvent)
+  const removeTriggerEvent = useToneStore((state) => state.removeTriggerEvent)
+  const scheduled = useToneStore((state) =>
+    state.scheduledEvents.find(
+      (e) => e.slice(0, -2) === `${props.timeId}|${props.instrumentId}`
+    )
+  )
+  const activeBars = useToneStore((state) => state.activeBars)
 
   const [isActive, setIsActive] = useState(false)
-  const setStep = useCallback((step: string) => {
-    const cycleBar = parseInt(step[0]) % activeBars
-    const stepNormal = `${cycleBar}${step.substring(1)}`
-    // split drops triplet sixteenth decimal
-    setIsActive(!props.muted && stepNormal === props.timeId.split(".")[0])
-  }, [props.muted, activeBars])
+  const setStep = useCallback(
+    (step: string) => {
+      const cycleBar = parseInt(step[0]) % activeBars
+      const stepNormal = `${cycleBar}${step.substring(1)}`
+      // split drops triplet sixteenth decimal
+      setIsActive(!props.muted && stepNormal === props.timeId.split('.')[0])
+    },
+    [props.muted, activeBars]
+  )
 
   useEffect(() => {
     SequencerService.stepEmitter.on('step', setStep)
@@ -81,15 +88,16 @@ export default function Toggle(props: ToggleProps) {
   }
 
   function toggleStep(emphasized: boolean) {
-    scheduled ? removeTriggerEvent(props.timeId, props.instrumentId) 
+    scheduled
+      ? removeTriggerEvent(props.timeId, props.instrumentId)
       : addTriggerEvent(props.timeId, props.instrumentId, emphasized)
   }
 
   return (
-    <StepMargin style={{ opacity: isActive ? '0.6' : '1' }}>
-      { guideName ? <Guide>{guideName}</Guide> : '' }
-      <Step style={{ backgroundColor: getBackgroundColor() }} >
-        {scheduled &&<Head emph={TriggersService.parseTrigger(scheduled)?.emphasized} />}
+    <StepMargin style={{ opacity: isActive ? '0.2' : '1' }}>
+      {guideName ? <Guide>{guideName}</Guide> : ''}
+      <Step style={{ backgroundColor: getBackgroundColor() }}>
+        {scheduled && <Head emph={TriggersService.parseTrigger(scheduled)?.emphasized} />}
         <ToggleBtn onClick={() => toggleStep(true)}></ToggleBtn>
         <ToggleBtn onClick={() => toggleStep(false)}></ToggleBtn>
       </Step>

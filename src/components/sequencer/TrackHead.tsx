@@ -1,105 +1,115 @@
 import styled from 'styled-components'
 import useToneStore from '../../store/store'
-import { Instrument, InstrumentParam, InstrumentType, TrackParam } from '../../services/core/interfaces'
+import {
+  Instrument,
+  InstrumentParam,
+  InstrumentType,
+  TrackParam,
+} from '../../services/core/interfaces'
+import { TRACK_HEIGHT } from '../../constants'
 
-const Mask = styled.div`
-  position: absolute;
-  top:0;
-  bottom:0;
-  left:0;
-  right:0;
-  background: rgba(0,0,0, 0.1);
-  z-index: 2;
-`
-
-const TrackHeadBox = styled.div<{trackName: string}>`
-  width: 65px;
-  height: 75px;
-  padding: 5px;
-  border: 2px solid var(--black);
-  border-bottom: 0px;
-  background: ${props => `var(--${props.trackName});`}
+const TrackHeadBox = styled.div<{ trackName: string }>`
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--black);
   color: var(--black);
   cursor: default;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-auto-rows: ${TRACK_HEIGHT / 3}px;
+  background: ${(props) => `var(--${props.trackName});`};
 
   & svg {
     width: 50%;
     height: 50%;
     padding-top: 1px;
   }
-
-  &:last-child {
-    border-bottom: 2px solid var(--black);
-  }
 `
 
 const LabelName = styled.div`
+  font-size: 0.8rem;
   width: 100%;
   text-align: center;
 `
 
-
 const ToggleBtns = styled.div`
   display: flex;
   justify-content: center;
-  flex: 1px;
+  overflow: hidden;
 `
 
-const TrackIcon = styled.div<{active: string | null, clickable: boolean}>`
+const TrackIcon = styled.div<{ active: string | null; clickable: boolean }>`
   border-radius: 3px;
   border: 1px solid var(--black);
   width: 15px;
-  margin: 7.5px 2.5px 5px;
+  margin: 0px 1px;
   padding: 0px 4px;
-  height: 20px;
+  overflow: hidden;
   text-align: center;
-  cursor: ${props => props.clickable ? 'pointer' : 'default'};
-  background: var(${props => props.active});
-  color: var(${props => props.active ? "--white" : "--black"});
+  cursor: ${(props) => (props.clickable ? 'pointer' : 'default')};
+  background: var(${(props) => props.active});
+  color: var(${(props) => (props.active ? '--white' : '--black')});
   font-famiy: RoobertMono;
-  font-size: 16px;
+  font-size: 12.6px;
 `
 
+const VolDiv = styled.div``
+
 const VolInput = styled.input`
-  width: 45px;
+  width: calc(100% - 10px);
+  position: relative;
+  top: -5.2px;
+  left: 3px;
 `
 
 interface TrackHeadProps {
-  instrument: Instrument, 
-  instrumentParam: InstrumentParam,
-  trackParam: TrackParam,
+  instrument: Instrument
+  instrumentParam: InstrumentParam
+  trackParam: TrackParam
 }
 
-export default function TrackHead({instrument, instrumentParam, trackParam}: TrackHeadProps) {
-  const toggleTrackMute = useToneStore(state => state.toggleTrackMute)
-  const toggleTrackSolo = useToneStore(state => state.toggleTrackSolo)
-  const setTrackVolume =  useToneStore(state => state.setTrackVolume)
+export default function TrackHead({
+  instrument,
+  instrumentParam,
+  trackParam,
+}: TrackHeadProps) {
+  const toggleTrackMute = useToneStore((state) => state.toggleTrackMute)
+  const toggleTrackSolo = useToneStore((state) => state.toggleTrackSolo)
+  const setTrackVolume = useToneStore((state) => state.setTrackVolume)
   // this should be in instrumentParam
-  const hasSound = instrumentParam.audioUrl || instrument.id < 3 || instrument.type === InstrumentType.chords
+  const hasSound =
+    instrumentParam.audioUrl ||
+    instrument.id < 3 ||
+    instrument.type === InstrumentType.chords
 
   return (
-    <>
-      {/* { !hasSound ? <Mask /> : '' } */}
-      <TrackHeadBox trackName={instrument.name}>
-        <LabelName color={instrument.name}>{instrument.name}</LabelName>
-        <ToggleBtns>
-            <TrackIcon active={trackParam?.mute ? '--black': null} clickable={true} onClick={() => toggleTrackMute(instrument.id)}>
-              M
-            </TrackIcon>
-            <TrackIcon active={trackParam?.solo ? '--black': null} clickable={true} onClick={() => toggleTrackSolo(instrument.id)}>
-              S
-            </TrackIcon>
-        </ToggleBtns>
-          <VolInput type="range" 
-              max={100}
-              min={0}
-              value={trackParam.volume} 
-              onChange={e => setTrackVolume(instrument.id, parseInt(e.target.value))}
-          />
-      </TrackHeadBox>
-    </>
+    <TrackHeadBox trackName={instrument.name}>
+      <LabelName color={instrument.name}>{instrument.name}</LabelName>
+      <ToggleBtns>
+        <TrackIcon
+          active={trackParam?.mute ? '--black' : null}
+          clickable={true}
+          onClick={() => toggleTrackMute(instrument.id)}
+        >
+          M
+        </TrackIcon>
+        <TrackIcon
+          active={trackParam?.solo ? '--black' : null}
+          clickable={true}
+          onClick={() => toggleTrackSolo(instrument.id)}
+        >
+          S
+        </TrackIcon>
+      </ToggleBtns>
+      <VolDiv>
+        <VolInput
+          type="range"
+          max={100}
+          min={0}
+          value={trackParam.volume}
+          onChange={(e) => setTrackVolume(instrument.id, parseInt(e.target.value))}
+        />
+      </VolDiv>
+    </TrackHeadBox>
   )
 }

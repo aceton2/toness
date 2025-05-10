@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Controls from './components/controls/Controls';
-import Widget from './components/sequencer/Sequencer';
+import Sequencer from './components/sequencer/Sequencer';
 import Header from './components/controls/Header';
 
 import Mask from './components/misc/Mask';
@@ -13,6 +13,8 @@ import useToneStore, { STORE_VERSION } from './store/store';
 
 const MainFrame = styled.div`
   margin: 0 10px;
+  width: 90%;
+  margin: auto;
 `;
 
 const HeaderFrame = styled.div`
@@ -49,7 +51,7 @@ export default function App() {
         { sequencerOn && <>
           <SamplerPanel />
           <Controls />
-          <Widget/>
+          <Sequencer/>
         </>
         }
       </MainFrame>

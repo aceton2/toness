@@ -21,8 +21,6 @@ body {
 
   height: 100vh;
   max-height: 700px;
-  width: 90%;
-  margin: auto;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.80) 18.84%, rgba(255, 255, 255, 0.47) 49.45%, rgba(255, 255, 255, 0.00) 94.2%), linear-gradient(87deg, #FFCDCD 2.61%, #FFEDD8 48.87%, #FBEEC3 95.12%);
 
   color: black;
@@ -78,11 +76,7 @@ body {
 
 button {
   font-family: inherit;
-  /* For all browsers */
-  font-size: 16px;
-  /* For all browsers */
   line-height: normal;
-  /* For all browsers */
   margin: 0;
   /* Firefox and Safari have margin */
   overflow: visible;
@@ -97,12 +91,12 @@ button {
   border-radius: 20px;
   background: none;
   color: var(--black);
-  font-size: 1rem;
+  font-size: 0.8rem;
   white-space: nowrap;
   text-decoration: none;
   margin: 0px 0.2rem;
   cursor: pointer;
-  padding: 0px 10px;
+  padding: 0px 5px;
 }
 
 button::-moz-focus-inner {
@@ -125,7 +119,6 @@ button:hover{background-color: var(--panel-color-1);}
 
 input[type="range"] {
   -webkit-appearance: none;
-  margin-right: 15px;
   height: 1px;
   background: var(--black);
   border-radius: 5px;
