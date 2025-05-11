@@ -19,9 +19,6 @@ const ControlBox = styled.div`
   button {
     height: 100%;
     border: 2px solid black;
-    &:hover {
-      background: var(--main-light);
-    }
   }
 `
 

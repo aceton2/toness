@@ -36,20 +36,23 @@ const LabelName = styled.div`
 
 const ButtonSection = styled.div`
   display: flex;
+  gap: 5px;
   justify-content: center;
-  overflow: hidden;
+  margin: auto;
+  width: 80%;
+  > button {
+    flex: 1;
+  }
 `
 
-const TrackIcon = styled.div<{ active: string | null; clickable: boolean }>`
+const TrackIcon = styled.button<{ active: string | null; clickable: boolean }>`
   border-radius: 3px;
   border: 1px solid var(--black);
-  width: 15px;
   margin: 0px 1px;
   padding: 0px 4px;
   overflow: hidden;
   text-align: center;
-  cursor: ${(props) => (props.clickable ? 'pointer' : 'default')};
-  background: var(${(props) => props.active});
+  background: ${(props) => (props.active ? 'var(--main)' : 'null')};
   color: var(${(props) => (props.active ? '--white' : '--black')});
   font-famiy: RoobertMono;
   font-size: 12.6px;
