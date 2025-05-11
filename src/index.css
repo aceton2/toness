@@ -1,10 +1,13 @@
+@import url('input.css');
+
 html {
   font-size: 16px;
 }
 
 @font-face {
   font-family: 'RoobertMono';
-  src: local('RoobertMono'), url(../public/fonts/RoobertMonoTRIAL-SemiBold.woff) format('woff');
+  src: local('RoobertMono'),
+    url(../public/fonts/RoobertMonoTRIAL-SemiBold.woff) format('woff');
 }
 
 @font-face {
@@ -20,34 +23,38 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   height: 100vh;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.80) 18.84%, rgba(255, 255, 255, 0.47) 49.45%, rgba(255, 255, 255, 0.00) 94.2%), linear-gradient(87deg, #FFCDCD 2.61%, #FFEDD8 48.87%, #FBEEC3 95.12%);
+  background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.8) 18.84%,
+      rgba(255, 255, 255, 0.47) 49.45%,
+      rgba(255, 255, 255, 0) 94.2%
+    ),
+    linear-gradient(87deg, #ffcdcd 2.61%, #ffedd8 48.87%, #fbeec3 95.12%);
 
   color: black;
-
 
   /* VARIABLES */
 
   --black: #000000;
-  --white: #FFF;
-  --main: #795CEF;
-  --main-light: #B9ABEB;
+  --white: #fff;
+  --main: #795cef;
+  --main-light: #b9abeb;
   --main-faded: rgba(121, 92, 239, 0.3);
-  --contrast: #FF6B6B;
+  --contrast: #ff6b6b;
 
-  --kick: #77F57C;
-  --snare: #F9FB92;
-  --hat: #FB92F7;
-  --hat2: #92D5FB;
-  --1: #FF5F5F;
-  --2: #FF5F5F;
-  --3: #FF5F5F;
-
+  --kick: #77f57c;
+  --snare: #f9fb92;
+  --hat: #fb92f7;
+  --hat2: #92d5fb;
+  --1: #ff5f5f;
+  --2: #ff5f5f;
+  --3: #ff5f5f;
 
   /* original pad colors */
-  --wisteria: #B59ECDff;
-  --celestial-blue: #338ECCff;
-  --melon: #FAB8B5ff;
-  --maya-blue: #8AC5F4ff;
+  --wisteria: #b59ecdff;
+  --celestial-blue: #338eccff;
+  --melon: #fab8b5ff;
+  --maya-blue: #8ac5f4ff;
 
   --panel-color-1: #d46174;
   --panel-color-2: #e38471;
@@ -59,7 +66,7 @@ body {
   --pad-snare: var(--sampler-bottom);
   --pad-hat: var(--sampler-bottom);
   --pad-1: var(--wisteria);
-  --pad-2: var(--wisteria); 
+  --pad-2: var(--wisteria);
   --pad-3: var(--wisteria);
   --pad-4: var(--wisteria);
   --background-inner: #e66465;
@@ -82,6 +89,7 @@ button {
   /* Edge hides overflow */
   text-transform: none;
   /* Firefox inherits text-transform */
+  appearance: button;
   -webkit-appearance: button;
   /* Safari otherwise prevents some styles */
 
@@ -113,28 +121,15 @@ button:disabled {
   cursor: default;
 }
 
-button:hover{background-color: var(--panel-color-1);}
-
-
-input[type="range"] {
-  -webkit-appearance: none;
-  height: 1px;
-  background: var(--black);
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-input[type="range"]::-webkit-slider-runnable-track,
-input[type="range"]::-moz-range-thumb {
-  -webkit-appearance: none;
-  height: 8px;
-  width: 8px;
-  border-radius: 50%;
-  background: var(--black);
-  border: 1px solid black
+button:hover {
+  background-color: var(--panel-color-1);
 }
 
 @keyframes tracker {
-  0% { left: 0 }
-  100% { left: 100% }
+  0% {
+    left: 0;
+  }
+  100% {
+    left: 100%;
+  }
 }

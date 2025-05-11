@@ -35,10 +35,16 @@ const Guide = styled.div`
   position: absolute;
   top: -1rem;
   font-size: 0.7rem;
-  font-weight: 600;
   text-align: center;
   width: 100%;
   z-index: 10;
+`
+const StrongGuide = styled.div`
+  font-weight: 600;
+  color: black;
+`
+const WeakGuide = styled.div`
+  color: grey;
 `
 
 const ToggleBtn = styled.div`
@@ -96,7 +102,17 @@ export default function Toggle(props: ToggleProps) {
 
   return (
     <StepMargin style={{ opacity: isActive ? '0.2' : '1' }}>
-      {guideName ? <Guide>{guideName}</Guide> : ''}
+      {guideName ? (
+        <Guide>
+          {parseInt(guideName) > 0 ? (
+            <StrongGuide>{guideName}</StrongGuide>
+          ) : (
+            <WeakGuide>{guideName}</WeakGuide>
+          )}
+        </Guide>
+      ) : (
+        ''
+      )}
       <Step style={{ backgroundColor: getBackgroundColor() }}>
         {scheduled && <Head emph={TriggersService.parseTrigger(scheduled)?.emphasized} />}
         <ToggleBtn onClick={() => toggleStep(true)}></ToggleBtn>

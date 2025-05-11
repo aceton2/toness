@@ -35,7 +35,7 @@ const Mask = styled.div`
   width: 100%;
   height: 100%;
   opacity: 0.5;
-  background: grey;
+  background: white;
   z-index: 10;
 `
 

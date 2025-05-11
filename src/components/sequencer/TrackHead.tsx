@@ -8,6 +8,8 @@ import {
 } from '../../services/core/interfaces'
 import { TRACK_HEIGHT } from '../../constants'
 
+const TRACK_SECTION_HEIGHT = TRACK_HEIGHT / 3
+
 const TrackHeadBox = styled.div<{ trackName: string }>`
   height: 100%;
   overflow: hidden;
@@ -16,7 +18,7 @@ const TrackHeadBox = styled.div<{ trackName: string }>`
   cursor: default;
   box-sizing: border-box;
   display: grid;
-  grid-auto-rows: ${TRACK_HEIGHT / 3}px;
+  grid-auto-rows: ${TRACK_SECTION_HEIGHT}px;
   background: ${(props) => `var(--${props.trackName});`};
 
   & svg {
@@ -32,7 +34,7 @@ const LabelName = styled.div`
   text-align: center;
 `
 
-const ToggleBtns = styled.div`
+const ButtonSection = styled.div`
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -52,13 +54,13 @@ const TrackIcon = styled.div<{ active: string | null; clickable: boolean }>`
   font-famiy: RoobertMono;
   font-size: 12.6px;
 `
-
-const VolDiv = styled.div``
+const VolSection = styled.div`
+  text-align: center;
+`
 
 const VolInput = styled.input`
   width: calc(100% - 10px);
-  position: relative;
-  top: -5.2px;
+  height: ${TRACK_SECTION_HEIGHT}px;
   left: 3px;
 `
 
@@ -75,7 +77,7 @@ export default function TrackHead({ instrument, trackParam }: TrackHeadProps) {
   return (
     <TrackHeadBox trackName={instrument.name}>
       <LabelName color={instrument.name}>{instrument.name}</LabelName>
-      <ToggleBtns>
+      <ButtonSection>
         <TrackIcon
           active={trackParam?.mute ? '--black' : null}
           clickable={true}
@@ -90,8 +92,8 @@ export default function TrackHead({ instrument, trackParam }: TrackHeadProps) {
         >
           S
         </TrackIcon>
-      </ToggleBtns>
-      <VolDiv>
+      </ButtonSection>
+      <VolSection>
         <VolInput
           type="range"
           max={100}
@@ -99,7 +101,7 @@ export default function TrackHead({ instrument, trackParam }: TrackHeadProps) {
           value={trackParam.volume}
           onChange={(e) => setTrackVolume(instrument.id, parseInt(e.target.value))}
         />
-      </VolDiv>
+      </VolSection>
     </TrackHeadBox>
   )
 }

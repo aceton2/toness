@@ -11,6 +11,7 @@ import TrashIcon from './trashIcon'
 import WavesIcon from './wavesIcon'
 import PadControl from './PadControl'
 import SliderIcon from './sliderlcon'
+import { SAMPLER_PAD_HEIGHT } from '../../constants'
 
 const PadBox = styled.div`
   position: relative;
@@ -24,7 +25,6 @@ const PadBox = styled.div`
 `
 
 const RecordingBox = styled.div`
-  flex: 1;
   cursor: pointer;
 `
 
@@ -47,7 +47,7 @@ const Blur = styled.div`
 const WaveViewPort = styled.div`
   position: relative;
   padding: 5px;
-  height: 85px;
+  height: ${SAMPLER_PAD_HEIGHT}px;
   canvas {
     position: absolute;
   }
@@ -112,6 +112,17 @@ const ButtonBox = styled.div`
 
 const PadTitle = styled.div`
   margin-left: 8px;
+`
+
+const Slice = styled.div`
+  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50px;
+  background: #92d5fb;
+  opacity: 0.9;
+  z-index: 10;
 `
 
 export default function Pad(props: { pad: Instrument }) {
@@ -180,7 +191,14 @@ export default function Pad(props: { pad: Instrument }) {
         </Blur>
       )}
 
-      <RecordingBox onMouseDown={() => recordOrPlay()}>
+      <Slice style={{ width: '50px' }} />
+
+      <RecordingBox
+        onMouseDown={() => recordOrPlay()}
+        onMouseMove={(e) => e.buttons > 0 && console.log(e.clientX)}
+        onDragStart={console.log}
+        onTouchStart={console.log}
+      >
         <WaveViewPort>
           <Wave ref={elementRef}>
             <canvas className="wave" height="0px" width="0px"></canvas>
