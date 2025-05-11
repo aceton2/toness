@@ -191,7 +191,7 @@ export default function Pad(props: { pad: Instrument }) {
         </Blur>
       )}
 
-      <Slice style={{ width: '50px' }} />
+      {/* <Slice style={{ width: '50px' }} /> */}
 
       <RecordingBox
         onMouseDown={() => recordOrPlay()}
