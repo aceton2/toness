@@ -16,7 +16,7 @@ import { SAMPLER_PAD_HEIGHT } from '../../constants'
 const PadBox = styled.div`
   position: relative;
   border-radius: 5px;
-  display: flex
+  display: flex;
   flex-direction: column;
   height: 165px;
   border: 1.5px solid var(--black);
