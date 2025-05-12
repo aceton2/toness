@@ -145,7 +145,7 @@ export default function Controls() {
             onChange={(e) => setPlayback(parseInt(e.target.value))}
             defaultValue={playback}
           >
-            <option value={-1}>KEIN PLAYBACK</option>
+            <option value={-1}>NO PLAYBACK</option>
             {InstrumentsService.playbacks.map((pb, index) => (
               <option key={pb.name} value={index}>
                 {pb.name}
@@ -156,7 +156,7 @@ export default function Controls() {
       </ControlSection>
 
       <ControlSection disabled={playback !== -1}>
-        {playback !== -1 && <DisableMask />}
+        {/* {playback !== -1 && <DisableMask />} */}
         <MultiSelectBtn
           className={sig === '3' ? 'active' : ''}
           onClick={(e) => toggleSig('3')}
