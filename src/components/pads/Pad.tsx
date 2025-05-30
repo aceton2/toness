@@ -26,6 +26,7 @@ const PadBox = styled.div`
 
 const RecordingBox = styled.div`
   cursor: pointer;
+  touch-action: none;
 `
 
 const Blur = styled.div`
@@ -173,7 +174,11 @@ export default function Pad(props: { pad: Instrument }) {
   }
 
   return (
-    <PadBox onMouseLeave={() => stopRecording()} onMouseUp={() => stopRecording()}>
+    <PadBox
+      onMouseLeave={() => stopRecording()}
+      onMouseUp={() => stopRecording()}
+      onTouchEnd={() => stopRecording()}
+    >
       <TopBar>
         {audioUrl && (
           <button onClick={clearPad}>
@@ -197,7 +202,7 @@ export default function Pad(props: { pad: Instrument }) {
         onMouseDown={() => recordOrPlay()}
         onMouseMove={(e) => e.buttons > 0 && console.log(e.clientX)}
         onDragStart={console.log}
-        onTouchStart={console.log}
+        onTouchStart={(e) => e.preventDefault()}
       >
         <WaveViewPort>
           <Wave ref={elementRef}>

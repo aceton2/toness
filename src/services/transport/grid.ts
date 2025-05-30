@@ -56,7 +56,6 @@ function timeIdsByBar(timeIds: Array<string>) {
     return tis
 }
 
-
 const GridService = {
     setGridTimeIds,
     timeIdToGuideName,

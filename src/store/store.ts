@@ -3,6 +3,7 @@ import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { InstrumentParams, InstrumentParam, TrackParams, TrackParam, EnvelopeParam, SongArrangement } from '../services/core/interfaces'
 import InstrumentsService from '../services/core/instruments'
 import TriggersService from '../services/transport/triggers'
+import GridService from '../services/transport/grid'
 
 export type GridResolutions = '16n' | '8n' | '8t'
 export type GridSignature = '4' | '3'
@@ -30,6 +31,7 @@ interface TonesState {
   changeBars: (bars: number) => void,
   changeTracks: (tracks: number) => void,
   scheduledEvents: Array<string>,
+  duplicateBarEvents: () => void,
   addTriggerEvent: (timeId: string, instrumentId: number, emphasis: boolean) => void,
   removeTriggerEvent: (timeId: string, instrumentId: number) => void,
   removeTriggersForTrack: (instrumentId: number) => void,
@@ -75,7 +77,7 @@ const defaultInstrumentParams = TRACKS_IDS.reduce<InstrumentParams>(
 
 const cleanSequencer = {
   activeTracks: 6, // SEQUENCER -> for setting mutes * WIDGET -> for setting track visibility
-  activeBars: 4, // SEQUENCER -> for setting active slots
+  activeBars: 1, // SEQUENCER -> for setting active slots
   signature: '4' as GridSignature,
   resolution: '8n' as GridResolutions,  // SEQUENCER -> for setting active slots * CONTROLS -> for button
   scheduledEvents: [], // SEQUENCER -> for transport sync * TOGGLE -> for step styling
@@ -113,7 +115,13 @@ const useToneStore = create<TonesState>()(
               getNewParams(state.instrumentParams, id, params)
             ), false, "setInstrumentParams")
           },
-          changeBars: (bars: number) => set(state => ({ activeBars: getNewBars(state.activeBars, bars) })),
+          changeBars: (bars: number) => set(state => {
+            const newActive = getNewBars(state.activeBars, bars)
+            return {
+              activeBars: newActive,
+              scheduledEvents: removeEventsFromInactiveBars(newActive, state.scheduledEvents)
+            }
+          }),
           changeTracks: (tracks: number) => set(state => ({ activeTracks: getNewTracks(state.activeTracks, tracks) })),
           setBpm: (bpm: string) => set(state => ({ bpm: parseInt(bpm) })),
           setSwing: (swing: number) => set(state => ({ swing }), false, "setSwing"),
@@ -170,7 +178,12 @@ const useToneStore = create<TonesState>()(
                 TriggersService.parseTrigger(trigger).instrumentId !== instrumentId.toString())
             }
           }),
-          //   )
+          duplicateBarEvents: () => set(state => {
+            return {
+              scheduledEvents: getEventsWithDuplicates(state.activeBars, state.scheduledEvents),
+              activeBars: getNewBars(state.activeBars, 1)
+            }
+          }),
           // PLAYBACK
           setPlaybackSample: (s: number) => {
             if (s > -1) {
@@ -189,6 +202,17 @@ const useToneStore = create<TonesState>()(
     { name: "toness" }
   )
 )
+
+function removeEventsFromInactiveBars(activeBars: number, scheduledEvents: Array<string>) {
+  return scheduledEvents.filter(event => GridService.parseTimeId(event).bar < activeBars)
+}
+
+function getEventsWithDuplicates(activeBars: number, scheduledEvents: Array<string>) {
+  const barToDup = activeBars - 1
+  const barDup = activeBars < 5 ? scheduledEvents.filter(event => GridService.parseTimeId(event).bar === barToDup) : []
+  const newEvents = barDup.map(ev => ev.replace(`${barToDup}:`, `${barToDup + 1}:`))
+  return [...scheduledEvents, ...newEvents]
+}
 
 function getNewParams(existingParams: InstrumentParams, id: number, params?: any) {
   const newParam = { [id]: { ...existingParams[id], ...(params || defaultInstrument) } }

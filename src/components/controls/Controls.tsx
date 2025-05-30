@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import SequencerService from '../../services/transport/sequencer'
 import useToneStore from '../../store/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faStop, faPlay } from '@fortawesome/free-solid-svg-icons'
+import { faStop, faPlay, faCopy, faAdd, faMinus } from '@fortawesome/free-solid-svg-icons'
 import InstrumentsService from '../../services/core/instruments'
 import SampleService from '../../services/sampling/sample'
 
@@ -25,6 +25,8 @@ const ControlBox = styled.div`
 const ControlSection = styled.div<{ disabled?: boolean }>`
   border-right: solid black 2px;
   padding: 10px;
+  display: flex;
+  justify-content: space-around;
   &:first-child {
     flex: 1;
   }
@@ -99,7 +101,7 @@ export default function Controls() {
     (state) => [state.signature, state.setGridSignature],
     shallow
   )
-  const changeTracks = useToneStore((state) => state.changeTracks)
+  const dupeBar = useToneStore((state) => state.duplicateBarEvents)
   const resetSequencer = useToneStore((state) => state.resetSequencer)
   const clearSchedule = useToneStore((state) => state.clearSchedule)
   const [playback, setPlayback] = useToneStore(
@@ -130,7 +132,20 @@ export default function Controls() {
           <FontAwesomeIcon icon={faStop} />
         </button>
         <button onClick={clearSchedule}>Clear Steps</button>
-        <button onClick={clearAll}>Reset All</button>
+      </ControlSection>
+      <ControlSection>
+        <button onClick={() => changeBars(1)}>
+          <FontAwesomeIcon icon={faAdd} />
+          <span style={{ paddingLeft: 5 }}>Add</span>
+        </button>
+        <button onClick={dupeBar}>
+          <FontAwesomeIcon icon={faCopy} />
+          <span style={{ paddingLeft: 5 }}>Bar</span>
+        </button>
+        <button onClick={() => changeBars(-1)}>
+          <FontAwesomeIcon icon={faMinus} />
+          <span style={{ paddingLeft: 5 }}>Remove</span>
+        </button>
       </ControlSection>
 
       {/* <Stretch /> */}

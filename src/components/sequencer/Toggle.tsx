@@ -37,7 +37,7 @@ const Guide = styled.div`
   font-size: 0.7rem;
   text-align: center;
   width: 100%;
-  z-index: 10;
+  z-index: 4;
 `
 const StrongGuide = styled.div`
   font-weight: 600;
@@ -70,7 +70,6 @@ export default function Toggle(props: ToggleProps) {
     )
   )
   const activeBars = useToneStore((state) => state.activeBars)
-
   const [isActive, setIsActive] = useState(false)
   const setStep = useCallback(
     (step: string) => {
@@ -79,7 +78,7 @@ export default function Toggle(props: ToggleProps) {
       // split drops triplet sixteenth decimal
       setIsActive(!props.muted && stepNormal === props.timeId.split('.')[0])
     },
-    [props.muted, activeBars]
+    [props.muted, activeBars, props.timeId]
   )
 
   useEffect(() => {

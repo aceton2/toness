@@ -1,12 +1,14 @@
 import { useCallback } from 'react'
 import useToneStore, { GridSignature } from '../../store/store'
 import styled from 'styled-components'
+import { faCopy } from '@fortawesome/free-solid-svg-icons'
 import { Instrument, InstrumentType } from '../../services/core/interfaces'
 import GridService from '../../services/transport/grid'
 import Chords from '../chords/Chords'
 import Toggle from './Toggle'
 import TrackHead from './TrackHead'
 import { TRACK_HEIGHT } from '../../constants'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const TrackDiv = styled.div`
   display: flex;
@@ -19,6 +21,7 @@ const Head = styled.div`
 `
 
 const Bar = styled.div<{ togglesPerBeat: number }>`
+  position: relative;
   display: grid;
   grid-template-columns: repeat(${(props) => props.togglesPerBeat}, 1fr);
   border-radius: 2px;
@@ -36,7 +39,7 @@ const Mask = styled.div`
   height: 100%;
   opacity: 0.5;
   background: white;
-  z-index: 10;
+  z-index: 9;
 `
 
 interface TrackProps {
@@ -48,7 +51,7 @@ interface TrackProps {
 
 const barsForSignature = {
   4: 4,
-  3: 5,
+  3: 4,
 }
 
 export function Track({
@@ -65,6 +68,7 @@ export function Track({
   const trackParam = useToneStore(
     useCallback((state) => state.trackSettings[instrument.id], [instrument.id])
   )
+  const activeBars = useToneStore((state) => state.activeBars)
   const hasSound =
     instrumentParam.audioUrl ||
     instrument.id < 3 ||
@@ -83,7 +87,7 @@ export function Track({
         <Chords />
       ) : (
         <Grid signature={gridSignature}>
-          {GridService.timeIdsByBar(timeIds).map((barInfo) => (
+          {GridService.timeIdsByBar(timeIds).map((barInfo, index, arr) => (
             <Bar key={barInfo.bar} togglesPerBeat={togglesPerBeat}>
               {barInfo.timeIds.map((timeId) => (
                 <Toggle
